@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>privacyManifestVersion</key>
+  <string>1.0</string>
+  <key>dataCategories</key>
+  <array/>
+  <key>tracksUser</key>
+  <false/>
+  <key>usesNonExemptEncryption</key>
+  <false/>
+  <key>includesThirdPartyCode</key>
+  <false/>
+  <key>accessesAPI</key>
+  <array>
+    <dict>
+      <key>type</key>
+      <string>NSPrivacyAccessedAPICategoryNetwork</string>
+      <key>purpose</key>
+      <string>TrustPin connects to our CDN in order to fetch certificate pinning configuration.</string>
+    </dict>
+  </array>
+  <key>appTransportSecurity</key>
+  <dict>
+    <key>exceptions</key>
+    <array>
+      <dict>
+        <key>domain</key>
+        <string>cdn.trustpin.com</string>
+        <key>reason</key>
+        <string>Required to fetch certificate pinning configuration.</string>
+      </dict>
+    </array>
+  </dict>
+</dict>
+</plist>

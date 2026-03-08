@@ -1,0 +1,37 @@
+name: trustpin_sample_app
+description: A sample Flutter app demonstrating TrustPin SDK usage
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.8.1
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  trustpin_sdk:
+    path: ../
+  http: ^1.1.0
+  crypto: ^3.0.0
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  config:
+    enable-swift-package-manager: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "trustpin_padded.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "trustpin_padded.png"
+  remove_alpha_ios: true

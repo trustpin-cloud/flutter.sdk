@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="trustpin_sdk API docs, for the Dart programming language.">
+  <title>trustpin_sdk - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/trustpin-cloud/flutter.sdk">trustpin_sdk package</a></li>
+  </ol>
+  <div class="self-name">trustpin_sdk</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="trustpin-sdk-for-flutter">TrustPin SDK for Flutter</h1>
+<p><a href="https://pub.dev/packages/trustpin_sdk"><img src="https://img.shields.io/pub/v/trustpin_sdk.svg" alt="pub package"></a>
+<a href="https://trustpin-cloud.github.io/flutter.sdk/"><img src="https://img.shields.io/badge/documentation-GitHub%20Pages-blue" alt="documentation"></a>
+<a href="https://flutter.dev"><img src="https://img.shields.io/badge/platform-flutter-blue" alt="platform"></a>
+<a href="https://dart.dev"><img src="https://img.shields.io/badge/platform-dart-blue" alt="platform"></a></p>
+<p>A comprehensive Flutter plugin for <strong><a href="https://trustpin.cloud">TrustPin</a></strong> SSL certificate pinning that provides robust security against man-in-the-middle (MITM) attacks by validating server certificates against pre-configured public key pins.</p>
+<blockquote>
+<p>Get started at <a href="https://trustpin.cloud">TrustPin.cloud</a> | Manage your certificates in the <a href="https://app.trustpin.cloud">Cloud Console</a></p>
+</blockquote>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#features">Features</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#platform-setup">Platform Setup</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#advanced-usage">Advanced Usage</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+<li><a href="#error-handling">Error Handling</a></li>
+<li><a href="#example-app">Example App</a></li>
+</ul>
+<h2 id="features">Features</h2>
+<ul>
+<li><strong>SSL Certificate Pinning</strong>: Advanced certificate validation using SHA-256/SHA-512 public key pins</li>
+<li><strong>JWS-based Configuration</strong>: Securely fetch signed pinning configurations from TrustPin CDN</li>
+<li><strong>Cross-platform Support</strong>: Native implementations for iOS (Swift), Android (Kotlin), and macOS (Swift)</li>
+<li><strong>Flexible Pinning Modes</strong>: Support for strict (production) and permissive (development) validation modes</li>
+<li><strong>Certificate Fetching</strong>: Built-in <code>fetchCertificate</code> for OS-level TLS validation and leaf certificate extraction</li>
+<li><strong>HTTP Client Integration</strong>: Built-in interceptors for Dio and the http package</li>
+<li><strong>Multiple Instances</strong>: Use <code>TrustPin.shared</code> for single-project apps, or <code>TrustPin.instance('id')</code> for libraries and multi-tenant setups</li>
+<li><strong>Comprehensive Error Handling</strong>: Detailed error types with programmatic checking capabilities</li>
+<li><strong>Configurable Logging</strong>: Multiple log levels for debugging, monitoring, and production use</li>
+<li><strong>Thread Safety</strong>: Built with Flutter's async/await pattern and native concurrency models</li>
+<li><strong>Intelligent Caching</strong>: 10-minute configuration caching with stale fallback for performance</li>
+<li><strong>ECDSA P-256 Signature Verification</strong>: Cryptographic validation of configuration integrity</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Add TrustPin SDK to your <code>pubspec.yaml</code>:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  trustpin_sdk: ^3.0.0
+</code></pre>
+<p>Then install the package:</p>
+<pre class="language-bash"><code class="language-bash">flutter pub get
+</code></pre>
+<h2 id="platform-setup">Platform Setup</h2>
+<h3 id="ios-requirements">iOS Requirements</h3>
+<ul>
+<li><strong>Minimum iOS Version</strong>: 13.0+</li>
+<li><strong>Xcode</strong>: 15.0+</li>
+<li><strong>Swift</strong>: 5.0+</li>
+<li><strong>Native Dependencies</strong>: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)</li>
+</ul>
+<h3 id="macos-requirements">macOS Requirements</h3>
+<ul>
+<li><strong>Minimum macOS Version</strong>: 13.0+</li>
+<li><strong>Xcode</strong>: 15.0+</li>
+<li><strong>Swift</strong>: 5.0+</li>
+<li><strong>Native Dependencies</strong>: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)</li>
+</ul>
+<p>For sandboxed macOS apps, add the network client entitlement:</p>
+<pre class="language-xml"><code class="language-xml">&lt;!-- In DebugProfile.entitlements and Release.entitlements --&gt;
+&lt;key&gt;com.apple.security.network.client&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<h3 id="android-requirements">Android Requirements</h3>
+<ul>
+<li><strong>Minimum SDK</strong>: API 21 (Android 5.0)+</li>
+<li><strong>Target SDK</strong>: API 34+ (recommended)</li>
+<li><strong>Kotlin</strong>: 2.3.0+</li>
+<li><strong>Native Dependencies</strong>: TrustPin Kotlin SDK (automatically configured via Gradle)</li>
+</ul>
+<h3 id="network-permissions">Network Permissions</h3>
+<p>The SDK requires network access to fetch pinning configurations from <code>https://cdn.trustpin.cloud</code>.</p>
+<h4 id="android">Android</h4>
+<p>The plugin automatically includes the required network permission in its AndroidManifest.xml:</p>
+<pre class="language-xml"><code class="language-xml">&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+</code></pre>
+<h4 id="ios--macos">iOS / macOS</h4>
+<p>Network access is enabled by default. No additional configuration required.</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="1-get-your-credentials">1. Get Your Credentials</h3>
+<p>Sign up at <a href="https://app.trustpin.cloud">TrustPin Cloud Console</a> and create a project to get your:</p>
+<ul>
+<li>Organization ID</li>
+<li>Project ID</li>
+<li>Public Key (ECDSA P-256, Base64-encoded)</li>
+</ul>
+<h3 id="2-initialize-the-sdk">2. Initialize the SDK</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:trustpin_sdk/trustpin_sdk.dart';
+
+Future&lt;void&gt; initializeTrustPin() async {
+  // Optional: enable debug logging during development
+  await TrustPin.shared.setLogLevel(TrustPinLogLevel.debug);
+
+  // Create a configuration with your credentials
+  const config = TrustPinConfiguration(
+    organizationId: 'your-org-id',
+    projectId: 'your-project-id',
+    publicKey: 'LS0tLS1CRUdJTi...', // Your Base64 public key
+    mode: TrustPinMode.strict, // Use strict mode for production
+  );
+
+  // Initialize the shared instance
+  await TrustPin.shared.setup(config);
+}
+</code></pre>
+<p>For self-hosted configurations, pass a custom URL:</p>
+<pre class="language-dart"><code class="language-dart">final config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'LS0tLS1CRUdJTi...',
+  configurationURL: Uri.parse('https://your-server.com/pins.jws'),
+);
+await TrustPin.shared.setup(config);
+</code></pre>
+<h3 id="3-fetch-and-verify-certificates">3. Fetch and Verify Certificates</h3>
+<p>The recommended workflow is to fetch the leaf certificate from the server, then verify it against your configured pins:</p>
+<pre class="language-dart"><code class="language-dart">Future&lt;void&gt; verifyServer(String host) async {
+  try {
+    // Fetch the leaf certificate (performs OS-level TLS validation)
+    final pem = await TrustPin.shared.fetchCertificate(host);
+
+    // Verify the certificate against configured pins
+    await TrustPin.shared.verify(host, pem);
+    print('Certificate is valid and matches configured pins!');
+  } on TrustPinException catch (e) {
+    print('Verification failed: ${e.code} - ${e.message}');
+  }
+}
+</code></pre>
+<h2 id="advanced-usage">Advanced Usage</h2>
+<h3 id="integration-with-dio">Integration with Dio</h3>
+<p>The SDK provides a built-in <code>TrustPinDioInterceptor</code> for seamless Dio integration:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:dio/dio.dart';
+import 'package:trustpin_sdk/trustpin_sdk.dart';
+
+final dio = Dio();
+dio.interceptors.add(TrustPinDioInterceptor());
+
+// All HTTPS requests now have automatic certificate pinning
+try {
+  final response = await dio.get('https://api.example.com/data');
+  print('Request successful: ${response.statusCode}');
+} on DioException catch (e) {
+  if (e.error is TrustPinException) {
+    final trustPinError = e.error as TrustPinException;
+    print('Pinning failed: ${trustPinError.code}');
+  }
+}
+</code></pre>
+<p>The interceptor automatically:</p>
+<ol>
+<li>Fetches the leaf certificate via OS-level TLS validation</li>
+<li>Verifies the certificate against configured TrustPin pins</li>
+<li>Caches certificates for performance</li>
+<li>Blocks requests with invalid certificates</li>
+</ol>
+<h3 id="integration-with-http-package">Integration with http package</h3>
+<p>The SDK provides <code>TrustPinHttpClient</code> that wraps the standard <code>http.Client</code>:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:http/http.dart' as http;
+import 'package:trustpin_sdk/trustpin_sdk.dart';
+
+// Create a TrustPin-enabled HTTP client
+final client = TrustPinHttpClient.create();
+
+// Or wrap an existing client
+final client = TrustPinHttpClient(http.Client());
+
+// Use it like a normal http.Client
+final response = await client.get(Uri.parse('https://api.example.com/data'));
+
+// Clean up when done
+client.close();
+</code></pre>
+<h3 id="multiple-instances">Multiple Instances</h3>
+<p>Libraries or multi-tenant apps can use named instances to maintain independent
+pinning configurations without conflicts:</p>
+<pre class="language-dart"><code class="language-dart">// Create a named instance for your library
+final pin = TrustPin.instance('com.mylib.networking');
+await pin.setup(myLibConfig);
+
+// Use the named instance with interceptors
+dio.interceptors.add(TrustPinDioInterceptor(instance: pin));
+final client = TrustPinHttpClient.create(instance: pin);
+</code></pre>
+<p>Calling <code>TrustPin.instance('id')</code> multiple times with the same ID returns
+the same instance.</p>
+<h3 id="manual-certificate-verification">Manual Certificate Verification</h3>
+<p>If you already have the PEM certificate (e.g., from your own TLS implementation):</p>
+<pre class="language-dart"><code class="language-dart">const pemCertificate = '''
+-----BEGIN CERTIFICATE-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...
+-----END CERTIFICATE-----
+''';
+
+try {
+  await TrustPin.shared.verify('api.example.com', pemCertificate);
+  print('Certificate is valid!');
+} on TrustPinException catch (e) {
+  print('Verification failed: ${e.code}');
+}
+</code></pre>
+<h3 id="logging">Logging</h3>
+<pre class="language-dart"><code class="language-dart">// Debug logging for development
+await TrustPin.shared.setLogLevel(TrustPinLogLevel.debug);
+
+// Minimal logging for production
+await TrustPin.shared.setLogLevel(TrustPinLogLevel.error);
+
+// Disable all logging
+await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
+</code></pre>
+<h2 id="api-reference">API Reference</h2>
+<h3 id="trustpin">TrustPin</h3>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrustPin.shared</code></td>
+<td>The shared (default) instance for most apps</td>
+</tr>
+<tr>
+<td><code>TrustPin.instance(id)</code></td>
+<td>Returns a named instance (for libraries / multi-tenant)</td>
+</tr>
+<tr>
+<td><code>setup(configuration)</code></td>
+<td>Initialize the instance with a <a href="trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></td>
+</tr>
+<tr>
+<td><code>verify(domain, certificate)</code></td>
+<td>Verify a PEM certificate against configured pins</td>
+</tr>
+<tr>
+<td><code>fetchCertificate(host, {port?})</code></td>
+<td>Fetch the TLS leaf certificate from a host as PEM</td>
+</tr>
+<tr>
+<td><code>setLogLevel(level)</code></td>
+<td>Set logging verbosity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="trustpinconfiguration">TrustPinConfiguration</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>organizationId</code></td>
+<td><code>String</code></td>
+<td>Your organization identifier (required)</td>
+</tr>
+<tr>
+<td><code>projectId</code></td>
+<td><code>String</code></td>
+<td>Your project identifier (required)</td>
+</tr>
+<tr>
+<td><code>publicKey</code></td>
+<td><code>String</code></td>
+<td>Base64-encoded ECDSA P-256 public key (required)</td>
+</tr>
+<tr>
+<td><code>configurationURL</code></td>
+<td><code>Uri?</code></td>
+<td>Custom URL for self-hosted JWS payload (optional)</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>TrustPinMode</code></td>
+<td>Pinning mode (default: <code>strict</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="trustpinmode">TrustPinMode</h3>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strict</code></td>
+<td>Throws errors for unregistered domains (recommended for production)</td>
+</tr>
+<tr>
+<td><code>permissive</code></td>
+<td>Allows unregistered domains to bypass pinning (development/testing)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="trustpinloglevel">TrustPinLogLevel</h3>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>none</code></td>
+<td>No logging output</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>Only error messages</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td>Errors and informational messages</td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>All messages including detailed debug information</td>
+</tr>
+</tbody>
+</table>
+<h3 id="http-interceptors">HTTP Interceptors</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrustPinDioInterceptor({instance?})</code></td>
+<td>Certificate pinning interceptor for Dio</td>
+</tr>
+<tr>
+<td><code>TrustPinHttpClient({instance?})</code></td>
+<td>Certificate pinning wrapper for http.Client</td>
+</tr>
+</tbody>
+</table>
+<p>Full API documentation: <a href="https://trustpin-cloud.github.io/flutter.sdk/">trustpin-cloud.github.io/flutter.sdk</a></p>
+<h2 id="error-handling">Error Handling</h2>
+<p>All TrustPin operations throw <code>TrustPinException</code> on failure. Use the convenience getters to check for specific error types:</p>
+<pre class="language-dart"><code class="language-dart">try {
+  await TrustPin.shared.verify('api.example.com', certificate);
+} on TrustPinException catch (e) {
+  if (e.isDomainNotRegistered) {
+    // Domain not configured for pinning (strict mode only)
+  } else if (e.isPinsMismatch) {
+    // Certificate doesn't match any configured pins
+  } else if (e.isAllPinsExpired) {
+    // All pins for this domain have expired
+  } else if (e.isInvalidServerCert) {
+    // Certificate format is invalid
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Error Code</th>
+<th>Getter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>INVALID_PROJECT_CONFIG</code></td>
+<td><code>isInvalidProjectConfig</code></td>
+<td>Invalid or missing credentials</td>
+</tr>
+<tr>
+<td><code>ERROR_FETCHING_PINNING_INFO</code></td>
+<td><code>isErrorFetchingPinningInfo</code></td>
+<td>Failed to fetch pinning configuration</td>
+</tr>
+<tr>
+<td><code>INVALID_SERVER_CERT</code></td>
+<td><code>isInvalidServerCert</code></td>
+<td>Invalid certificate format</td>
+</tr>
+<tr>
+<td><code>PINS_MISMATCH</code></td>
+<td><code>isPinsMismatch</code></td>
+<td>Certificate doesn't match configured pins</td>
+</tr>
+<tr>
+<td><code>ALL_PINS_EXPIRED</code></td>
+<td><code>isAllPinsExpired</code></td>
+<td>All pins for the domain have expired</td>
+</tr>
+<tr>
+<td><code>DOMAIN_NOT_REGISTERED</code></td>
+<td><code>isDomainNotRegistered</code></td>
+<td>Domain not configured (strict mode)</td>
+</tr>
+<tr>
+<td><code>CONFIGURATION_VALIDATION_FAILED</code></td>
+<td><code>isConfigurationValidationFailed</code></td>
+<td>Configuration validation failed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example-app">Example App</h2>
+<p>The <code>sample_app/</code> directory contains a complete example application demonstrating:</p>
+<ul>
+<li>SDK initialization with <code>TrustPin.shared.setup()</code></li>
+<li>Certificate fetching with <code>TrustPin.shared.fetchCertificate()</code></li>
+<li>Connection testing with <code>TrustPinHttpClient</code></li>
+<li>Error handling and logging</li>
+</ul>
+<p>Run the example:</p>
+<pre class="language-bash"><code class="language-bash">cd sample_app
+flutter run
+</code></pre>
+<hr>
+<div align="center">
+<p><strong>Secure your Flutter apps with TrustPin SSL Certificate Pinning</strong></p>
+<p><a href="https://app.trustpin.cloud">Get Started</a> | <a href="https://trustpin-cloud.github.io/flutter.sdk/">Documentation</a> | <a href="mailto:support@trustpin.cloud">Support</a></p>
+</div>
+<hr>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="dio_interceptor">
+  <span class="name"><a href="http_interceptors_dio_interceptor/">http_interceptors/dio_interceptor</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="http_client_interceptor">
+  <span class="name"><a href="http_interceptors_http_client_interceptor/">http_interceptors/http_client_interceptor</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_configuration">
+  <span class="name"><a href="trustpin_configuration/">trustpin_configuration</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_exception">
+  <span class="name"><a href="trustpin_exception/">trustpin_exception</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_log_level">
+  <span class="name"><a href="trustpin_log_level/">trustpin_log_level</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_mode">
+  <span class="name"><a href="trustpin_mode/">trustpin_mode</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_sdk">
+  <span class="name"><a href="trustpin_sdk/">trustpin_sdk</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_sdk_method_channel">
+  <span class="name"><a href="trustpin_sdk_method_channel/">trustpin_sdk_method_channel</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="trustpin_sdk_platform_interface">
+  <span class="name"><a href="trustpin_sdk_platform_interface/">trustpin_sdk_platform_interface</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/trustpin-cloud/flutter.sdk">trustpin_sdk package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">trustpin_sdk</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="http_interceptors_dio_interceptor/">http_interceptors/dio_interceptor</a></li>
+      <li><a href="http_interceptors_http_client_interceptor/">http_interceptors/http_client_interceptor</a></li>
+      <li><a href="trustpin_configuration/">trustpin_configuration</a></li>
+      <li><a href="trustpin_exception/">trustpin_exception</a></li>
+      <li><a href="trustpin_log_level/">trustpin_log_level</a></li>
+      <li><a href="trustpin_mode/">trustpin_mode</a></li>
+      <li><a href="trustpin_sdk/">trustpin_sdk</a></li>
+      <li><a href="trustpin_sdk_method_channel/">trustpin_sdk_method_channel</a></li>
+      <li><a href="trustpin_sdk_platform_interface/">trustpin_sdk_platform_interface</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    trustpin_sdk
+      4.0.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

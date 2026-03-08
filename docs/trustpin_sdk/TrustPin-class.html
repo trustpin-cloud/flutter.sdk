@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TrustPin class from the trustpin_sdk library, for the Dart programming language.">
+  <title>TrustPin class - trustpin_sdk library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">trustpin_sdk</a></li>
+    <li><a href="../trustpin_sdk/">trustpin_sdk.dart</a></li>
+    <li class="self-crumb">TrustPin class</li>
+  </ol>
+  <div class="self-name">TrustPin</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="trustpin_sdk&#47;trustpin_sdk-library-sidebar.html"
+    data-below-sidebar="trustpin_sdk&#47;TrustPin-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">TrustPin</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>TrustPin SSL certificate pinning SDK for Flutter applications.</p>
+<p>TrustPin provides SSL certificate pinning functionality to prevent man-in-the-middle (MITM) attacks
+by validating server certificates against pre-configured public key pins. The library supports
+both strict and permissive validation modes to accommodate different security requirements.</p>
+<h2 id="overview">Overview</h2>
+<p>TrustPin uses JSON Web Signature (JWS) based configuration to securely deliver pinning
+configurations to your Flutter application. The SDK fetches signed pinning configuration
+from the TrustPin CDN and validates certificates against SHA-256 or SHA-512 hashes.</p>
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li><strong>JWS-based Configuration</strong>: Fetches signed pinning configuration from TrustPin CDN</li>
+<li><strong>Certificate Validation</strong>: Supports SHA-256 and SHA-512 certificate hashing</li>
+<li><strong>Signature Verification</strong>: Validates JWS signatures using ECDSA P-256</li>
+<li><strong>Intelligent Caching</strong>: Caches configuration for 10 minutes with stale fallback</li>
+<li><strong>Thread Safety</strong>: All operations are thread-safe and work with Flutter's async model</li>
+<li><strong>Configurable Logging</strong>: Multiple log levels for debugging and monitoring</li>
+<li><strong>Cross-Platform</strong>: Works on iOS, Android, and macOS with native implementations</li>
+<li><strong>Multiple Instances</strong>: Use <a href="../trustpin_sdk/TrustPin/shared.html">shared</a> for a single-project app, or <a href="../trustpin_sdk/TrustPin/instance.html">instance</a> for libraries and multi-tenant setups</li>
+</ul>
+<h2 id="basic-usage">Basic Usage</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:trustpin_sdk/trustpin_sdk.dart';
+
+// Initialize the shared instance with your project credentials
+const config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'your-base64-public-key',
+  mode: TrustPinMode.strict, // Use strict mode in production
+);
+await TrustPin.shared.setup(config);
+
+// Verify a certificate manually
+final pemCertificate = '''
+-----BEGIN CERTIFICATE-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...
+-----END CERTIFICATE-----
+''';
+
+try {
+  await TrustPin.shared.verify('api.example.com', pemCertificate);
+  print('Certificate is valid!');
+} catch (e) {
+  print('Certificate validation failed: $e');
+}
+</code></pre>
+<h2 id="multiple-instances">Multiple Instances</h2>
+<p>Libraries or multi-tenant apps can use named instances to avoid conflicts:</p>
+<pre class="language-dart"><code class="language-dart">final pin = TrustPin.instance('com.mylib.networking');
+await pin.setup(config);
+await pin.verify('api.example.com', pem);
+</code></pre>
+<h2 id="integration-with-http-clients">Integration with HTTP Clients</h2>
+<p>For automatic certificate validation, use the built-in HTTP interceptors:</p>
+<pre class="language-dart"><code class="language-dart">// With Dio (uses TrustPin.shared by default)
+final dio = Dio();
+dio.interceptors.add(TrustPinDioInterceptor());
+
+// With a named instance
+dio.interceptors.add(TrustPinDioInterceptor(instance: pin));
+
+// With http package
+final client = TrustPinHttpClient.create();
+final response = await client.get(Uri.parse('https://api.example.com'));
+client.close();
+</code></pre>
+<h2 id="pinning-modes">Pinning Modes</h2>
+<ul>
+<li><a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a>: Throws errors for unregistered domains (recommended for production)</li>
+<li><a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.permissive</a>: Allows unregistered domains to bypass pinning (development/testing)</li>
+</ul>
+<h2 id="error-handling">Error Handling</h2>
+<p>TrustPin provides detailed error information through <a href="../trustpin_exception/TrustPinException-class.html">TrustPinException</a> for proper
+error handling and security monitoring. All errors include specific error codes
+that can be checked programmatically:</p>
+<pre class="language-dart"><code class="language-dart">try {
+  await TrustPin.shared.verify('api.example.com', certificate);
+} on TrustPinException catch (e) {
+  if (e.isDomainNotRegistered) {
+    print('Domain not configured for pinning');
+  } else if (e.isPinsMismatch) {
+    print('Certificate doesn\'t match configured pins');
+  } else if (e.isAllPinsExpired) {
+    print('All pins for this domain have expired');
+  }
+  // Handle other error types...
+}
+</code></pre>
+<h2 id="security-considerations">Security Considerations</h2>
+<ul>
+<li><strong>Production</strong>: Always use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a> mode to ensure all connections are validated</li>
+<li><strong>Development</strong>: Use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.permissive</a> mode to allow connections to unregistered domains</li>
+<li><strong>Credentials</strong>: Keep your public key secure and never commit it to version control in plain text</li>
+<li><strong>Network</strong>: Ensure your app can reach <code>https://cdn.trustpin.cloud</code> for configuration updates</li>
+</ul>
+<h2 id="thread-safety">Thread Safety</h2>
+<p>All TrustPin operations are thread-safe and can be called from any isolate.
+Internal operations are performed on appropriate background threads through
+the native platform implementations.</p>
+<ul>
+<li>Note: Always call <a href="../trustpin_sdk/TrustPin/setup.html">setup</a> before performing certificate verification.</li>
+<li>Important: Use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a> mode in production environments for maximum security.</li>
+</ul>
+</section>
+
+
+
+    
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="fetchCertificate" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Fetches the TLS leaf certificate from a host as a PEM string.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setLogLevel" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/setLogLevel.html">setLogLevel</a></span><span class="signature">(<wbr><span class="parameter" id="setLogLevel-param-level"><span class="type-annotation"><a href="../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel</a></span> <span class="parameter-name">level</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the current log level for this TrustPin instance's logging system.
+  
+
+</dd>
+
+        <dt id="setup" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/setup.html">setup</a></span><span class="signature">(<wbr><span class="parameter" id="setup-param-configuration"><span class="type-annotation"><a href="../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></span> <span class="parameter-name">configuration</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Initializes this TrustPin instance with the specified configuration.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="verify" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/verify.html">verify</a></span><span class="signature">(<wbr><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Verifies a certificate against the specified domain using public key pinning.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section class="summary offset-anchor" id="static-properties">
+    <h2>Static Properties</h2>
+    <dl class="properties">
+        <dt id="shared" class="property">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/shared.html">shared</a></span>
+  <span class="signature">&#8594; <a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a></span>
+  
+
+</dt>
+<dd>
+  The shared (default) TrustPin instance.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="instance" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/instance.html">instance</a></span><span class="signature">(<wbr><span class="parameter" id="instance-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a named TrustPin instance for the given <code>id</code>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">trustpin_sdk</a></li>
+    <li><a href="../trustpin_sdk/">trustpin_sdk</a></li>
+    <li class="self-crumb">TrustPin class</li>
+</ol>
+
+    <h5>trustpin_sdk library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    trustpin_sdk
+      4.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
