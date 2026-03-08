@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TrustPinHttpClient.new constructor from Class TrustPinHttpClient from the http_client_interceptor library, for the Dart programming language.">
+  <title>TrustPinHttpClient.new constructor - TrustPinHttpClient - http_client_interceptor library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">trustpin_sdk</a></li>
+    <li><a href="../../http_interceptors_http_client_interceptor/">http_interceptors&#47;http_client_interceptor.dart</a></li>
+    <li><a href="../../http_interceptors_http_client_interceptor/TrustPinHttpClient-class.html">TrustPinHttpClient</a></li>
+    <li class="self-crumb">TrustPinHttpClient.new constructor</li>
+  </ol>
+  <div class="self-name">TrustPinHttpClient.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="http_interceptors_http_client_interceptor&#47;TrustPinHttpClient-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TrustPinHttpClient</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TrustPinHttpClient</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-_inner"><span class="type-annotation"><a href="https://pub.dev/documentation/http/1.6.0/http/Client-class.html">Client</a></span> <span class="parameter-name">_inner</span>, {</span></li>
+<li><span class="parameter" id="-param-instance"><span class="type-annotation"><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a new TrustPinHttpClient that wraps the provided client.</p>
+<p>The provided client will be used for making actual HTTP requests after
+certificate validation passes. When <code>instance</code> is provided, the client
+uses that TrustPin instance. When null, <a href="../../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> is used.</p>
+<p>The TrustPin instance must be properly configured with <a href="../../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a>
+before making requests.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TrustPinHttpClient(this._inner, {TrustPin? instance})
+    : _instance = instance ?? TrustPin.shared;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">trustpin_sdk</a></li>
+    <li><a href="../../http_interceptors_http_client_interceptor/">http_client_interceptor</a></li>
+    <li><a href="../../http_interceptors_http_client_interceptor/TrustPinHttpClient-class.html">TrustPinHttpClient</a></li>
+    <li class="self-crumb">TrustPinHttpClient.new constructor</li>
+</ol>
+
+    <h5>TrustPinHttpClient class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    trustpin_sdk
+      4.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

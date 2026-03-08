@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the verify method from the TrustPin class, for the Dart programming language.">
+  <title>verify method - TrustPin class - trustpin_sdk library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">trustpin_sdk</a></li>
+    <li><a href="../../trustpin_sdk/">trustpin_sdk.dart</a></li>
+    <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
+    <li class="self-crumb">verify method</li>
+  </ol>
+  <div class="self-name">verify</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="trustpin_sdk&#47;TrustPin-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">verify</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">verify</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span></li>
+<li><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Verifies a certificate against the specified domain using public key pinning.</p>
+<p>This method performs certificate validation by comparing the certificate's public key
+against the configured pins for the specified domain. It supports both SHA-256 and
+SHA-512 hash algorithms for pin matching.</p>
+<h2 id="example-usage">Example Usage</h2>
+<pre class="language-dart"><code class="language-dart">final pemCertificate = '''
+-----BEGIN CERTIFICATE-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...
+-----END CERTIFICATE-----
+''';
+
+try {
+  await TrustPin.shared.verify('api.example.com', pemCertificate);
+  print('Certificate is valid!');
+} on TrustPinException catch (e) {
+  if (e.isDomainNotRegistered) {
+    print('Domain not configured for pinning');
+  } else if (e.isPinsMismatch) {
+    print('Certificate doesn\'t match configured pins');
+  }
+  // Handle other error types...
+}
+</code></pre>
+<h2 id="security-behavior">Security Behavior</h2>
+<ul>
+<li><strong>Registered domains</strong>: Certificate validation is performed against configured pins</li>
+<li><strong>Unregistered domains</strong>: Behavior depends on the configured <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode</a>:
+<ul>
+<li><a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a>: Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>DOMAIN_NOT_REGISTERED</code></li>
+<li><a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.permissive</a>: Allows connection to proceed with info log</li>
+</ul>
+</li>
+</ul>
+<h2 id="certificate-format">Certificate Format</h2>
+<p>The certificate must be in PEM format, including the BEGIN and END markers.
+Both single and multiple certificate chains are supported. The leaf certificate
+(first certificate in the chain) is used for validation.</p>
+<ul>
+<li>
+<p>Parameter <code>domain</code>: The domain name to validate (e.g., "api.example.com", will be sanitized)</p>
+</li>
+<li>
+<p>Parameter <code>certificate</code>: PEM-encoded certificate string with BEGIN/END markers</p>
+</li>
+<li>
+<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>DOMAIN_NOT_REGISTERED</code> if domain is not configured (strict mode only)</p>
+</li>
+<li>
+<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>PINS_MISMATCH</code> if certificate doesn't match any configured pins</p>
+</li>
+<li>
+<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ALL_PINS_EXPIRED</code> if all pins for the domain have expired</p>
+</li>
+<li>
+<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_SERVER_CERT</code> if certificate format is invalid</p>
+</li>
+<li>
+<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> has not been called</p>
+</li>
+<li>
+<p>Important: Call <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> before using this method.</p>
+</li>
+<li>
+<p>Note: This method is thread-safe and can be called from any isolate.</p>
+</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; verify(String domain, String certificate) async {
+  try {
+    await TrustPinSDKPlatform.instance
+        .verify(domain, certificate, instanceId: _instanceId);
+  } catch (e) {
+    throw TrustPinException.fromPlatformException(e);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">trustpin_sdk</a></li>
+    <li><a href="../../trustpin_sdk/">trustpin_sdk</a></li>
+    <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
+    <li class="self-crumb">verify method</li>
+</ol>
+
+    <h5>TrustPin class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    trustpin_sdk
+      4.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
