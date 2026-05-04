@@ -10,21 +10,18 @@ void main() {
 
 const int _primaryValue = 0xFF429488;
 
-const MaterialColor trustPinGreen = MaterialColor(
-  _primaryValue,
-  <int, Color>{
-    50: Color(0xFFE2F2EF),
-    100: Color(0xFFB6DED7),
-    200: Color(0xFF86C9BC),
-    300: Color(0xFF56B3A1),
-    400: Color(0xFF359F8C),
-    500: Color(_primaryValue),       // Base color
-    600: Color(0xFF3C867B),
-    700: Color(0xFF35766B),
-    800: Color(0xFF2E655B),
-    900: Color(0xFF204739),
-  },
-);
+const MaterialColor trustPinGreen = MaterialColor(_primaryValue, <int, Color>{
+  50: Color(0xFFE2F2EF),
+  100: Color(0xFFB6DED7),
+  200: Color(0xFF86C9BC),
+  300: Color(0xFF56B3A1),
+  400: Color(0xFF359F8C),
+  500: Color(_primaryValue), // Base color
+  600: Color(0xFF3C867B),
+  700: Color(0xFF35766B),
+  800: Color(0xFF2E655B),
+  900: Color(0xFF204739),
+});
 
 class TrustPinSampleApp extends StatelessWidget {
   const TrustPinSampleApp({super.key});
@@ -50,23 +47,29 @@ class ContentView extends StatefulWidget {
 }
 
 class _ContentViewState extends State<ContentView> {
-  // Configuration fields
-  final _organizationIdController = TextEditingController(text: "fb52418e-b5ae-4bff-b973-6da9ae07ba00");
-  final _projectIdController = TextEditingController(text: "c14cf5c1-9a37-4204-b48e-0bf4c95b28f3");
-  final _publicKeyController = TextEditingController(
-    text: "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvYfRJiY51wo1p2fyDt2CqOW6jGxoyZCNJXAEMPw3ZqVcjAZkSBARxWBQlFJ+si8FCReuVplDHFWwXt7nfpFNLw=="
-  );
-  
+  // Configuration fields. Fill in with your own TrustPin project credentials
+  // from https://app.trustpin.cloud — none are bundled with the sample app.
+  final _organizationIdController = TextEditingController();
+  final _projectIdController = TextEditingController();
+  final _publicKeyController = TextEditingController();
+
   // Test URL field
-  final _testUrlController = TextEditingController(text: "https://api.trustpin.cloud/health");
-  
+  final _testUrlController = TextEditingController(
+    text: "https://api.trustpin.cloud/health",
+  );
+
   // App state
-  String _logOutput = "Welcome to TrustPin Flutter Sample\nConfigure TrustPin and test connections...\n";
+  String _logOutput =
+      "Welcome to TrustPin Flutter Sample\nConfigure TrustPin and test connections...\n";
   String _statusMessage = "TrustPin not configured";
   bool _isConfigured = false;
   bool _isTesting = false;
-  
+
   final ScrollController _logScrollController = ScrollController();
+
+  // Recommended pattern: build the client once and reuse it for every
+  // request, so HTTP keep-alive can pool connections.
+  late final TrustPinHttpClient _httpClient = TrustPinHttpClient.create();
 
   @override
   void initState() {
@@ -89,11 +92,11 @@ class _ContentViewState extends State<ContentView> {
               // TrustPin Configuration Section
               _buildConfigurationSection(),
               const SizedBox(height: 16),
-              
-              // Connection Testing Section  
+
+              // Connection Testing Section
               _buildConnectionTestingSection(),
               const SizedBox(height: 16),
-              
+
               // Log Output Section
               _buildLogOutputSection(),
             ],
@@ -114,24 +117,24 @@ class _ContentViewState extends State<ContentView> {
               children: [
                 Text(
                   'TrustPin Configuration',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Organization ID
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Organization ID',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -144,16 +147,16 @@ class _ContentViewState extends State<ContentView> {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Project ID
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Project ID',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -166,16 +169,16 @@ class _ContentViewState extends State<ContentView> {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Public Key
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Public Key',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -189,7 +192,7 @@ class _ContentViewState extends State<ContentView> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -222,24 +225,24 @@ class _ContentViewState extends State<ContentView> {
               children: [
                 Text(
                   'Connection Testing',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Test URL
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Test URL',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -252,15 +255,19 @@ class _ContentViewState extends State<ContentView> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Action buttons
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: (_isConfigured && !_isTesting) ? _testConnection : null,
+                    onPressed: (_isConfigured && !_isTesting)
+                        ? _testConnection
+                        : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isConfigured ? Colors.green : Colors.grey,
+                      backgroundColor: _isConfigured
+                          ? Colors.green
+                          : Colors.grey,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.all(16),
                       shape: RoundedRectangleBorder(
@@ -268,15 +275,17 @@ class _ContentViewState extends State<ContentView> {
                       ),
                     ),
                     child: _isTesting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text('Test Connection'),
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Text('Test Connection'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -313,22 +322,22 @@ class _ContentViewState extends State<ContentView> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Status indicator
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _isConfigured ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'Status: $_statusMessage',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
                 const Spacer(),
@@ -351,15 +360,15 @@ class _ContentViewState extends State<ContentView> {
               children: [
                 Text(
                   'Log Output',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             Container(
               height: 300,
               width: double.infinity,
@@ -373,10 +382,7 @@ class _ContentViewState extends State<ContentView> {
                 controller: _logScrollController,
                 child: Text(
                   _logOutput,
-                  style: const TextStyle(
-                    fontFamily: 'Courier',
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(fontFamily: 'Courier', fontSize: 12),
                 ),
               ),
             ),
@@ -400,15 +406,19 @@ class _ContentViewState extends State<ContentView> {
       _logMessage("⚙️ Configuring TrustPin...");
       _logMessage("   Organization ID: $organizationId");
       _logMessage("   Project ID: $projectId");
-      _logMessage("   Public Key: ${publicKey.length > 20 ? '${publicKey.substring(0, 20)}...' : publicKey}");
+      _logMessage(
+        "   Public Key: ${publicKey.length > 20 ? '${publicKey.substring(0, 20)}...' : publicKey}",
+      );
 
       await TrustPin.shared.setLogLevel(TrustPinLogLevel.debug);
-      await TrustPin.shared.setup(TrustPinConfiguration(
-        organizationId: organizationId,
-        projectId: projectId,
-        publicKey: publicKey,
-        mode: TrustPinMode.strict,
-      ));
+      await TrustPin.shared.setup(
+        TrustPinConfiguration(
+          organizationId: organizationId,
+          projectId: projectId,
+          publicKey: publicKey,
+          mode: TrustPinMode.strict,
+        ),
+      );
 
       setState(() {
         _isConfigured = true;
@@ -453,25 +463,32 @@ class _ContentViewState extends State<ContentView> {
 
       setState(() {
         _isTesting = false;
-        _statusMessage = _isConfigured ? "TrustPin configured" : "TrustPin not configured";
+        _statusMessage = _isConfigured
+            ? "TrustPin configured"
+            : "TrustPin not configured";
       });
     } on TrustPinException catch (e) {
       setState(() {
         _isTesting = false;
-        _statusMessage = _isConfigured ? "TrustPin configured" : "TrustPin not configured";
+        _statusMessage = _isConfigured
+            ? "TrustPin configured"
+            : "TrustPin not configured";
       });
       _logMessage("Fetch failed: $e");
     } catch (e) {
       setState(() {
         _isTesting = false;
-        _statusMessage = _isConfigured ? "TrustPin configured" : "TrustPin not configured";
+        _statusMessage = _isConfigured
+            ? "TrustPin configured"
+            : "TrustPin not configured";
       });
       _logMessage("Error: $e");
     }
   }
 
   List<int> _pemToBytes(String pem) {
-    final lines = pem.split('\n')
+    final lines = pem
+        .split('\n')
         .where((l) => !l.startsWith('-----') && l.trim().isNotEmpty)
         .join();
     return base64Decode(lines);
@@ -496,15 +513,17 @@ class _ContentViewState extends State<ContentView> {
 
     try {
       _logMessage("🌐 Testing connection to: $testUrl");
-      
+
       final result = await _performNetworkRequest(testUrl);
-      
+
       setState(() {
         _isTesting = false;
         _statusMessage = "TrustPin configured";
       });
       _logMessage("✅ Connection test successful!");
-      final preview = result.length > 200 ? '${result.substring(0, 200)}...' : result;
+      final preview = result.length > 200
+          ? '${result.substring(0, 200)}...'
+          : result;
       _logMessage("   Response: $preview");
     } catch (e) {
       setState(() {
@@ -517,46 +536,37 @@ class _ContentViewState extends State<ContentView> {
 
   Future<String> _performNetworkRequest(String url) async {
     final uri = Uri.parse(url);
-    
+
     _logMessage("📡 Making HTTP request...");
     _logMessage("   Method: GET");
     _logMessage("   URL: $uri");
     _logMessage("   User-Agent: flutter.sdk-Sample/1.0");
+    _logMessage(
+      "🔒 Using TrustPinHttpClient with automatic SSL certificate validation",
+    );
 
-    // Create TrustPinHttpClient for automatic certificate pinning
-    final httpClient = TrustPinHttpClient.create();
+    final response = await _httpClient.get(
+      uri,
+      headers: {'User-Agent': 'flutter.sdk-Sample/1.0'},
+    );
 
-    _logMessage("🔒 Using TrustPinHttpClient with automatic SSL certificate validation");
+    _logMessage("📨 Response received:");
+    _logMessage("   Status: ${response.statusCode}");
+    _logMessage("   Content-Length: ${response.body.length} bytes");
 
-    try {
-      final response = await httpClient.get(
-        uri,
-        headers: {
-          'User-Agent': 'flutter.sdk-Sample/1.0',
-        },
-      );
-      
-      _logMessage("📨 Response received:");
-      _logMessage("   Status: ${response.statusCode}");
-      _logMessage("   Content-Length: ${response.body.length} bytes");
-
-      httpClient.close();
-      return response.body;
-    } catch (e) {
-      httpClient.close();
-      rethrow;
-    }
+    return response.body;
   }
 
   void _logMessage(String message) {
     final now = DateTime.now();
-    final timestamp = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    final timestamp =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
     final logEntry = "[$timestamp] $message\n";
-    
+
     setState(() {
       _logOutput += logEntry;
     });
-    
+
     // Auto-scroll to bottom
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_logScrollController.hasClients) {
@@ -571,13 +581,15 @@ class _ContentViewState extends State<ContentView> {
 
   void _clearLog() {
     setState(() {
-      _logOutput = "Welcome to TrustPin Flutter Sample\nConfigure TrustPin and test connections...\n";
+      _logOutput =
+          "Welcome to TrustPin Flutter Sample\nConfigure TrustPin and test connections...\n";
     });
     _logMessage("🧹 Log cleared");
   }
 
   @override
   void dispose() {
+    _httpClient.close();
     _organizationIdController.dispose();
     _projectIdController.dispose();
     _publicKeyController.dispose();

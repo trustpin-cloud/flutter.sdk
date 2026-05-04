@@ -23,12 +23,12 @@ class TrustPinConfiguration {
   /// Your project identifier from the TrustPin dashboard.
   final String projectId;
 
-  /// Base64-encoded ECDSA P-256 public key for JWS signature verification.
+  /// Base64-encoded public key issued by the TrustPin dashboard.
   final String publicKey;
 
-  /// Custom URL for the signed payload (JWS).
+  /// Optional override for the configuration source.
   ///
-  /// CDN-managed projects should leave this as `null` (the default).
+  /// Leave as `null` (the default) to use the TrustPin-hosted configuration.
   /// Only set this for self-hosted configurations.
   final Uri? configurationURL;
 
@@ -41,8 +41,8 @@ class TrustPinConfiguration {
   ///
   /// - Parameter [organizationId]: Your organization identifier from the TrustPin dashboard
   /// - Parameter [projectId]: Your project identifier from the TrustPin dashboard
-  /// - Parameter [publicKey]: Base64-encoded ECDSA P-256 public key for JWS signature verification
-  /// - Parameter [configurationURL]: Custom URL for the signed payload (JWS). Defaults to `null` for CDN-managed projects
+  /// - Parameter [publicKey]: Base64-encoded public key issued by the TrustPin dashboard
+  /// - Parameter [configurationURL]: Optional override for the configuration source. Defaults to `null` for the TrustPin-hosted configuration
   /// - Parameter [mode]: The pinning mode (default: [TrustPinMode.strict])
   const TrustPinConfiguration({
     required this.organizationId,

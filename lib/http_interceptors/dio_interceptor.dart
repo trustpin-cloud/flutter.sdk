@@ -4,42 +4,23 @@ import '../trustpin_sdk.dart';
 
 /// A certificate pinning interceptor for the Dio HTTP client.
 ///
-/// This interceptor adds TrustPin certificate validation to all HTTPS requests
-/// made through Dio. It validates certificates in two phases:
-/// 1. Standard TLS validation (handled by the OS via [TrustPin.fetchCertificate])
-/// 2. TrustPin certificate pinning validation
-///
-/// Certificates are cached to avoid repeated TLS connections to the same
-/// host. The cache stores PEM strings but not validation results, so TrustPin
-/// verification is performed on every request.
-///
-/// ## Usage
-///
 /// ```dart
 /// final dio = Dio();
 /// dio.interceptors.add(TrustPinDioInterceptor());
-///
-/// // Now all HTTPS requests will have certificate pinning
 /// final response = await dio.get('https://api.example.com/data');
 /// ```
 ///
-/// ## Important Notes
-///
-/// - The TrustPin instance must be initialized with [TrustPin.setup] before using this interceptor
-/// - Only HTTPS requests are validated; HTTP requests pass through unchanged
-/// - Certificate validation happens before the actual HTTP request is sent
-/// - Failed validation prevents the request from being sent
+/// HTTPS requests are validated; non-HTTPS requests pass through unchanged.
+/// [TrustPin.setup] must have been called on the underlying instance before
+/// making requests.
 class TrustPinDioInterceptor extends Interceptor {
-  final Map<String, String> _certificateCache = {};
+  static const Duration _fetchCertificateTimeout = Duration(seconds: 10);
+
   final TrustPin _instance;
 
-  /// Creates a new TrustPinDioInterceptor.
-  ///
-  /// When [instance] is provided, the interceptor uses that TrustPin instance
-  /// for certificate validation. When null, [TrustPin.shared] is used.
-  ///
-  /// The TrustPin instance must be properly configured with [TrustPin.setup]
-  /// before making requests with this interceptor.
+  /// Validates HTTPS requests against [instance] (or [TrustPin.shared] when
+  /// null). [TrustPin.setup] must have been called on that instance before
+  /// making requests.
   TrustPinDioInterceptor({TrustPin? instance})
       : _instance = instance ?? TrustPin.shared;
 
@@ -84,24 +65,11 @@ class TrustPinDioInterceptor extends Interceptor {
   }
 
   Future<void> _validateCertificate(String host, int port) async {
-    final cacheKey = '$host:$port';
-
-    // Check if we have a cached certificate for this host
-    var pemCert = _certificateCache[cacheKey];
-    if (pemCert == null) {
-      // Fetch the leaf certificate via native OS-level TLS validation
-      pemCert = await _instance.fetchCertificate(host, port: port);
-      _certificateCache[cacheKey] = pemCert;
-    }
-
-    await _instance.verify(host, pemCert);
-  }
-
-  /// Clears the certificate cache.
-  ///
-  /// Call this method if you want to force fetching fresh certificates
-  /// for all hosts on the next request.
-  void clearCertificateCache() {
-    _certificateCache.clear();
+    final pem = await _instance.fetchCertificate(
+      host,
+      port: port,
+      timeout: _fetchCertificateTimeout,
+    );
+    await _instance.verify(host, pem);
   }
 }

@@ -45,8 +45,7 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
   /// Verifies a PEM certificate against configured pins for [domain].
   ///
   /// When [instanceId] is null, the global default instance is used.
-  Future<void> verify(String domain, String certificate,
-      {String? instanceId}) {
+  Future<void> verify(String domain, String certificate, {String? instanceId}) {
     throw UnimplementedError('verify() has not been implemented.');
   }
 
@@ -59,9 +58,11 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
 
   /// Fetches the TLS leaf certificate from [host] as a PEM string.
   ///
-  /// When [instanceId] is null, the global default instance is used.
+  /// When [timeoutMs] is non-null and positive, the platform throws
+  /// `FETCH_CERTIFICATE_TIMEOUT` if exceeded. When [instanceId] is null, the
+  /// global default instance is used.
   Future<String> fetchCertificate(String host,
-      {int port = 443, String? instanceId}) {
+      {int port = 443, int? timeoutMs, String? instanceId}) {
     throw UnimplementedError('fetchCertificate() has not been implemented.');
   }
 }

@@ -59,15 +59,13 @@
 by validating server certificates against pre-configured public key pins. The library supports
 both strict and permissive validation modes to accommodate different security requirements.</p>
 <h2 id="overview">Overview</h2>
-<p>TrustPin uses JSON Web Signature (JWS) based configuration to securely deliver pinning
-configurations to your Flutter application. The SDK fetches signed pinning configuration
-from the TrustPin CDN and validates certificates against SHA-256 or SHA-512 hashes.</p>
+<p>TrustPin fetches a cryptographically signed pinning configuration from the
+TrustPin service and validates certificates against SHA-256 or SHA-512 pins.</p>
 <h2 id="key-features">Key Features</h2>
 <ul>
-<li><strong>JWS-based Configuration</strong>: Fetches signed pinning configuration from TrustPin CDN</li>
-<li><strong>Certificate Validation</strong>: Supports SHA-256 and SHA-512 certificate hashing</li>
-<li><strong>Signature Verification</strong>: Validates JWS signatures using ECDSA P-256</li>
-<li><strong>Intelligent Caching</strong>: Caches configuration for 10 minutes with stale fallback</li>
+<li><strong>Signed Configuration</strong>: Cryptographically signed pinning configurations</li>
+<li><strong>Multiple Hash Algorithms</strong>: SHA-256 and SHA-512 certificate validation</li>
+<li><strong>Intelligent Caching</strong>: 10-minute configuration cache with stale fallback</li>
 <li><strong>Thread Safety</strong>: All operations are thread-safe and work with Flutter's async model</li>
 <li><strong>Configurable Logging</strong>: Multiple log levels for debugging and monitoring</li>
 <li><strong>Cross-Platform</strong>: Works on iOS, Android, and macOS with native implementations</li>
@@ -363,7 +361,7 @@ the native platform implementations.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

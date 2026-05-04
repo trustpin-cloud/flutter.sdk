@@ -2,6 +2,9 @@
 import TrustPinKit
 import UIKit
 
+/// Thrown when `fetchCertificate` exceeds its caller-provided deadline.
+private struct FetchCertificateTimeoutError: Error {}
+
 // MARK: - Plugin
 
 public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
@@ -34,9 +37,9 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
             handleFetchCertificate(call: call, boxed: boxed)
 
         default:
-            Task { @MainActor in
-                boxed.result(FlutterMethodNotImplemented)
-            }
+            // Channel is registered with a background TaskQueue, so result
+            // callbacks do not need to hop to MainActor.
+            boxed.callResult(FlutterMethodNotImplemented)
         }
     }
 
@@ -50,13 +53,11 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
             let projectId = args["projectId"] as? String,
             let publicKey = args["publicKey"] as? String
         else {
-            Task { @MainActor in
-                boxed.result(FlutterError(
-                    code: "INVALID_ARGUMENTS",
-                    message: "Missing required arguments",
-                    details: nil
-                ))
-            }
+            boxed.callResult(FlutterError(
+                code: "INVALID_ARGUMENTS",
+                message: "Missing required arguments",
+                details: nil
+            ))
             return
         }
 
@@ -88,43 +89,40 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
 
                 // Check for cancellation before returning result
                 try Task.checkCancellation()
-                await MainActor.run { boxed.result(nil) }
+                boxed.callResult(nil)
             } catch is CancellationError {
-                // Task was cancelled, don't call result to avoid crashes
-                return
+                boxed.callResult(FlutterError(
+                    code: "CANCELLED",
+                    message: "Operation was cancelled",
+                    details: nil
+                ))
             } catch let error as TrustPinErrors {
-                await MainActor.run {
-                    boxed.result(FlutterError(
-                        code: TrustPinSDKPlugin.mapTrustPinError(error),
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                }
+                boxed.callResult(FlutterError(
+                    code: TrustPinSDKPlugin.mapTrustPinError(error),
+                    message: error.localizedDescription,
+                    details: nil
+                ))
             } catch {
-                await MainActor.run {
-                    boxed.result(FlutterError(
-                        code: "SETUP_ERROR",
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                }
+                boxed.callResult(FlutterError(
+                    code: "SETUP_ERROR",
+                    message: error.localizedDescription,
+                    details: nil
+                ))
             }
         }
     }
-    
+
     private func handleVerify(call: FlutterMethodCall, boxed: ResultBox) {
         guard
             let args = call.arguments as? [String: Any],
             let domain = args["domain"] as? String,
             let certificate = args["certificate"] as? String
         else {
-            Task { @MainActor in
-                boxed.result(FlutterError(
-                    code: "INVALID_ARGUMENTS",
-                    message: "Missing required arguments",
-                    details: nil
-                ))
-            }
+            boxed.callResult(FlutterError(
+                code: "INVALID_ARGUMENTS",
+                message: "Missing required arguments",
+                details: nil
+            ))
             return
         }
 
@@ -140,26 +138,25 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
 
                 // Check for cancellation before returning result
                 try Task.checkCancellation()
-                await MainActor.run { boxed.result(nil) }
+                boxed.callResult(nil)
             } catch is CancellationError {
-                // Task was cancelled, don't call result to avoid crashes
-                return
+                boxed.callResult(FlutterError(
+                    code: "CANCELLED",
+                    message: "Operation was cancelled",
+                    details: nil
+                ))
             } catch let error as TrustPinErrors {
-                await MainActor.run {
-                    boxed.result(FlutterError(
-                        code: TrustPinSDKPlugin.mapTrustPinError(error),
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                }
+                boxed.callResult(FlutterError(
+                    code: TrustPinSDKPlugin.mapTrustPinError(error),
+                    message: error.localizedDescription,
+                    details: nil
+                ))
             } catch {
-                await MainActor.run {
-                    boxed.result(FlutterError(
-                        code: "VERIFY_ERROR",
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                }
+                boxed.callResult(FlutterError(
+                    code: "VERIFY_ERROR",
+                    message: error.localizedDescription,
+                    details: nil
+                ))
             }
         }
     }
@@ -168,16 +165,14 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
         guard let args = call.arguments as? [String: Any],
               let logLevelString = args["logLevel"] as? String
         else {
-            Task { @MainActor in
-                boxed.result(FlutterError(
-                    code: "INVALID_ARGUMENTS",
-                    message: "Missing logLevel argument",
-                    details: nil
-                ))
-            }
+            boxed.callResult(FlutterError(
+                code: "INVALID_ARGUMENTS",
+                message: "Missing logLevel argument",
+                details: nil
+            ))
             return
         }
-        
+
         let logLevel: TrustPinLogLevel
         switch logLevelString.lowercased() {
         case "none":  logLevel = .none
@@ -186,15 +181,12 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
         case "debug": logLevel = .debug
         default:      logLevel = .error
         }
-        
+
         let instanceId = args["instanceId"] as? String
 
         TrustPinSDKPlugin.getTrustPinInstance(instanceId: instanceId).set(logLevel: logLevel)
-        
-        // complete on main for Flutter safety
-        Task { @MainActor in
-            boxed.result(nil)
-        }
+
+        boxed.callResult(nil)
     }
 
     private func handleFetchCertificate(call: FlutterMethodCall, boxed: ResultBox) {
@@ -202,46 +194,92 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
             let args = call.arguments as? [String: Any],
             let host = args["host"] as? String
         else {
-            Task { @MainActor in
-                boxed.result(FlutterError(
-                    code: "INVALID_ARGUMENTS",
-                    message: "Missing required arguments",
-                    details: nil
-                ))
-            }
+            boxed.callResult(FlutterError(
+                code: "INVALID_ARGUMENTS",
+                message: "Missing required arguments",
+                details: nil
+            ))
             return
         }
 
         let port = args["port"] as? Int ?? 443
+        let timeoutMs = args["timeoutMs"] as? Int
         let instanceId = args["instanceId"] as? String
 
-        Task { [host, port, instanceId, boxed] in
+        Task { [host, port, timeoutMs, instanceId, boxed] in
             do {
                 try Task.checkCancellation()
 
-                let pem = try await TrustPinSDKPlugin.getTrustPinInstance(instanceId: instanceId)
-                    .fetchCertificate(host: host, port: port)
+                let fetch: @Sendable () async throws -> String = {
+                    try await TrustPinSDKPlugin.getTrustPinInstance(instanceId: instanceId)
+                        .fetchCertificate(host: host, port: port)
+                }
+
+                let pem: String
+                if let timeoutMs, timeoutMs > 0 {
+                    pem = try await TrustPinSDKPlugin.withTimeout(
+                        milliseconds: timeoutMs,
+                        operation: fetch
+                    )
+                } else {
+                    pem = try await fetch()
+                }
 
                 try Task.checkCancellation()
-                await MainActor.run { boxed.result(pem) }
+                boxed.callResult(pem)
+            } catch is FetchCertificateTimeoutError {
+                boxed.callResult(FlutterError(
+                    code: "FETCH_CERTIFICATE_TIMEOUT",
+                    message: "Timed out fetching certificate",
+                    details: nil
+                ))
             } catch is CancellationError {
-                return
+                boxed.callResult(FlutterError(
+                    code: "CANCELLED",
+                    message: "Operation was cancelled",
+                    details: nil
+                ))
             } catch let error as TrustPinErrors {
-                await MainActor.run {
-                    boxed.result(FlutterError(
-                        code: TrustPinSDKPlugin.mapTrustPinError(error),
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                }
+                boxed.callResult(FlutterError(
+                    code: TrustPinSDKPlugin.mapTrustPinError(error),
+                    message: error.localizedDescription,
+                    details: nil
+                ))
             } catch {
-                await MainActor.run {
-                    boxed.result(FlutterError(
-                        code: "FETCH_CERTIFICATE_ERROR",
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
+                boxed.callResult(FlutterError(
+                    code: "FETCH_CERTIFICATE_ERROR",
+                    message: error.localizedDescription,
+                    details: nil
+                ))
+            }
+        }
+    }
+
+    /// Races [operation] against a sleep of [milliseconds]. If the sleep wins,
+    /// throws `FetchCertificateTimeoutError` and the operation task is
+    /// cancelled by structured concurrency.
+    fileprivate static func withTimeout<T: Sendable>(
+        milliseconds: Int,
+        operation: @escaping @Sendable () async throws -> T
+    ) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+            group.addTask {
+                let nanos = UInt64(milliseconds) * 1_000_000
+                try await Task.sleep(nanoseconds: nanos)
+                throw FetchCertificateTimeoutError()
+            }
+            do {
+                guard let first = try await group.next() else {
+                    throw CancellationError()
                 }
+                group.cancelAll()
+                return first
+            } catch {
+                group.cancelAll()
+                throw error
             }
         }
     }

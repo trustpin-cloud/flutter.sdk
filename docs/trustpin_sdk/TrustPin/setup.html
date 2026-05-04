@@ -65,8 +65,7 @@
 <section class="desc markdown">
   <p>Initializes this TrustPin instance with the specified configuration.</p>
 <p>This method configures TrustPin with your organization credentials and fetches
-the pinning configuration from the TrustPin service. The configuration is cached
-for 10 minutes to optimize performance and reduce network requests.</p>
+the pinning configuration from the TrustPin service.</p>
 <h2 id="example-usage">Example Usage</h2>
 <pre class="language-dart"><code class="language-dart">// Production setup with strict mode
 const config = TrustPinConfiguration(
@@ -93,9 +92,8 @@ await TrustPin.shared.setup(devConfig);
 <li><strong>Credentials</strong>: Keep your public key secure and never commit it to version control in plain text</li>
 </ul>
 <h2 id="network-requirements">Network Requirements</h2>
-<p>This method requires network access to fetch the pinning configuration from
-<code>https://cdn.trustpin.cloud</code>. Ensure your app has appropriate network permissions
-and can reach this endpoint.</p>
+<p>This method requires network access to fetch the pinning configuration.
+Ensure your app has appropriate network permissions to reach the TrustPin service.</p>
 <ul>
 <li>
 <p>Parameter <code>configuration</code>: A <a href="../../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a> containing your organization credentials, project info, and pinning settings</p>
@@ -111,9 +109,6 @@ and can reach this endpoint.</p>
 </li>
 <li>
 <p>Important: This method must be called before any certificate verification operations.</p>
-</li>
-<li>
-<p>Note: Configuration is automatically cached for 10 minutes to improve performance.</p>
 </li>
 </ul>
 </section>
@@ -163,7 +158,7 @@ and can reach this endpoint.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

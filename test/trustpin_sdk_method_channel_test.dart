@@ -12,20 +12,24 @@ void main() {
     setUp(() {
       platform = MethodChannelTrustPinSDK();
       methodCalls = [];
-      
+
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(platform.methodChannel, (MethodCall methodCall) async {
+          .setMockMethodCallHandler(platform.methodChannel,
+              (MethodCall methodCall) async {
         methodCalls.add(methodCall);
-        
+
         switch (methodCall.method) {
           case 'setup':
             // Validate setup parameters
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
-            if (args['organizationId'] == '' || args['projectId'] == '' || args['publicKey'] == '') {
+            if (args['organizationId'] == '' ||
+                args['projectId'] == '' ||
+                args['publicKey'] == '') {
               throw PlatformException(
                 code: 'INVALID_PROJECT_CONFIG',
                 message: 'Invalid project configuration',
-                details: 'Organization ID, Project ID, and Public Key cannot be empty',
+                details:
+                    'Organization ID, Project ID, and Public Key cannot be empty',
               );
             }
             return null;
@@ -34,21 +38,21 @@ void main() {
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
             final domain = args['domain'] as String;
             final certificate = args['certificate'] as String;
-            
+
             if (domain.isEmpty) {
               throw PlatformException(
                 code: 'INVALID_DOMAIN',
                 message: 'Domain cannot be empty',
               );
             }
-            
+
             if (!certificate.contains('BEGIN CERTIFICATE')) {
               throw PlatformException(
                 code: 'INVALID_SERVER_CERT',
                 message: 'Invalid certificate format',
               );
             }
-            
+
             // Simulate different error scenarios based on domain
             switch (domain) {
               case 'pins-mismatch.com':
@@ -108,14 +112,15 @@ void main() {
 
             return '-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END CERTIFICATE-----\n';
           default:
-            throw MissingPluginException('No implementation found for method ${methodCall.method}');
+            throw MissingPluginException(
+                'No implementation found for method ${methodCall.method}');
         }
       });
     });
 
     tearDown(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(platform.methodChannel, null);
+          .setMockMethodCallHandler(platform.methodChannel, null);
       methodCalls.clear();
     });
 
@@ -130,7 +135,7 @@ void main() {
 
         expect(methodCalls.length, equals(1));
         expect(methodCalls[0].method, equals('setup'));
-        
+
         final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
         expect(args['organizationId'], equals('test-org'));
         expect(args['projectId'], equals('test-project'));
@@ -159,7 +164,7 @@ void main() {
 
       test('should support configurationURL parameter', () async {
         final configUrl = Uri.parse('https://custom.example.com/config');
-        
+
         await platform.setup(
           'test-org',
           'test-project',
@@ -215,7 +220,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
         expect(methodCalls.length, equals(1));
         expect(methodCalls[0].method, equals('verify'));
-        
+
         final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
         expect(args['domain'], equals('api.example.com'));
         expect(args['certificate'], equals(validCertificate));
@@ -237,7 +242,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         }
       });
 
-      test('should throw PlatformException for domain not registered', () async {
+      test('should throw PlatformException for domain not registered',
+          () async {
         try {
           await platform.verify('not-registered.com', validCertificate);
           fail('Expected PlatformException to be thrown');
@@ -267,7 +273,9 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         }
       });
 
-      test('should throw PlatformException for configuration validation failure', () async {
+      test(
+          'should throw PlatformException for configuration validation failure',
+          () async {
         try {
           await platform.verify('config-error.com', validCertificate);
           fail('Expected PlatformException to be thrown');
@@ -277,7 +285,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         }
       });
 
-      test('should throw PlatformException for invalid certificate format', () async {
+      test('should throw PlatformException for invalid certificate format',
+          () async {
         try {
           await platform.verify('api.example.com', 'invalid-certificate');
           fail('Expected PlatformException to be thrown');
@@ -304,7 +313,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
         expect(methodCalls.length, equals(1));
         expect(methodCalls[0].method, equals('setLogLevel'));
-        
+
         final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
         expect(args['logLevel'], equals('debug'));
       });
@@ -342,7 +351,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
     });
 
     group('fetchCertificate()', () {
-      test('should call native fetchCertificate with correct parameters', () async {
+      test('should call native fetchCertificate with correct parameters',
+          () async {
         final result = await platform.fetchCertificate('api.example.com');
 
         expect(methodCalls.length, equals(1));
@@ -382,14 +392,16 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
     group('Method Channel Configuration', () {
       test('should use correct method channel name', () {
-        expect(platform.methodChannel.name, equals('cloud.trustpin.sdk.flutter'));
+        expect(
+            platform.methodChannel.name, equals('cloud.trustpin.sdk.flutter'));
       });
     });
 
     group('Parameter Validation', () {
       test('should handle null arguments gracefully', () async {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(platform.methodChannel, (MethodCall methodCall) async {
+            .setMockMethodCallHandler(platform.methodChannel,
+                (MethodCall methodCall) async {
           expect(methodCall.arguments, isNotNull);
           return null;
         });
@@ -401,9 +413,10 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
       test('should preserve argument types', () async {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(platform.methodChannel, (MethodCall methodCall) async {
+            .setMockMethodCallHandler(platform.methodChannel,
+                (MethodCall methodCall) async {
           final args = Map<String, dynamic>.from(methodCall.arguments as Map);
-          
+
           switch (methodCall.method) {
             case 'setup':
               expect(args['organizationId'], isA<String>());
@@ -441,7 +454,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         );
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(platform.methodChannel, (MethodCall methodCall) async {
+            .setMockMethodCallHandler(platform.methodChannel,
+                (MethodCall methodCall) async {
           throw testException;
         });
       });
@@ -465,7 +479,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
       test('should support multiple verify calls', () async {
         await platform.setup('org', 'project', 'key');
-        
+
         const cert = '''
 -----BEGIN CERTIFICATE-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
@@ -482,10 +496,13 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         expect(methodCalls[2].method, equals('verify'));
         expect(methodCalls[3].method, equals('verify'));
 
-        final verify1Args = Map<String, dynamic>.from(methodCalls[1].arguments as Map);
-        final verify2Args = Map<String, dynamic>.from(methodCalls[2].arguments as Map);
-        final verify3Args = Map<String, dynamic>.from(methodCalls[3].arguments as Map);
-        
+        final verify1Args =
+            Map<String, dynamic>.from(methodCalls[1].arguments as Map);
+        final verify2Args =
+            Map<String, dynamic>.from(methodCalls[2].arguments as Map);
+        final verify3Args =
+            Map<String, dynamic>.from(methodCalls[3].arguments as Map);
+
         expect(verify1Args['domain'], equals('api1.example.com'));
         expect(verify2Args['domain'], equals('api2.example.com'));
         expect(verify3Args['domain'], equals('api3.example.com'));
@@ -493,7 +510,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
       test('should handle mixed success and failure scenarios', () async {
         await platform.setup('org', 'project', 'key');
-        
+
         const validCert = '''
 -----BEGIN CERTIFICATE-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
@@ -502,7 +519,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
 
         // Successful verification
         await platform.verify('valid.example.com', validCert);
-        
+
         // Failed verification
         try {
           await platform.verify('pins-mismatch.com', validCert);

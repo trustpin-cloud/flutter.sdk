@@ -171,21 +171,24 @@ check_changelog() {
 generate_docs() {
     log_info "Generating API documentation..."
 
-    # Clean previous docs
-    rm -rf doc/
+    # Clean previous docs (preserve .nojekyll for GitHub Pages)
+    rm -rf docs/
+    mkdir -p docs/
 
     # Generate new docs
-    if dart doc --output=doc; then
-        log_success "Generated API documentation in doc/ directory"
+    if dart doc --output=docs; then
+        # Required so GitHub Pages serves files starting with underscores (e.g. __404error.html)
+        touch docs/.nojekyll
+        log_success "Generated API documentation in docs/ directory"
     else
         log_error "Failed to generate documentation"
         exit 1
     fi
 
     # Check if there are changes to commit
-    if [[ -n "$(git status --porcelain doc/)" ]]; then
+    if [[ -n "$(git status --porcelain docs/)" ]]; then
         log_info "Documentation changes detected, committing..."
-        git add doc/
+        git add docs/
         if git commit -m "docs: update API documentation"; then
             log_success "Documentation changes committed"
         else
@@ -209,33 +212,7 @@ run_tests() {
         log_error "Unit tests failed"
         exit 1
     fi
-    
-    # Run specific test files to ensure comprehensive coverage
-    log_info "Running comprehensive test suite..."
-    
-    # Test individual test files for more detailed output
-    local test_files=(
-        "test/trustpin_sdk_test.dart"
-        "test/trustpin_sdk_method_channel_test.dart"
-        "test/trustpin_sdk_platform_interface_test.dart"
-        "test/integration_test.dart"
-        "test/basic_tests.dart"
-    )
-    
-    for test_file in "${test_files[@]}"; do
-        if [[ -f "$test_file" ]]; then
-            log_info "Running $test_file..."
-            if flutter test "$test_file"; then
-                log_success "✓ $test_file passed"
-            else
-                log_error "✗ $test_file failed"
-                exit 1
-            fi
-        else
-            log_warning "Test file not found: $test_file"
-        fi
-    done
-    
+
     # Run all tests in test directory with coverage if available
     if command -v lcov >/dev/null 2>&1; then
         log_info "Running tests with coverage..."

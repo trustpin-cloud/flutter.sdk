@@ -69,18 +69,13 @@ exceptions into TrustPinException instances.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory TrustPinException.fromPlatformException(dynamic error) {
-  if (error.toString().contains(&#39;PlatformException&#39;)) {
-    &#47;&#47; Extract error information from PlatformException string representation
-    final errorString = error.toString();
-    final codeMatch = RegExp(r&#39;code: ([^,]+)&#39;).firstMatch(errorString);
-    final messageMatch = RegExp(r&#39;message: ([^,]+)&#39;).firstMatch(errorString);
-
-    final code = codeMatch?.group(1) ?? &#39;UNKNOWN_ERROR&#39;;
-    final message = messageMatch?.group(1) ?? error.toString();
-
-    return TrustPinException(code, message);
+  if (error is PlatformException) {
+    return TrustPinException(
+      error.code,
+      error.message ?? &#39;&#39;,
+      error.details,
+    );
   }
-
   return TrustPinException(&#39;UNKNOWN_ERROR&#39;, error.toString());
 }</code></pre>
 </section>
@@ -110,7 +105,7 @@ exceptions into TrustPinException instances.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

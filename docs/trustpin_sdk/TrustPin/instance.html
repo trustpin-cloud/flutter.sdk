@@ -78,8 +78,8 @@ await pin.verify('api.example.com', pem);
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static TrustPin instance(String id) {
-  assert(id != &#39;default&#39;,
-      &#39;Use TrustPin.shared to access the default instance.&#39;);
+  assert(
+      id != &#39;default&#39;, &#39;Use TrustPin.shared to access the default instance.&#39;);
   assert(id.trim().isNotEmpty, &#39;TrustPin instance id cannot be empty.&#39;);
   return _instances.putIfAbsent(id, () =&gt; TrustPin._(id));
 }</code></pre>
@@ -110,7 +110,7 @@ await pin.verify('api.example.com', pem);
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

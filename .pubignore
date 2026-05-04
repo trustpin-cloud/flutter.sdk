@@ -1,0 +1,6 @@
+# Generated dartdoc HTML — committed for GitHub Pages, not for pub.dev.
+# pub.dev regenerates its own API documentation from the source.
+docs/
+
+# Internal release-planning notes for unreleased versions.
+v*.MD

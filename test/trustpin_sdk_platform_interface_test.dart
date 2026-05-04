@@ -13,11 +13,13 @@ class MockTrustPinSDKPlatform extends TrustPinSDKPlatform
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
-  }) => Future.value();
+  }) =>
+      Future.value();
 
   @override
   Future<void> verify(String domain, String certificate,
-      {String? instanceId}) => Future.value();
+          {String? instanceId}) =>
+      Future.value();
 
   @override
   Future<void> setLogLevel(String logLevel, {String? instanceId}) =>
@@ -25,7 +27,7 @@ class MockTrustPinSDKPlatform extends TrustPinSDKPlatform
 
   @override
   Future<String> fetchCertificate(String host,
-      {int port = 443, String? instanceId}) =>
+          {int port = 443, int? timeoutMs, String? instanceId}) =>
       Future.value('mock-certificate');
 }
 
@@ -38,11 +40,13 @@ class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
-  }) => Future.value();
+  }) =>
+      Future.value();
 
   @override
   Future<void> verify(String domain, String certificate,
-      {String? instanceId}) => Future.value();
+          {String? instanceId}) =>
+      Future.value();
 
   @override
   Future<void> setLogLevel(String logLevel, {String? instanceId}) =>
@@ -50,7 +54,7 @@ class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
 
   @override
   Future<String> fetchCertificate(String host,
-      {int port = 443, String? instanceId}) =>
+          {int port = 443, int? timeoutMs, String? instanceId}) =>
       Future.value('mock-certificate');
 }
 

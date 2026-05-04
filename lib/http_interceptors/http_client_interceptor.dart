@@ -2,39 +2,26 @@ import 'package:http/http.dart' as http;
 
 import '../trustpin_sdk.dart';
 
-/// A certificate pinning interceptor for the http package.
+/// A certificate pinning client for the `http` package.
 ///
-/// This interceptor wraps any http.Client and adds TrustPin certificate
-/// validation to all HTTPS requests. It first ensures the certificate passes
-/// standard TLS validation (via [TrustPin.fetchCertificate]), then performs
-/// additional TrustPin verification.
-///
-/// Certificates are cached to avoid repeated TLS connections to the same
-/// host. The cache stores PEM strings but not validation results, so TrustPin
-/// verification is performed on every request.
+/// Wraps any [http.Client] and validates HTTPS requests through TrustPin.
+/// Non-HTTPS requests pass through unchanged. [TrustPin.setup] must have
+/// been called on the underlying instance before making requests.
 class TrustPinHttpClient extends http.BaseClient {
+  static const Duration _fetchCertificateTimeout = Duration(seconds: 10);
+
   final http.Client _inner;
   final TrustPin _instance;
-  final Map<String, String> _certificateCache = {};
 
-  /// Creates a new TrustPinHttpClient that wraps the provided client.
-  ///
-  /// The provided client will be used for making actual HTTP requests after
-  /// certificate validation passes. When [instance] is provided, the client
-  /// uses that TrustPin instance. When null, [TrustPin.shared] is used.
-  ///
-  /// The TrustPin instance must be properly configured with [TrustPin.setup]
-  /// before making requests.
-  TrustPinHttpClient(this._inner, {TrustPin? instance})
-      : _instance = instance ?? TrustPin.shared;
+  /// Wraps [_inner] so HTTPS requests are validated by [instance] (or
+  /// [TrustPin.shared] when null). [TrustPin.setup] must have been called
+  /// on that instance before making requests.
+  TrustPinHttpClient(
+    this._inner, {
+    TrustPin? instance,
+  }) : _instance = instance ?? TrustPin.shared;
 
-  /// Creates a TrustPinHttpClient with a default http.Client.
-  ///
-  /// When [instance] is provided, the client uses that TrustPin instance.
-  /// When null, [TrustPin.shared] is used.
-  ///
-  /// The TrustPin instance must be properly configured with [TrustPin.setup]
-  /// before making requests.
+  /// Convenience factory using a default `http.Client` as inner.
   factory TrustPinHttpClient.create({TrustPin? instance}) {
     return TrustPinHttpClient(http.Client(), instance: instance);
   }
@@ -52,30 +39,16 @@ class TrustPinHttpClient extends http.BaseClient {
   }
 
   Future<void> _validateCertificate(String host, int port) async {
-    final cacheKey = '$host:$port';
-
-    // Check if we have a cached certificate for this host
-    var pemCert = _certificateCache[cacheKey];
-    if (pemCert == null) {
-      // Fetch the leaf certificate via native OS-level TLS validation
-      pemCert = await _instance.fetchCertificate(host, port: port);
-      _certificateCache[cacheKey] = pemCert;
-    }
-
-    await _instance.verify(host, pemCert);
-  }
-
-  /// Clears the certificate cache.
-  ///
-  /// Call this method if you want to force fetching fresh certificates
-  /// for all hosts on the next request.
-  void clearCertificateCache() {
-    _certificateCache.clear();
+    final pem = await _instance.fetchCertificate(
+      host,
+      port: port,
+      timeout: _fetchCertificateTimeout,
+    );
+    await _instance.verify(host, pem);
   }
 
   @override
   void close() {
-    _certificateCache.clear();
     _inner.close();
   }
 }
