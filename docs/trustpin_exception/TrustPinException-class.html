@@ -151,7 +151,7 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if all pins for the domain have expired.
+  Returns true if no usable pins remain for the given domain.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -163,7 +163,7 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if configuration validation failed.
+  Returns true if the configuration was rejected.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -175,7 +175,7 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if domain is not registered (strict mode only).
+  Returns true if the domain is not configured (strict mode only).
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -187,7 +187,19 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if this is a network/CDN fetch error.
+  Returns true if pinning information could not be retrieved.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isFetchCertificateTimeout" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isFetchCertificateTimeout.html">isFetchCertificateTimeout</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if a certificate fetch exceeded its timeout.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -199,7 +211,7 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if this is an invalid project configuration error.
+  Returns true for an invalid project configuration error.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -211,7 +223,7 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if this is an invalid certificate format error.
+  Returns true if the supplied certificate could not be parsed.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -223,7 +235,7 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if certificate doesn't match any configured pins.
+  Returns true if the certificate was rejected for the given domain.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>

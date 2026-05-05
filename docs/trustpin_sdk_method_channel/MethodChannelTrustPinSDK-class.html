@@ -54,8 +54,8 @@
 
     
 <section class="desc markdown">
-  <p>An implementation of <a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform-class.html">TrustPinSDKPlatform</a> that uses method channels
-to communicate with native platform code.</p>
+  <p>Default platform implementation backed by a Flutter method channel.</p>
+<p>Most apps should use <a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a> rather than this type directly.</p>
 </section>
 
 
@@ -120,7 +120,7 @@ to communicate with native platform code.</p>
 
 </dt>
 <dd>
-  The method channel used to interact with the native platform.
+  
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -147,14 +147,14 @@ to communicate with native platform code.</p>
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="fetchCertificate" class="callable">
-  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span><span class="parameter" id="fetchCertificate-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Fetches the TLS leaf certificate from <code>host</code> via the method channel.
+  Fetches the TLS leaf certificate from <code>host</code> as a PEM string.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -180,7 +180,7 @@ to communicate with native platform code.</p>
 
 </dt>
 <dd>
-  Sets the logging verbosity level via the method channel.
+  Sets the logging verbosity level.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -193,7 +193,7 @@ to communicate with native platform code.</p>
 
 </dt>
 <dd>
-  Initializes the TrustPin SDK with the given credentials via the method channel.
+  Initializes the TrustPin SDK with the given credentials.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -219,7 +219,7 @@ to communicate with native platform code.</p>
 
 </dt>
 <dd>
-  Verifies a PEM certificate against configured pins via the method channel.
+  Verifies a PEM certificate against configured pins for <code>domain</code>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

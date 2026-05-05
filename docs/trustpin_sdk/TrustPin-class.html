@@ -55,22 +55,10 @@
     
 <section class="desc markdown">
   <p>TrustPin SSL certificate pinning SDK for Flutter applications.</p>
-<p>TrustPin provides SSL certificate pinning functionality to prevent man-in-the-middle (MITM) attacks
-by validating server certificates against pre-configured public key pins. The library supports
-both strict and permissive validation modes to accommodate different security requirements.</p>
-<h2 id="overview">Overview</h2>
-<p>TrustPin fetches a cryptographically signed pinning configuration from the
-TrustPin service and validates certificates against SHA-256 or SHA-512 pins.</p>
-<h2 id="key-features">Key Features</h2>
-<ul>
-<li><strong>Signed Configuration</strong>: Cryptographically signed pinning configurations</li>
-<li><strong>Multiple Hash Algorithms</strong>: SHA-256 and SHA-512 certificate validation</li>
-<li><strong>Intelligent Caching</strong>: 10-minute configuration cache with stale fallback</li>
-<li><strong>Thread Safety</strong>: All operations are thread-safe and work with Flutter's async model</li>
-<li><strong>Configurable Logging</strong>: Multiple log levels for debugging and monitoring</li>
-<li><strong>Cross-Platform</strong>: Works on iOS, Android, and macOS with native implementations</li>
-<li><strong>Multiple Instances</strong>: Use <a href="../trustpin_sdk/TrustPin/shared.html">shared</a> for a single-project app, or <a href="../trustpin_sdk/TrustPin/instance.html">instance</a> for libraries and multi-tenant setups</li>
-</ul>
+<p>Validates server certificates against pinning configuration to mitigate
+man-in-the-middle (MITM) attacks. Supports strict and permissive modes.</p>
+<p>Use <a href="../trustpin_sdk/TrustPin/shared.html">shared</a> for a single-project app, or <a href="../trustpin_sdk/TrustPin/instance.html">instance</a> for libraries and
+multi-tenant setups.</p>
 <h2 id="basic-usage">Basic Usage</h2>
 <pre class="language-dart"><code class="language-dart">import 'package:trustpin_sdk/trustpin_sdk.dart';
 
@@ -141,18 +129,15 @@ that can be checked programmatically:</p>
 </code></pre>
 <h2 id="security-considerations">Security Considerations</h2>
 <ul>
-<li><strong>Production</strong>: Always use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a> mode to ensure all connections are validated</li>
-<li><strong>Development</strong>: Use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.permissive</a> mode to allow connections to unregistered domains</li>
-<li><strong>Credentials</strong>: Keep your public key secure and never commit it to version control in plain text</li>
-<li><strong>Network</strong>: Ensure your app can reach <code>https://cdn.trustpin.cloud</code> for configuration updates</li>
-</ul>
-<h2 id="thread-safety">Thread Safety</h2>
-<p>All TrustPin operations are thread-safe and can be called from any isolate.
-Internal operations are performed on appropriate background threads through
-the native platform implementations.</p>
-<ul>
-<li>Note: Always call <a href="../trustpin_sdk/TrustPin/setup.html">setup</a> before performing certificate verification.</li>
-<li>Important: Use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a> mode in production environments for maximum security.</li>
+<li>
+<p>Use <a href="../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a> in production.</p>
+</li>
+<li>
+<p>Keep your public key out of source control as plain text.</p>
+</li>
+<li>
+<p>Note: Always call <a href="../trustpin_sdk/TrustPin/setup.html">setup</a> before performing certificate verification.</p>
+</li>
 </ul>
 </section>
 
@@ -199,14 +184,15 @@ the native platform implementations.</p>
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="fetchCertificate" class="callable">
-  <span class="name"><a href="../trustpin_sdk/TrustPin/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span></span>})
+  <span class="name"><a href="../trustpin_sdk/TrustPin/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Fetches the TLS leaf certificate from a host as a PEM string.
+  Returns the TLS leaf certificate served by <code>host</code>:<code>port</code> as a PEM
+string.
   
 
 </dd>
@@ -232,7 +218,7 @@ the native platform implementations.</p>
 
 </dt>
 <dd>
-  Sets the current log level for this TrustPin instance's logging system.
+  Sets the log level for this instance.
   
 
 </dd>
@@ -245,7 +231,8 @@ the native platform implementations.</p>
 
 </dt>
 <dd>
-  Initializes this TrustPin instance with the specified configuration.
+  Initializes this instance with the given <code>configuration</code>. Must be
+called before <a href="../trustpin_sdk/TrustPin/verify.html">verify</a>.
   
 
 </dd>
@@ -271,7 +258,8 @@ the native platform implementations.</p>
 
 </dt>
 <dd>
-  Verifies a certificate against the specified domain using public key pinning.
+  Verifies that <code>certificate</code> is valid for <code>domain</code> under this instance's
+pinning configuration. Returns normally on success.
   
 
 </dd>

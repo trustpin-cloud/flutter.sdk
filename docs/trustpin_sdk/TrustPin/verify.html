@@ -64,71 +64,24 @@
     </section>
     
 <section class="desc markdown">
-  <p>Verifies a certificate against the specified domain using public key pinning.</p>
-<p>This method performs certificate validation by comparing the certificate's public key
-against the configured pins for the specified domain. It supports both SHA-256 and
-SHA-512 hash algorithms for pin matching.</p>
-<h2 id="example-usage">Example Usage</h2>
-<pre class="language-dart"><code class="language-dart">final pemCertificate = '''
------BEGIN CERTIFICATE-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...
------END CERTIFICATE-----
-''';
-
-try {
+  <p>Verifies that <code>certificate</code> is valid for <code>domain</code> under this instance's
+pinning configuration. Returns normally on success.</p>
+<pre class="language-dart"><code class="language-dart">try {
   await TrustPin.shared.verify('api.example.com', pemCertificate);
-  print('Certificate is valid!');
 } on TrustPinException catch (e) {
-  if (e.isDomainNotRegistered) {
-    print('Domain not configured for pinning');
-  } else if (e.isPinsMismatch) {
-    print('Certificate doesn\'t match configured pins');
+  if (e.isPinsMismatch) {
+    // ...
   }
-  // Handle other error types...
 }
 </code></pre>
-<h2 id="security-behavior">Security Behavior</h2>
+<p><code>certificate</code> must be a PEM string including the BEGIN/END markers.
+Behavior on unregistered domains depends on <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode</a>.</p>
 <ul>
-<li><strong>Registered domains</strong>: Certificate validation is performed against configured pins</li>
-<li><strong>Unregistered domains</strong>: Behavior depends on the configured <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode</a>:
-<ul>
-<li><a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a>: Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>DOMAIN_NOT_REGISTERED</code></li>
-<li><a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.permissive</a>: Allows connection to proceed with info log</li>
-</ul>
-</li>
-</ul>
-<h2 id="certificate-format">Certificate Format</h2>
-<p>The certificate must be in PEM format, including the BEGIN and END markers.
-Both single and multiple certificate chains are supported. The leaf certificate
-(first certificate in the chain) is used for validation.</p>
-<ul>
-<li>
-<p>Parameter <code>domain</code>: The domain name to validate (e.g., "api.example.com", will be sanitized)</p>
-</li>
-<li>
-<p>Parameter <code>certificate</code>: PEM-encoded certificate string with BEGIN/END markers</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>DOMAIN_NOT_REGISTERED</code> if domain is not configured (strict mode only)</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>PINS_MISMATCH</code> if certificate doesn't match any configured pins</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ALL_PINS_EXPIRED</code> if all pins for the domain have expired</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_SERVER_CERT</code> if certificate format is invalid</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> has not been called</p>
-</li>
-<li>
-<p>Important: Call <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> before using this method.</p>
-</li>
-<li>
-<p>Note: This method is thread-safe and can be called from any isolate.</p>
-</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>DOMAIN_NOT_REGISTERED</code> if domain is not configured (strict mode only).</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>PINS_MISMATCH</code> if the certificate is rejected.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ALL_PINS_EXPIRED</code> if no usable pins remain for the domain.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_SERVER_CERT</code> if the certificate cannot be parsed.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> has not been called.</li>
 </ul>
 </section>
 

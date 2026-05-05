@@ -75,12 +75,11 @@
 <li><strong>Comprehensive Error Handling</strong>: Detailed error types with programmatic checking capabilities</li>
 <li><strong>Configurable Logging</strong>: Multiple log levels for debugging, monitoring, and production use</li>
 <li><strong>Thread Safety</strong>: Built with Flutter's async/await pattern and native concurrency models</li>
-<li><strong>Intelligent Caching</strong>: 10-minute configuration caching with stale fallback for performance</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Add TrustPin SDK to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  trustpin_sdk: ^3.0.0
+  trustpin_sdk: ^4.1.0
 </code></pre>
 <p>Then install the package:</p>
 <pre class="language-bash"><code class="language-bash">flutter pub get
@@ -100,6 +99,11 @@
 <li><strong>Swift</strong>: 5.0+</li>
 <li><strong>Native Dependencies</strong>: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
+<blockquote>
+<p>Set <code>MACOSX_DEPLOYMENT_TARGET = 13.0</code> (or higher) in your Xcode project's
+build settings. Flutter uses this value to align the generated Swift Package
+Manager wrapper with TrustPin's minimum platform.</p>
+</blockquote>
 <p>For sandboxed macOS apps, add the network client entitlement:</p>
 <pre class="language-xml"><code class="language-xml">&lt;!-- In DebugProfile.entitlements and Release.entitlements --&gt;
 &lt;key&gt;com.apple.security.network.client&lt;/key&gt;
@@ -108,7 +112,7 @@
 <h3 id="android-requirements">Android Requirements</h3>
 <ul>
 <li><strong>Minimum SDK</strong>: API 21 (Android 5.0)+</li>
-<li><strong>Target SDK</strong>: API 34+ (recommended)</li>
+<li><strong>Compile SDK</strong>: API 36</li>
 <li><strong>Kotlin</strong>: 2.3.0+</li>
 <li><strong>Native Dependencies</strong>: TrustPin Kotlin SDK (automatically configured via Gradle)</li>
 </ul>
@@ -195,7 +199,6 @@ try {
 <ol>
 <li>Fetches the leaf certificate via OS-level TLS validation</li>
 <li>Verifies the certificate against configured TrustPin pins</li>
-<li>Caches certificates for performance</li>
 <li>Blocks requests with invalid certificates</li>
 </ol>
 <h3 id="integration-with-http-package">Integration with http package</h3>
@@ -280,8 +283,8 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td>Verify a PEM certificate against configured pins</td>
 </tr>
 <tr>
-<td><code>fetchCertificate(host, {port?})</code></td>
-<td>Fetch the TLS leaf certificate from a host as PEM</td>
+<td><code>fetchCertificate(host, {port?, timeout?})</code></td>
+<td>Fetch the TLS leaf certificate from a host as PEM, with optional upper bound</td>
 </tr>
 <tr>
 <td><code>setLogLevel(level)</code></td>
@@ -451,6 +454,11 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td><code>CONFIGURATION_VALIDATION_FAILED</code></td>
 <td><code>isConfigurationValidationFailed</code></td>
 <td>Configuration validation failed</td>
+</tr>
+<tr>
+<td><code>FETCH_CERTIFICATE_TIMEOUT</code></td>
+<td><code>isFetchCertificateTimeout</code></td>
+<td><code>fetchCertificate</code> exceeded its <code>timeout</code></td>
 </tr>
 </tbody>
 </table>

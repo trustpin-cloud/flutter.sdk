@@ -55,29 +55,13 @@
     
 <section class="desc markdown">
   <p>A certificate pinning interceptor for the Dio HTTP client.</p>
-<p>This interceptor adds TrustPin certificate validation to all HTTPS requests
-made through Dio. It validates certificates in two phases:</p>
-<ol>
-<li>Standard TLS validation (handled by the OS via <a href="../trustpin_sdk/TrustPin/fetchCertificate.html">TrustPin.fetchCertificate</a>)</li>
-<li>TrustPin certificate pinning validation</li>
-</ol>
-<p>Certificates are cached to avoid repeated TLS connections to the same
-host. The cache stores PEM strings but not validation results, so TrustPin
-verification is performed on every request.</p>
-<h2 id="usage">Usage</h2>
 <pre class="language-dart"><code class="language-dart">final dio = Dio();
 dio.interceptors.add(TrustPinDioInterceptor());
-
-// Now all HTTPS requests will have certificate pinning
 final response = await dio.get('https://api.example.com/data');
 </code></pre>
-<h2 id="important-notes">Important Notes</h2>
-<ul>
-<li>The TrustPin instance must be initialized with <a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> before using this interceptor</li>
-<li>Only HTTPS requests are validated; HTTP requests pass through unchanged</li>
-<li>Certificate validation happens before the actual HTTP request is sent</li>
-<li>Failed validation prevents the request from being sent</li>
-</ul>
+<p>HTTPS requests are validated; non-HTTPS requests pass through unchanged.
+<a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have been called on the underlying instance before
+making requests.</p>
 </section>
 
 
@@ -112,7 +96,9 @@ final response = await dio.get('https://api.example.com/data');
           <span class="name"><a href="../http_interceptors_dio_interceptor/TrustPinDioInterceptor/TrustPinDioInterceptor.html">TrustPinDioInterceptor</a></span><span class="signature">({<span class="parameter" id="-param-instance"><span class="type-annotation"><a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span></span>})</span>
         </dt>
         <dd>
-          Creates a new TrustPinDioInterceptor.
+          Validates HTTPS requests against <code>instance</code> (or <a href="../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> when
+null). <a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have been called on that instance before
+making requests.
         </dd>
     </dl>
   </section>
@@ -155,19 +141,6 @@ final response = await dio.get('https://api.example.com/data');
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="clearCertificateCache" class="callable">
-  <span class="name"><a href="../http_interceptors_dio_interceptor/TrustPinDioInterceptor/clearCertificateCache.html">clearCertificateCache</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; void</span>
-  </span>
-  
-
-</dt>
-<dd>
-  Clears the certificate cache.
-  
-
-</dd>
-
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
