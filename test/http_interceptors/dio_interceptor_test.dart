@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trustpin_sdk/http_interceptors/dio_interceptor.dart';
-import 'package:trustpin_sdk/trustpin_exception.dart';
+import 'package:trustpin_sdk/trustpin_sdk.dart';
 import 'package:trustpin_sdk/trustpin_sdk_method_channel.dart';
 
 void main() {
@@ -22,9 +21,10 @@ void main() {
 
       // Mock the platform method channel for TrustPin.verify calls
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(platform.methodChannel, (MethodCall methodCall) async {
+          .setMockMethodCallHandler(platform.methodChannel,
+              (MethodCall methodCall) async {
         methodCalls.add(methodCall);
-        
+
         switch (methodCall.method) {
           case 'setup':
             return null;
@@ -32,21 +32,21 @@ void main() {
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
             final domain = args['domain'] as String;
             final certificate = args['certificate'] as String;
-            
+
             if (domain.isEmpty) {
               throw PlatformException(
                 code: 'INVALID_DOMAIN',
                 message: 'Domain cannot be empty',
               );
             }
-            
+
             if (!certificate.contains('BEGIN CERTIFICATE')) {
               throw PlatformException(
                 code: 'INVALID_SERVER_CERT',
                 message: 'Invalid certificate format',
               );
             }
-            
+
             // Simulate different scenarios based on domain
             switch (domain) {
               case 'pins-mismatch.example.com':
@@ -81,16 +81,16 @@ void main() {
           case 'setLogLevel':
             return null;
           default:
-            throw MissingPluginException('No implementation found for method ${methodCall.method}');
+            throw MissingPluginException(
+                'No implementation found for method ${methodCall.method}');
         }
       });
     });
 
     tearDown(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(platform.methodChannel, null);
+          .setMockMethodCallHandler(platform.methodChannel, null);
       methodCalls.clear();
-      interceptor.clearCertificateCache();
     });
 
     group('Basic Functionality', () {
@@ -106,7 +106,7 @@ void main() {
           path: '/api/data',
           baseUrl: 'http://api.example.com',
         );
-        
+
         bool requestPassed = false;
         final handler = MockRequestInterceptorHandler(
           onNext: (options) {
@@ -134,16 +134,18 @@ void main() {
           final uri = Uri.parse(url);
           final requestOptions = RequestOptions(
             path: uri.path,
-            baseUrl: '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}',
+            baseUrl:
+                '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}',
           );
-          
+
           bool requestPassed = false;
           final handler = MockRequestInterceptorHandler(
             onNext: (options) => requestPassed = true,
           );
 
           interceptor.onRequest(requestOptions, handler);
-          expect(requestPassed, isTrue, reason: 'HTTP request should pass for $url');
+          expect(requestPassed, isTrue,
+              reason: 'HTTP request should pass for $url');
         }
 
         // No method calls should have been made for HTTP requests
@@ -159,11 +161,11 @@ void main() {
         );
 
         final handler = MockRequestInterceptorHandler();
-        
+
         // This will attempt validation but fail due to no real socket connection
         // We're testing the code path, not the actual network connection
         interceptor.onRequest(requestOptions, handler);
-        
+
         // The request should attempt HTTPS validation
         expect(requestOptions.uri.scheme, equals('https'));
       });
@@ -180,20 +182,15 @@ void main() {
           final uri = Uri.parse(testCase['url'] as String);
           final requestOptions = RequestOptions(
             path: uri.path,
-            baseUrl: '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}',
+            baseUrl:
+                '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}',
           );
 
           expect(requestOptions.uri.port, equals(testCase['expectedPort']));
-          
+
           final handler = MockRequestInterceptorHandler();
           interceptor.onRequest(requestOptions, handler);
         }
-      });
-    });
-
-    group('Certificate Caching Management', () {
-      test('should clear certificate cache', () {              
-        interceptor.clearCertificateCache();
       });
     });
 
@@ -205,7 +202,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
 
         expect(validPem, contains('BEGIN CERTIFICATE'));
         expect(validPem, contains('END CERTIFICATE'));
-        
+
         // This tests that our format validation logic would work
         final lines = validPem.split('\n');
         expect(lines.length, greaterThan(2));
@@ -217,7 +214,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
         const testData = 'This is test certificate data';
         final encoded = base64Encode(testData.codeUnits);
         final decoded = base64Decode(encoded);
-        
+
         expect(String.fromCharCodes(decoded), equals(testData));
         expect(encoded, isA<String>());
         expect(decoded, isA<List<int>>());
@@ -225,7 +222,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
     });
 
     group('Error Handling Structure', () {
-      test('should create appropriate DioException for certificate failures', () {
+      test('should create appropriate DioException for certificate failures',
+          () {
         final requestOptions = RequestOptions(
           path: '/test',
           baseUrl: 'https://example.com',
@@ -245,9 +243,10 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
 
         expect(dioError.error, isA<TrustPinException>());
         expect(dioError.type, equals(DioExceptionType.connectionError));
-        expect(dioError.message, contains('Certificate pinning validation failed'));
+        expect(dioError.message,
+            contains('Certificate pinning validation failed'));
         expect(dioError.requestOptions, equals(requestOptions));
-        
+
         final innerError = dioError.error as TrustPinException;
         expect(innerError.code, equals('PINS_MISMATCH'));
         expect(innerError.message, equals('Certificate does not match pins'));
@@ -300,9 +299,9 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
           expect(options.uri.scheme, equals('https'));
           expect(options.path, isNotEmpty);
           expect(options.uri.host, isNotEmpty);
-          
+
           final handler = MockRequestInterceptorHandler();
-          
+
           // Should not throw when processing RequestOptions
           expect(() {
             interceptor.onRequest(options, handler);
@@ -348,10 +347,13 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
         expect(capturedOptions!.path, equals(originalOptions.path));
         expect(capturedOptions!.method, equals(originalOptions.method));
         expect(capturedOptions!.headers, equals(originalOptions.headers));
-        expect(capturedOptions!.queryParameters, equals(originalOptions.queryParameters));
+        expect(capturedOptions!.queryParameters,
+            equals(originalOptions.queryParameters));
         expect(capturedOptions!.data, equals(originalOptions.data));
-        expect(capturedOptions!.connectTimeout, equals(originalOptions.connectTimeout));
-        expect(capturedOptions!.receiveTimeout, equals(originalOptions.receiveTimeout));
+        expect(capturedOptions!.connectTimeout,
+            equals(originalOptions.connectTimeout));
+        expect(capturedOptions!.receiveTimeout,
+            equals(originalOptions.receiveTimeout));
       });
     });
 
@@ -359,12 +361,12 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
       test('should be compatible with Dio interceptor chain', () {
         final dio = Dio();
         final initialCount = dio.interceptors.length;
-        
+
         // Should be able to add the interceptor without issues
         expect(() {
           dio.interceptors.add(interceptor);
         }, returnsNormally);
-        
+
         expect(dio.interceptors.length, equals(initialCount + 1));
         expect(dio.interceptors.last, isA<TrustPinDioInterceptor>());
       });
@@ -373,13 +375,15 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8MOCK_DATA==
         final dio = Dio();
         final initialCount = dio.interceptors.length;
         final logInterceptor = LogInterceptor();
-        
+
         dio.interceptors.add(logInterceptor);
         dio.interceptors.add(interceptor);
-        
+
         expect(dio.interceptors.length, equals(initialCount + 2));
-        expect(dio.interceptors[dio.interceptors.length - 2], equals(logInterceptor));
-        expect(dio.interceptors[dio.interceptors.length - 1], equals(interceptor));
+        expect(dio.interceptors[dio.interceptors.length - 2],
+            equals(logInterceptor));
+        expect(
+            dio.interceptors[dio.interceptors.length - 1], equals(interceptor));
       });
     });
   });
@@ -403,12 +407,14 @@ class MockRequestInterceptorHandler extends RequestInterceptorHandler {
   }
 
   @override
-  void reject(DioException error, [bool callFollowingResponseInterceptor = false]) {
+  void reject(DioException error,
+      [bool callFollowingResponseInterceptor = false]) {
     onReject?.call(error);
   }
 
   @override
-  void resolve(Response response, [bool callFollowingResponseInterceptor = false]) {
+  void resolve(Response response,
+      [bool callFollowingResponseInterceptor = false]) {
     onResolve?.call(response);
   }
 }

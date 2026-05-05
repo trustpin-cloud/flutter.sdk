@@ -4,7 +4,10 @@ import Foundation
 // MARK: - Result boxing
 
 /// Boxes the ObjC-provided FlutterResult so it can be captured by @Sendable closures.
-/// Thread-safe wrapper that ensures result is called only once on the main actor.
+/// Thread-safe wrapper that guarantees the underlying result block is invoked at most once.
+///
+/// The plugin's MethodChannel is registered with a background TaskQueue, which means
+/// FlutterResult is safe to invoke from any thread — no MainActor hop required.
 final class ResultBox: @unchecked Sendable {
     private let _result: FlutterResult
     private let callOnce = CallOnce()
@@ -13,14 +16,8 @@ final class ResultBox: @unchecked Sendable {
         self._result = result
     }
 
-    /// Provides direct access to result for backward compatibility.
-    /// Prefer using callResult() for better safety.
-    var result: FlutterResult {
-        return _result
-    }
-
-    /// Call the Flutter result exactly once, safely on MainActor.
-    @MainActor
+    /// Call the Flutter result exactly once. Safe to invoke from any thread because
+    /// the channel uses a background TaskQueue.
     func callResult(_ value: Any?) {
         callOnce.perform {
             _result(value)

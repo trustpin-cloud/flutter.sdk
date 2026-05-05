@@ -66,7 +66,7 @@
 <h2 id="features">Features</h2>
 <ul>
 <li><strong>SSL Certificate Pinning</strong>: Advanced certificate validation using SHA-256/SHA-512 public key pins</li>
-<li><strong>JWS-based Configuration</strong>: Securely fetch signed pinning configurations from TrustPin CDN</li>
+<li><strong>Signed Configuration</strong>: Cryptographically signed pinning configurations</li>
 <li><strong>Cross-platform Support</strong>: Native implementations for iOS (Swift), Android (Kotlin), and macOS (Swift)</li>
 <li><strong>Flexible Pinning Modes</strong>: Support for strict (production) and permissive (development) validation modes</li>
 <li><strong>Certificate Fetching</strong>: Built-in <code>fetchCertificate</code> for OS-level TLS validation and leaf certificate extraction</li>
@@ -76,7 +76,6 @@
 <li><strong>Configurable Logging</strong>: Multiple log levels for debugging, monitoring, and production use</li>
 <li><strong>Thread Safety</strong>: Built with Flutter's async/await pattern and native concurrency models</li>
 <li><strong>Intelligent Caching</strong>: 10-minute configuration caching with stale fallback for performance</li>
-<li><strong>ECDSA P-256 Signature Verification</strong>: Cryptographic validation of configuration integrity</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Add TrustPin SDK to your <code>pubspec.yaml</code>:</p>
@@ -127,7 +126,7 @@
 <ul>
 <li>Organization ID</li>
 <li>Project ID</li>
-<li>Public Key (ECDSA P-256, Base64-encoded)</li>
+<li>Public Key (Base64-encoded)</li>
 </ul>
 <h3 id="2-initialize-the-sdk">2. Initialize the SDK</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:trustpin_sdk/trustpin_sdk.dart';
@@ -313,12 +312,12 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <tr>
 <td><code>publicKey</code></td>
 <td><code>String</code></td>
-<td>Base64-encoded ECDSA P-256 public key (required)</td>
+<td>Base64-encoded public key issued by the TrustPin dashboard (required)</td>
 </tr>
 <tr>
 <td><code>configurationURL</code></td>
 <td><code>Uri?</code></td>
-<td>Custom URL for self-hosted JWS payload (optional)</td>
+<td>Optional override for the configuration source (self-hosted setups only)</td>
 </tr>
 <tr>
 <td><code>mode</code></td>
@@ -577,7 +576,7 @@ flutter run
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

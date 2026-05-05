@@ -23,7 +23,7 @@ A comprehensive Flutter plugin for **[TrustPin](https://trustpin.cloud)** SSL ce
 ## Features
 
 - **SSL Certificate Pinning**: Advanced certificate validation using SHA-256/SHA-512 public key pins
-- **JWS-based Configuration**: Securely fetch signed pinning configurations from TrustPin CDN
+- **Signed Configuration**: Cryptographically signed pinning configurations
 - **Cross-platform Support**: Native implementations for iOS (Swift), Android (Kotlin), and macOS (Swift)
 - **Flexible Pinning Modes**: Support for strict (production) and permissive (development) validation modes
 - **Certificate Fetching**: Built-in `fetchCertificate` for OS-level TLS validation and leaf certificate extraction
@@ -32,8 +32,6 @@ A comprehensive Flutter plugin for **[TrustPin](https://trustpin.cloud)** SSL ce
 - **Comprehensive Error Handling**: Detailed error types with programmatic checking capabilities
 - **Configurable Logging**: Multiple log levels for debugging, monitoring, and production use
 - **Thread Safety**: Built with Flutter's async/await pattern and native concurrency models
-- **Intelligent Caching**: 10-minute configuration caching with stale fallback for performance
-- **ECDSA P-256 Signature Verification**: Cryptographic validation of configuration integrity
 
 ## Installation
 
@@ -41,7 +39,7 @@ Add TrustPin SDK to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^3.0.0
+  trustpin_sdk: ^4.1.0
 ```
 
 Then install the package:
@@ -66,6 +64,10 @@ flutter pub get
 - **Swift**: 5.0+
 - **Native Dependencies**: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)
 
+> Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
+> build settings. Flutter uses this value to align the generated Swift Package
+> Manager wrapper with TrustPin's minimum platform.
+
 For sandboxed macOS apps, add the network client entitlement:
 
 ```xml
@@ -77,7 +79,7 @@ For sandboxed macOS apps, add the network client entitlement:
 ### Android Requirements
 
 - **Minimum SDK**: API 21 (Android 5.0)+
-- **Target SDK**: API 34+ (recommended)
+- **Compile SDK**: API 36
 - **Kotlin**: 2.3.0+
 - **Native Dependencies**: TrustPin Kotlin SDK (automatically configured via Gradle)
 
@@ -101,7 +103,7 @@ Network access is enabled by default. No additional configuration required.
 Sign up at [TrustPin Cloud Console](https://app.trustpin.cloud) and create a project to get your:
 - Organization ID
 - Project ID
-- Public Key (ECDSA P-256, Base64-encoded)
+- Public Key (Base64-encoded)
 
 ### 2. Initialize the SDK
 
@@ -184,8 +186,7 @@ try {
 The interceptor automatically:
 1. Fetches the leaf certificate via OS-level TLS validation
 2. Verifies the certificate against configured TrustPin pins
-3. Caches certificates for performance
-4. Blocks requests with invalid certificates
+3. Blocks requests with invalid certificates
 
 ### Integration with http package
 
@@ -268,7 +269,7 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 | `TrustPin.instance(id)` | Returns a named instance (for libraries / multi-tenant) |
 | `setup(configuration)` | Initialize the instance with a [TrustPinConfiguration] |
 | `verify(domain, certificate)` | Verify a PEM certificate against configured pins |
-| `fetchCertificate(host, {port?})` | Fetch the TLS leaf certificate from a host as PEM |
+| `fetchCertificate(host, {port?, timeout?})` | Fetch the TLS leaf certificate from a host as PEM, with optional upper bound |
 | `setLogLevel(level)` | Set logging verbosity |
 
 ### TrustPinConfiguration
@@ -277,8 +278,8 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 |----------|------|-------------|
 | `organizationId` | `String` | Your organization identifier (required) |
 | `projectId` | `String` | Your project identifier (required) |
-| `publicKey` | `String` | Base64-encoded ECDSA P-256 public key (required) |
-| `configurationURL` | `Uri?` | Custom URL for self-hosted JWS payload (optional) |
+| `publicKey` | `String` | Base64-encoded public key issued by the TrustPin dashboard (required) |
+| `configurationURL` | `Uri?` | Optional override for the configuration source (self-hosted setups only) |
 | `mode` | `TrustPinMode` | Pinning mode (default: `strict`) |
 
 ### TrustPinMode
@@ -335,6 +336,7 @@ try {
 | `ALL_PINS_EXPIRED` | `isAllPinsExpired` | All pins for the domain have expired |
 | `DOMAIN_NOT_REGISTERED` | `isDomainNotRegistered` | Domain not configured (strict mode) |
 | `CONFIGURATION_VALIDATION_FAILED` | `isConfigurationValidationFailed` | Configuration validation failed |
+| `FETCH_CERTIFICATE_TIMEOUT` | `isFetchCertificateTimeout` | `fetchCertificate` exceeded its `timeout` |
 
 ## Example App
 

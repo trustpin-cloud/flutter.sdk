@@ -11,13 +11,18 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.StandardMethodCodec
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
+import java.security.cert.CertificateException
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.io.ByteArrayInputStream
@@ -29,11 +34,20 @@ import java.net.URL
 class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
-  // Use SupervisorJob for proper lifecycle management and cancellation
-  private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+  // Channel is registered with a background TaskQueue, so call handlers and
+  // result callbacks run off the platform thread. The scope is anchored on
+  // Default; no thread-bouncing per call.
+  private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cloud.trustpin.sdk.flutter")
+    val messenger = flutterPluginBinding.binaryMessenger
+    val taskQueue = messenger.makeBackgroundTaskQueue()
+    channel = MethodChannel(
+      messenger,
+      "cloud.trustpin.sdk.flutter",
+      StandardMethodCodec.INSTANCE,
+      taskQueue
+    )
     channel.setMethodCallHandler(this)
   }
 
@@ -90,6 +104,9 @@ class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
         trustPin.setup(configuration)
 
         result.success(null)
+      } catch (e: CancellationException) {
+        result.error("CANCELLED", "Operation was cancelled", null)
+        throw e
       } catch (e: TrustPinError) {
         result.error(mapTrustPinError(e), e.message, null)
       } catch (e: Exception) {
@@ -112,9 +129,12 @@ class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
 
         val certificate = parsePemCertificate(certificatePem)
         val trustPin = getTrustPinInstance(instanceId)
-
         trustPin.verify(domain, certificate)
+
         result.success(null)
+      } catch (e: CancellationException) {
+        result.error("CANCELLED", "Operation was cancelled", null)
+        throw e
       } catch (e: TrustPinError) {
         result.error(mapTrustPinError(e), e.message, null)
       } catch (e: Exception) {
@@ -155,6 +175,7 @@ class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
       try {
         val host = call.argument<String>("host")
         val port = call.argument<Int>("port") ?: 443
+        val timeoutMs = call.argument<Int>("timeoutMs")
         val instanceId = call.argument<String>("instanceId")
 
         if (host == null) {
@@ -163,9 +184,26 @@ class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
         }
 
         val trustPin = getTrustPinInstance(instanceId)
-        val pem = trustPin.fetchCertificate(host, port)
+        val pem = if (timeoutMs != null && timeoutMs > 0) {
+          withTimeout(timeoutMs.toLong()) {
+            trustPin.fetchCertificate(host, port)
+          }
+        } else {
+          trustPin.fetchCertificate(host, port)
+        }
 
         result.success(pem)
+      } catch (e: TimeoutCancellationException) {
+        // Must precede the generic CancellationException handler since
+        // TimeoutCancellationException is a subtype.
+        result.error(
+          "FETCH_CERTIFICATE_TIMEOUT",
+          "Timed out fetching certificate",
+          null
+        )
+      } catch (e: CancellationException) {
+        result.error("CANCELLED", "Operation was cancelled", null)
+        throw e
       } catch (e: TrustPinError) {
         result.error(mapTrustPinError(e), e.message, null)
       } catch (e: Exception) {
@@ -175,19 +213,25 @@ class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun parsePemCertificate(pemCertificate: String): X509Certificate {
-    val certificateFactory = CertificateFactory.getInstance("X.509")
+    try {
+      val certificateFactory = CertificateFactory.getInstance("X.509")
 
-    // Extract the certificate content between BEGIN and END markers
-    val cleanPem = pemCertificate
-      .replace("-----BEGIN CERTIFICATE-----", "")
-      .replace("-----END CERTIFICATE-----", "")
-      .replace("\\s".toRegex(), "")
+      val cleanPem = pemCertificate
+        .replace("-----BEGIN CERTIFICATE-----", "")
+        .replace("-----END CERTIFICATE-----", "")
+        .replace("\\s".toRegex(), "")
 
-    val decodedBytes = Base64.getDecoder().decode(cleanPem)
+      val decodedBytes = Base64.getDecoder().decode(cleanPem)
 
-    // Use 'use' to ensure the stream is properly closed
-    return ByteArrayInputStream(decodedBytes).use { inputStream ->
-      certificateFactory.generateCertificate(inputStream) as X509Certificate
+      return ByteArrayInputStream(decodedBytes).use { inputStream ->
+        certificateFactory.generateCertificate(inputStream) as X509Certificate
+      }
+    } catch (e: CertificateException) {
+      throw TrustPinError.InvalidServerCert
+    } catch (e: IllegalArgumentException) {
+      throw TrustPinError.InvalidServerCert
+    } catch (e: ClassCastException) {
+      throw TrustPinError.InvalidServerCert
     }
   }
 

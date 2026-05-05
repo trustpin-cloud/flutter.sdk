@@ -3,17 +3,13 @@ import 'package:flutter/services.dart';
 
 import 'trustpin_sdk_platform_interface.dart';
 
-/// An implementation of [TrustPinSDKPlatform] that uses method channels
-/// to communicate with native platform code.
+/// Default platform implementation backed by a Flutter method channel.
+///
+/// Most apps should use [TrustPin] rather than this type directly.
 class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
-  /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('cloud.trustpin.sdk.flutter');
 
-  /// Initializes the TrustPin SDK with the given credentials via the method channel.
-  ///
-  /// Sends `setup` to the native platform with the organization credentials,
-  /// optional [configurationURL], pinning [mode], and optional [instanceId].
   @override
   Future<void> setup(
     String organizationId,
@@ -33,10 +29,6 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
     });
   }
 
-  /// Verifies a PEM certificate against configured pins via the method channel.
-  ///
-  /// Sends `verify` to the native platform with the [domain], [certificate],
-  /// and optional [instanceId].
   @override
   Future<void> verify(String domain, String certificate,
       {String? instanceId}) async {
@@ -47,10 +39,6 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
     });
   }
 
-  /// Sets the logging verbosity level via the method channel.
-  ///
-  /// Sends `setLogLevel` to the native platform with [logLevel]
-  /// and optional [instanceId].
   @override
   Future<void> setLogLevel(String logLevel, {String? instanceId}) async {
     await methodChannel.invokeMethod('setLogLevel', {
@@ -59,16 +47,17 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
     });
   }
 
-  /// Fetches the TLS leaf certificate from [host] via the method channel.
-  ///
-  /// Sends `fetchCertificate` to the native platform with [host], [port],
-  /// and optional [instanceId]. Returns the PEM-encoded certificate string.
   @override
   Future<String> fetchCertificate(String host,
-      {int port = 443, String? instanceId}) async {
+      {int port = 443, int? timeoutMs, String? instanceId}) async {
     final result = await methodChannel.invokeMethod<String>(
       'fetchCertificate',
-      {'host': host, 'port': port, 'instanceId': instanceId},
+      {
+        'host': host,
+        'port': port,
+        'timeoutMs': timeoutMs,
+        'instanceId': instanceId,
+      },
     );
     return result!;
   }
