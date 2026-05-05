@@ -67,8 +67,8 @@
 <ul>
 <li>Parameter <code>organizationId</code>: Your organization identifier from the TrustPin dashboard</li>
 <li>Parameter <code>projectId</code>: Your project identifier from the TrustPin dashboard</li>
-<li>Parameter <code>publicKey</code>: Base64-encoded ECDSA P-256 public key for JWS signature verification</li>
-<li>Parameter <code>configurationURL</code>: Custom URL for the signed payload (JWS). Defaults to <code>null</code> for CDN-managed projects</li>
+<li>Parameter <code>publicKey</code>: Base64-encoded public key issued by the TrustPin dashboard</li>
+<li>Parameter <code>configurationURL</code>: Optional override for the configuration source. Defaults to <code>null</code> for the TrustPin-hosted configuration</li>
 <li>Parameter <code>mode</code>: The pinning mode (default: <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a>)</li>
 </ul>
 </section>
@@ -111,7 +111,7 @@
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

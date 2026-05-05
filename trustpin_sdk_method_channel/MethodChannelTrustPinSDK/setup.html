@@ -73,9 +73,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Initializes the TrustPin SDK with the given credentials via the method channel.</p>
-<p>Sends <code>setup</code> to the native platform with the organization credentials,
-optional <code>configurationURL</code>, pinning <code>mode</code>, and optional <code>instanceId</code>.</p>
+  <p>Initializes the TrustPin SDK with the given credentials.</p>
+<p>When <code>instanceId</code> is null, the global default instance is used.
+When provided, a named instance is created or retrieved.</p>
 </section>
 
 
@@ -127,7 +127,7 @@ Future&lt;void&gt; setup(
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

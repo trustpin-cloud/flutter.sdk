@@ -63,58 +63,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Initializes this TrustPin instance with the specified configuration.</p>
-<p>This method configures TrustPin with your organization credentials and fetches
-the pinning configuration from the TrustPin service. The configuration is cached
-for 10 minutes to optimize performance and reduce network requests.</p>
-<h2 id="example-usage">Example Usage</h2>
-<pre class="language-dart"><code class="language-dart">// Production setup with strict mode
-const config = TrustPinConfiguration(
-  organizationId: 'prod-org-123',
-  projectId: 'mobile-app-v2',
-  publicKey: 'LS0tLS1CRUdJTi...',
+  <p>Initializes this instance with the given <code>configuration</code>. Must be
+called before <a href="../../trustpin_sdk/TrustPin/verify.html">verify</a>.</p>
+<pre class="language-dart"><code class="language-dart">const config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'your-base64-public-key',
   mode: TrustPinMode.strict,
 );
 await TrustPin.shared.setup(config);
-
-// Development setup with permissive mode
-const devConfig = TrustPinConfiguration(
-  organizationId: 'dev-org-456',
-  projectId: 'mobile-app-staging',
-  publicKey: 'LS0tLS1CRUdJTk...',
-  mode: TrustPinMode.permissive,
-);
-await TrustPin.shared.setup(devConfig);
 </code></pre>
-<h2 id="security-considerations">Security Considerations</h2>
+<p>Requires network access at first call.</p>
 <ul>
-<li><strong>Production</strong>: Always use <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a> mode to ensure all connections are validated</li>
-<li><strong>Development</strong>: Use <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.permissive</a> mode to allow connections to unregistered domains</li>
-<li><strong>Credentials</strong>: Keep your public key secure and never commit it to version control in plain text</li>
-</ul>
-<h2 id="network-requirements">Network Requirements</h2>
-<p>This method requires network access to fetch the pinning configuration from
-<code>https://cdn.trustpin.cloud</code>. Ensure your app has appropriate network permissions
-and can reach this endpoint.</p>
-<ul>
-<li>
-<p>Parameter <code>configuration</code>: A <a href="../../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a> containing your organization credentials, project info, and pinning settings</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if credentials are invalid or empty</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ERROR_FETCHING_PINNING_INFO</code> if network request fails</p>
-</li>
-<li>
-<p>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>CONFIGURATION_VALIDATION_FAILED</code> if configuration validation fails</p>
-</li>
-<li>
-<p>Important: This method must be called before any certificate verification operations.</p>
-</li>
-<li>
-<p>Note: Configuration is automatically cached for 10 minutes to improve performance.</p>
-</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if credentials are invalid or empty.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ERROR_FETCHING_PINNING_INFO</code> if the configuration cannot be retrieved.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>CONFIGURATION_VALIDATION_FAILED</code> if the configuration is rejected.</li>
 </ul>
 </section>
 
@@ -163,7 +126,7 @@ and can reach this endpoint.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

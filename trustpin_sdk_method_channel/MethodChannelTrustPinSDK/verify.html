@@ -70,9 +70,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>Verifies a PEM certificate against configured pins via the method channel.</p>
-<p>Sends <code>verify</code> to the native platform with the <code>domain</code>, <code>certificate</code>,
-and optional <code>instanceId</code>.</p>
+  <p>Verifies a PEM certificate against configured pins for <code>domain</code>.</p>
+<p>When <code>instanceId</code> is null, the global default instance is used.</p>
 </section>
 
 
@@ -115,7 +114,7 @@ Future&lt;void&gt; verify(String domain, String certificate,
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

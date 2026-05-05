@@ -59,11 +59,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new TrustPinDioInterceptor.</p>
-<p>When <code>instance</code> is provided, the interceptor uses that TrustPin instance
-for certificate validation. When null, <a href="../../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> is used.</p>
-<p>The TrustPin instance must be properly configured with <a href="../../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a>
-before making requests with this interceptor.</p>
+  <p>Validates HTTPS requests against <code>instance</code> (or <a href="../../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> when
+null). <a href="../../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have been called on that instance before
+making requests.</p>
 </section>
 
 
@@ -99,7 +97,7 @@ before making requests with this interceptor.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

@@ -66,7 +66,7 @@
 <h2 id="features">Features</h2>
 <ul>
 <li><strong>SSL Certificate Pinning</strong>: Advanced certificate validation using SHA-256/SHA-512 public key pins</li>
-<li><strong>JWS-based Configuration</strong>: Securely fetch signed pinning configurations from TrustPin CDN</li>
+<li><strong>Signed Configuration</strong>: Cryptographically signed pinning configurations</li>
 <li><strong>Cross-platform Support</strong>: Native implementations for iOS (Swift), Android (Kotlin), and macOS (Swift)</li>
 <li><strong>Flexible Pinning Modes</strong>: Support for strict (production) and permissive (development) validation modes</li>
 <li><strong>Certificate Fetching</strong>: Built-in <code>fetchCertificate</code> for OS-level TLS validation and leaf certificate extraction</li>
@@ -75,13 +75,11 @@
 <li><strong>Comprehensive Error Handling</strong>: Detailed error types with programmatic checking capabilities</li>
 <li><strong>Configurable Logging</strong>: Multiple log levels for debugging, monitoring, and production use</li>
 <li><strong>Thread Safety</strong>: Built with Flutter's async/await pattern and native concurrency models</li>
-<li><strong>Intelligent Caching</strong>: 10-minute configuration caching with stale fallback for performance</li>
-<li><strong>ECDSA P-256 Signature Verification</strong>: Cryptographic validation of configuration integrity</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Add TrustPin SDK to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  trustpin_sdk: ^3.0.0
+  trustpin_sdk: ^4.1.0
 </code></pre>
 <p>Then install the package:</p>
 <pre class="language-bash"><code class="language-bash">flutter pub get
@@ -101,6 +99,11 @@
 <li><strong>Swift</strong>: 5.0+</li>
 <li><strong>Native Dependencies</strong>: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
+<blockquote>
+<p>Set <code>MACOSX_DEPLOYMENT_TARGET = 13.0</code> (or higher) in your Xcode project's
+build settings. Flutter uses this value to align the generated Swift Package
+Manager wrapper with TrustPin's minimum platform.</p>
+</blockquote>
 <p>For sandboxed macOS apps, add the network client entitlement:</p>
 <pre class="language-xml"><code class="language-xml">&lt;!-- In DebugProfile.entitlements and Release.entitlements --&gt;
 &lt;key&gt;com.apple.security.network.client&lt;/key&gt;
@@ -109,7 +112,7 @@
 <h3 id="android-requirements">Android Requirements</h3>
 <ul>
 <li><strong>Minimum SDK</strong>: API 21 (Android 5.0)+</li>
-<li><strong>Target SDK</strong>: API 34+ (recommended)</li>
+<li><strong>Compile SDK</strong>: API 36</li>
 <li><strong>Kotlin</strong>: 2.3.0+</li>
 <li><strong>Native Dependencies</strong>: TrustPin Kotlin SDK (automatically configured via Gradle)</li>
 </ul>
@@ -127,7 +130,7 @@
 <ul>
 <li>Organization ID</li>
 <li>Project ID</li>
-<li>Public Key (ECDSA P-256, Base64-encoded)</li>
+<li>Public Key (Base64-encoded)</li>
 </ul>
 <h3 id="2-initialize-the-sdk">2. Initialize the SDK</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:trustpin_sdk/trustpin_sdk.dart';
@@ -196,7 +199,6 @@ try {
 <ol>
 <li>Fetches the leaf certificate via OS-level TLS validation</li>
 <li>Verifies the certificate against configured TrustPin pins</li>
-<li>Caches certificates for performance</li>
 <li>Blocks requests with invalid certificates</li>
 </ol>
 <h3 id="integration-with-http-package">Integration with http package</h3>
@@ -281,8 +283,8 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td>Verify a PEM certificate against configured pins</td>
 </tr>
 <tr>
-<td><code>fetchCertificate(host, {port?})</code></td>
-<td>Fetch the TLS leaf certificate from a host as PEM</td>
+<td><code>fetchCertificate(host, {port?, timeout?})</code></td>
+<td>Fetch the TLS leaf certificate from a host as PEM, with optional upper bound</td>
 </tr>
 <tr>
 <td><code>setLogLevel(level)</code></td>
@@ -313,12 +315,12 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <tr>
 <td><code>publicKey</code></td>
 <td><code>String</code></td>
-<td>Base64-encoded ECDSA P-256 public key (required)</td>
+<td>Base64-encoded public key issued by the TrustPin dashboard (required)</td>
 </tr>
 <tr>
 <td><code>configurationURL</code></td>
 <td><code>Uri?</code></td>
-<td>Custom URL for self-hosted JWS payload (optional)</td>
+<td>Optional override for the configuration source (self-hosted setups only)</td>
 </tr>
 <tr>
 <td><code>mode</code></td>
@@ -453,6 +455,11 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td><code>isConfigurationValidationFailed</code></td>
 <td>Configuration validation failed</td>
 </tr>
+<tr>
+<td><code>FETCH_CERTIFICATE_TIMEOUT</code></td>
+<td><code>isFetchCertificateTimeout</code></td>
+<td><code>fetchCertificate</code> exceeded its <code>timeout</code></td>
+</tr>
 </tbody>
 </table>
 <h2 id="example-app">Example App</h2>
@@ -577,7 +584,7 @@ flutter run
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

@@ -54,14 +54,10 @@
 
     
 <section class="desc markdown">
-  <p>A certificate pinning interceptor for the http package.</p>
-<p>This interceptor wraps any http.Client and adds TrustPin certificate
-validation to all HTTPS requests. It first ensures the certificate passes
-standard TLS validation (via <a href="../trustpin_sdk/TrustPin/fetchCertificate.html">TrustPin.fetchCertificate</a>), then performs
-additional TrustPin verification.</p>
-<p>Certificates are cached to avoid repeated TLS connections to the same
-host. The cache stores PEM strings but not validation results, so TrustPin
-verification is performed on every request.</p>
+  <p>A certificate pinning client for the <code>http</code> package.</p>
+<p>Wraps any <a href="https://pub.dev/documentation/http/1.6.0/http/Client-class.html">http.Client</a> and validates HTTPS requests through TrustPin.
+Non-HTTPS requests pass through unchanged. <a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have
+been called on the underlying instance before making requests.</p>
 </section>
 
 
@@ -96,13 +92,15 @@ verification is performed on every request.</p>
           <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/TrustPinHttpClient.html">TrustPinHttpClient.new</a></span><span class="signature">(<span class="parameter" id="-param-_inner"><span class="type-annotation"><a href="https://pub.dev/documentation/http/1.6.0/http/Client-class.html">Client</a></span> <span class="parameter-name">_inner</span>, {</span><span class="parameter" id="-param-instance"><span class="type-annotation"><a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span></span>})</span>
         </dt>
         <dd>
-          Creates a new TrustPinHttpClient that wraps the provided client.
+          Wraps <code>_inner</code> so HTTPS requests are validated by <code>instance</code> (or
+<a href="../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> when null). <a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have been called
+on that instance before making requests.
         </dd>
         <dt id="TrustPinHttpClient.create" class="callable">
           <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/TrustPinHttpClient.create.html">TrustPinHttpClient.create</a></span><span class="signature">({<span class="parameter" id="create-param-instance"><span class="type-annotation"><a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span></span>})</span>
         </dt>
         <dd>
-          Creates a TrustPinHttpClient with a default http.Client.
+          Convenience factory using a default <code>http.Client</code> as inner.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -146,19 +144,6 @@ verification is performed on every request.</p>
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="clearCertificateCache" class="callable">
-  <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/clearCertificateCache.html">clearCertificateCache</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; void</span>
-  </span>
-  
-
-</dt>
-<dd>
-  Clears the certificate cache.
-  
-
-</dd>
-
         <dt id="close" class="callable">
   <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/close.html">close</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; void</span>
@@ -371,7 +356,7 @@ bytes.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

@@ -63,47 +63,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Sets the current log level for this TrustPin instance's logging system.</p>
-<p>Logging helps with debugging certificate pinning issues and monitoring
-security events. Different log levels provide varying amounts of detail.</p>
-<h2 id="log-levels">Log Levels</h2>
-<ul>
-<li><a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.none</a>: No logging output</li>
-<li><a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.error</a>: Only error messages</li>
-<li><a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.info</a>: Errors and informational messages</li>
-<li><a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.debug</a>: All messages including detailed debug information</li>
-</ul>
-<h2 id="example-usage">Example Usage</h2>
-<pre class="language-dart"><code class="language-dart">// Enable debug logging for development
-await TrustPin.shared.setLogLevel(TrustPinLogLevel.debug);
-
-// Minimal logging for production
-await TrustPin.shared.setLogLevel(TrustPinLogLevel.error);
-
-// Disable all logging
-await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
-</code></pre>
-<h2 id="performance-considerations">Performance Considerations</h2>
-<ul>
-<li>
-<p><strong>Production</strong>: Use <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.error</a> or <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.none</a> to minimize performance impact</p>
-</li>
-<li>
-<p><strong>Development</strong>: Use <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.debug</a> for detailed troubleshooting information</p>
-</li>
-<li>
-<p><strong>Staging</strong>: Use <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.info</a> for balanced logging without excessive detail</p>
-</li>
-<li>
-<p>Parameter <code>level</code>: The <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel</a> to use for filtering log messages</p>
-</li>
-<li>
-<p>Note: This setting affects logging for this instance only.</p>
-</li>
-<li>
-<p>Important: Set the log level before calling <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> for complete logging coverage.</p>
-</li>
-</ul>
+  <p>Sets the log level for this instance.</p>
+<p>Use <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.error</a> or <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.none</a> in production.
+Set the level before <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> for complete coverage.</p>
 </section>
 
 
@@ -145,7 +107,7 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>

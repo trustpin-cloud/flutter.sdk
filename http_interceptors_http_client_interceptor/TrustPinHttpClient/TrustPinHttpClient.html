@@ -60,20 +60,19 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new TrustPinHttpClient that wraps the provided client.</p>
-<p>The provided client will be used for making actual HTTP requests after
-certificate validation passes. When <code>instance</code> is provided, the client
-uses that TrustPin instance. When null, <a href="../../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> is used.</p>
-<p>The TrustPin instance must be properly configured with <a href="../../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a>
-before making requests.</p>
+  <p>Wraps <code>_inner</code> so HTTPS requests are validated by <code>instance</code> (or
+<a href="../../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> when null). <a href="../../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have been called
+on that instance before making requests.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TrustPinHttpClient(this._inner, {TrustPin? instance})
-    : _instance = instance ?? TrustPin.shared;</code></pre>
+  <pre class="language-dart"><code class="language-dart">TrustPinHttpClient(
+  this._inner, {
+  TrustPin? instance,
+}) : _instance = instance ?? TrustPin.shared;</code></pre>
 </section>
 
 
@@ -101,7 +100,7 @@ before making requests.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.0.0
+      4.1.0
   </span>
   
 </footer>
