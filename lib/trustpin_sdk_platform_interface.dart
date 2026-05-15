@@ -45,6 +45,11 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
   /// Verifies a PEM certificate against configured pins for [domain].
   ///
   /// When [instanceId] is null, the global default instance is used.
+  ///
+  /// **Deprecated.** Implementations and callers should prefer
+  /// [validateConnection], which composes fetch + verify on the platform
+  /// side in a single channel call.
+  @Deprecated('Use validateConnection() instead.')
   Future<void> verify(String domain, String certificate, {String? instanceId}) {
     throw UnimplementedError('verify() has not been implemented.');
   }
@@ -61,8 +66,30 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
   /// When [timeoutMs] is non-null and positive, the platform throws
   /// `FETCH_CERTIFICATE_TIMEOUT` if exceeded. When [instanceId] is null, the
   /// global default instance is used.
+  ///
+  /// **Deprecated.** Implementations and callers should prefer
+  /// [validateConnection], which keeps the certificate inside the platform
+  /// layer instead of marshalling it through the Dart isolate.
+  @Deprecated('Use validateConnection() instead.')
   Future<String> fetchCertificate(String host,
       {int port = 443, int? timeoutMs, String? instanceId}) {
     throw UnimplementedError('fetchCertificate() has not been implemented.');
+  }
+
+  /// Atomically validates that [host]:[port] presents a certificate matching
+  /// the configured pins. The platform composes `fetchCertificate` and
+  /// `verify` inside a single channel call, so the certificate never enters
+  /// the Dart isolate.
+  ///
+  /// When [timeoutMs] is non-null and positive, the platform throws
+  /// `FETCH_CERTIFICATE_TIMEOUT` if the combined operation exceeds it.
+  /// When [instanceId] is null, the global default instance is used.
+  Future<void> validateConnection(
+    String host, {
+    int port = 443,
+    int? timeoutMs,
+    String? instanceId,
+  }) {
+    throw UnimplementedError('validateConnection() has not been implemented.');
   }
 }

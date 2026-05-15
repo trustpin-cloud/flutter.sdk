@@ -182,6 +182,11 @@ class TrustPin {
   /// Verifies that [certificate] is valid for [domain] under this instance's
   /// pinning configuration. Returns normally on success.
   ///
+  /// **Deprecated.** Prefer [validateConnection], which composes the
+  /// certificate fetch and pin verification inside a single channel call.
+  /// `verify` remains supported for diagnostic flows where the caller
+  /// already holds a PEM certificate obtained out of band.
+  ///
   /// ```dart
   /// try {
   ///   await TrustPin.shared.verify('api.example.com', pemCertificate);
@@ -200,6 +205,11 @@ class TrustPin {
   /// - Throws [TrustPinException] with code `ALL_PINS_EXPIRED` if no usable pins remain for the domain.
   /// - Throws [TrustPinException] with code `INVALID_SERVER_CERT` if the certificate cannot be parsed.
   /// - Throws [TrustPinException] with code `INVALID_PROJECT_CONFIG` if [setup] has not been called.
+  @Deprecated(
+    'Use validateConnection() instead — it composes fetchCertificate + verify '
+    'in a single channel call and bounds the whole operation with one timeout. '
+    'verify() will be removed in a future major release.',
+  )
   Future<void> verify(String domain, String certificate) async {
     try {
       await TrustPinSDKPlatform.instance
@@ -225,11 +235,22 @@ class TrustPin {
   /// Returns the TLS leaf certificate served by [host]:[port] as a PEM
   /// string.
   ///
+  /// **Deprecated.** Prefer [validateConnection], which keeps the certificate
+  /// inside the platform layer instead of marshalling it through the Dart
+  /// isolate. `fetchCertificate` remains supported for diagnostic flows
+  /// where the caller needs the PEM bytes (for example, to display the
+  /// SHA-256 fingerprint).
+  ///
   /// [timeout] is an optional upper bound on the call; when `null`, the
   /// platform default is used.
   ///
   /// - Throws [TrustPinException] with code `INVALID_SERVER_CERT` on connection failure.
   /// - Throws [TrustPinException] with code `FETCH_CERTIFICATE_TIMEOUT` if [timeout] is exceeded.
+  @Deprecated(
+    'Use validateConnection() instead — it keeps the certificate inside the '
+    'platform layer instead of marshalling it through the Dart isolate. '
+    'fetchCertificate() will be removed in a future major release.',
+  )
   Future<String> fetchCertificate(
     String host, {
     int port = 443,
@@ -237,6 +258,53 @@ class TrustPin {
   }) async {
     try {
       return await TrustPinSDKPlatform.instance.fetchCertificate(
+        host,
+        port: port,
+        timeoutMs: timeout?.inMilliseconds,
+        instanceId: _instanceId,
+      );
+    } catch (e) {
+      throw TrustPinException.fromPlatformException(e);
+    }
+  }
+
+  /// Validates that [host]:[port] is allowed under this instance's pinning
+  /// configuration. Returns normally on success.
+  ///
+  /// The platform composes the leaf-certificate fetch and pin verification
+  /// inside a single channel call, so the certificate never enters the Dart
+  /// isolate. This is the recommended entry point for cert-pinned HTTPS;
+  /// [fetchCertificate] and [verify] remain available for diagnostic or
+  /// custom-flow use cases.
+  ///
+  /// ```dart
+  /// try {
+  ///   await TrustPin.shared.validateConnection('api.example.com');
+  /// } on TrustPinException catch (e) {
+  ///   if (e.isPinsMismatch) {
+  ///     // Certificate didn't match any configured pin.
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// [timeout] is an optional upper bound on the entire operation (TLS
+  /// handshake, chain validation, configuration refresh if any, and pin
+  /// comparison). When `null`, the platform default is used.
+  ///
+  /// - Throws [TrustPinException] with code `INVALID_PROJECT_CONFIG` if [setup] has not been called.
+  /// - Throws [TrustPinException] with code `INVALID_SERVER_CERT` on connection failure.
+  /// - Throws [TrustPinException] with code `DOMAIN_NOT_REGISTERED` if domain is not configured (strict mode only).
+  /// - Throws [TrustPinException] with code `PINS_MISMATCH` if the certificate is rejected.
+  /// - Throws [TrustPinException] with code `ALL_PINS_EXPIRED` if no usable pins remain for the domain.
+  /// - Throws [TrustPinException] with code `ERROR_FETCHING_PINNING_INFO` if pinning information cannot be retrieved.
+  /// - Throws [TrustPinException] with code `FETCH_CERTIFICATE_TIMEOUT` if [timeout] is exceeded.
+  Future<void> validateConnection(
+    String host, {
+    int port = 443,
+    Duration? timeout,
+  }) async {
+    try {
+      await TrustPinSDKPlatform.instance.validateConnection(
         host,
         port: port,
         timeoutMs: timeout?.inMilliseconds,

@@ -8,7 +8,7 @@ import '../trustpin_sdk.dart';
 /// Non-HTTPS requests pass through unchanged. [TrustPin.setup] must have
 /// been called on the underlying instance before making requests.
 class TrustPinHttpClient extends http.BaseClient {
-  static const Duration _fetchCertificateTimeout = Duration(seconds: 10);
+  static const Duration _validateTimeout = Duration(seconds: 10);
 
   final http.Client _inner;
   final TrustPin _instance;
@@ -32,19 +32,14 @@ class TrustPinHttpClient extends http.BaseClient {
 
     // Only validate HTTPS requests
     if (uri.scheme == 'https') {
-      await _validateCertificate(uri.host, uri.port);
+      await _instance.validateConnection(
+        uri.host,
+        port: uri.port,
+        timeout: _validateTimeout,
+      );
     }
 
     return _inner.send(request);
-  }
-
-  Future<void> _validateCertificate(String host, int port) async {
-    final pem = await _instance.fetchCertificate(
-      host,
-      port: port,
-      timeout: _fetchCertificateTimeout,
-    );
-    await _instance.verify(host, pem);
   }
 
   @override

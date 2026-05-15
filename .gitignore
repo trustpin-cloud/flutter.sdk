@@ -50,3 +50,5 @@ coverage/
 **/sample_app/ios/Podfile.lock
 
 .claude
+
+sample_app/trustpin.json

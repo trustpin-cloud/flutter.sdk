@@ -111,6 +111,40 @@ void main() {
             }
 
             return '-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END CERTIFICATE-----\n';
+          case 'validateConnection':
+            final args = Map<String, dynamic>.from(methodCall.arguments as Map);
+            final host = args['host'] as String;
+
+            if (host.isEmpty) {
+              throw PlatformException(
+                code: 'INVALID_ARGUMENTS',
+                message: 'Missing required arguments',
+              );
+            }
+
+            switch (host) {
+              case 'pins-mismatch.com':
+                throw PlatformException(
+                  code: 'PINS_MISMATCH',
+                  message: 'Certificate does not match any configured pins',
+                );
+              case 'not-registered.com':
+                throw PlatformException(
+                  code: 'DOMAIN_NOT_REGISTERED',
+                  message: 'Domain not registered for pinning',
+                );
+              case 'timeout.com':
+                throw PlatformException(
+                  code: 'FETCH_CERTIFICATE_TIMEOUT',
+                  message: 'Timed out validating connection',
+                );
+              case 'unknown.com':
+                throw PlatformException(
+                  code: 'VALIDATE_CONNECTION_ERROR',
+                  message: 'Unknown error during validation',
+                );
+            }
+            return null;
           default:
             throw MissingPluginException(
                 'No implementation found for method ${methodCall.method}');
@@ -386,6 +420,82 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         } on PlatformException catch (e) {
           expect(e.code, equals('INVALID_SERVER_CERT'));
           expect(e.message, contains('TLS handshake failed'));
+        }
+      });
+    });
+
+    group('validateConnection()', () {
+      test('should call native validateConnection with default port and no timeout',
+          () async {
+        await platform.validateConnection('api.example.com');
+
+        expect(methodCalls.length, equals(1));
+        expect(methodCalls[0].method, equals('validateConnection'));
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['host'], equals('api.example.com'));
+        expect(args['port'], equals(443));
+        expect(args['timeoutMs'], isNull);
+        expect(args['instanceId'], isNull);
+      });
+
+      test('should forward custom port, timeout and instanceId', () async {
+        await platform.validateConnection(
+          'api.example.com',
+          port: 8443,
+          timeoutMs: 5000,
+          instanceId: 'lib.networking',
+        );
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['host'], equals('api.example.com'));
+        expect(args['port'], equals(8443));
+        expect(args['timeoutMs'], equals(5000));
+        expect(args['instanceId'], equals('lib.networking'));
+      });
+
+      test('should complete without error on success', () async {
+        await expectLater(
+          platform.validateConnection('api.example.com'),
+          completes,
+        );
+      });
+
+      test('should surface PINS_MISMATCH from the platform', () async {
+        try {
+          await platform.validateConnection('pins-mismatch.com');
+          fail('Expected PlatformException');
+        } on PlatformException catch (e) {
+          expect(e.code, equals('PINS_MISMATCH'));
+        }
+      });
+
+      test('should surface DOMAIN_NOT_REGISTERED from the platform', () async {
+        try {
+          await platform.validateConnection('not-registered.com');
+          fail('Expected PlatformException');
+        } on PlatformException catch (e) {
+          expect(e.code, equals('DOMAIN_NOT_REGISTERED'));
+        }
+      });
+
+      test('should surface FETCH_CERTIFICATE_TIMEOUT from the platform',
+          () async {
+        try {
+          await platform.validateConnection('timeout.com', timeoutMs: 1);
+          fail('Expected PlatformException');
+        } on PlatformException catch (e) {
+          expect(e.code, equals('FETCH_CERTIFICATE_TIMEOUT'));
+        }
+      });
+
+      test('should surface VALIDATE_CONNECTION_ERROR generic failures',
+          () async {
+        try {
+          await platform.validateConnection('unknown.com');
+          fail('Expected PlatformException');
+        } on PlatformException catch (e) {
+          expect(e.code, equals('VALIDATE_CONNECTION_ERROR'));
         }
       });
     });

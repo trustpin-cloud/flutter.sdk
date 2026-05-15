@@ -46,11 +46,20 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        // 25 is the floor imposed by cloud.trustpin:kotlin-sdk:4.3.+.
+        // Apps consuming this plugin must declare minSdk >= 25.
+        minSdk = 25
     }
 
     dependencies {
-        implementation("cloud.trustpin:kotlin-sdk:4.1.0")
+        // Pin the native SDK to an exact version. `strictly` prevents
+        // Gradle's conflict resolution from silently selecting a newer
+        // version pulled in transitively by the consuming app.
+        implementation("cloud.trustpin:kotlin-sdk") {
+            version {
+                strictly("4.3.2")
+            }
+        }
 
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
