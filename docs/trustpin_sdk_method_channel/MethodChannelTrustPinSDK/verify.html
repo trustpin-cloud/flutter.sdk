@@ -72,6 +72,9 @@
 <section class="desc markdown">
   <p>Verifies a PEM certificate against configured pins for <code>domain</code>.</p>
 <p>When <code>instanceId</code> is null, the global default instance is used.</p>
+<p><strong>Deprecated.</strong> Implementations and callers should prefer
+<a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/validateConnection.html">validateConnection</a>, which composes fetch + verify on the platform
+side in a single channel call.</p>
 </section>
 
 
@@ -114,7 +117,7 @@ Future&lt;void&gt; verify(String domain, String certificate,
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>

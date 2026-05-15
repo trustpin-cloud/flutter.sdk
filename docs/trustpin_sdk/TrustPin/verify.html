@@ -27,7 +27,7 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk.dart</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">verify method</li>
+    <li class="self-crumb"><span class="deprecated">verify</span> method</li>
   </ol>
   <div class="self-name">verify</div>
   <form class="search navbar-right" role="search">
@@ -54,8 +54,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use validateConnection() instead — it composes fetchCertificate + verify &#39; &#39;in a single channel call and bounds the whole operation with one timeout. &#39; &#39;verify() will be removed in a future major release.&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">verify</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span></li>
+<span class="name deprecated">verify</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span></li>
 <li><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span></span></li>
 </ol>)
 
@@ -66,6 +71,10 @@
 <section class="desc markdown">
   <p>Verifies that <code>certificate</code> is valid for <code>domain</code> under this instance's
 pinning configuration. Returns normally on success.</p>
+<p><strong>Deprecated.</strong> Prefer <a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a>, which composes the
+certificate fetch and pin verification inside a single channel call.
+<code>verify</code> remains supported for diagnostic flows where the caller
+already holds a PEM certificate obtained out of band.</p>
 <pre class="language-dart"><code class="language-dart">try {
   await TrustPin.shared.verify('api.example.com', pemCertificate);
 } on TrustPinException catch (e) {
@@ -89,7 +98,12 @@ Behavior on unregistered domains depends on <a href="../../trustpin_mode/TrustPi
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; verify(String domain, String certificate) async {
+  <pre class="language-dart"><code class="language-dart">@Deprecated(
+  &#39;Use validateConnection() instead — it composes fetchCertificate + verify &#39;
+  &#39;in a single channel call and bounds the whole operation with one timeout. &#39;
+  &#39;verify() will be removed in a future major release.&#39;,
+)
+Future&lt;void&gt; verify(String domain, String certificate) async {
   try {
     await TrustPinSDKPlatform.instance
         .verify(domain, certificate, instanceId: _instanceId);
@@ -112,7 +126,7 @@ Behavior on unregistered domains depends on <a href="../../trustpin_mode/TrustPi
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">verify method</li>
+    <li class="self-crumb"><span class="deprecated">verify</span> method</li>
 </ol>
 
     <h5>TrustPin class</h5>
@@ -124,7 +138,7 @@ Behavior on unregistered domains depends on <a href="../../trustpin_mode/TrustPi
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>

@@ -86,7 +86,11 @@ Future&lt;http.StreamedResponse&gt; send(http.BaseRequest request) async {
 
   &#47;&#47; Only validate HTTPS requests
   if (uri.scheme == &#39;https&#39;) {
-    await _validateCertificate(uri.host, uri.port);
+    await _instance.validateConnection(
+      uri.host,
+      port: uri.port,
+      timeout: _validateTimeout,
+    );
   }
 
   return _inner.send(request);
@@ -118,7 +122,7 @@ Future&lt;http.StreamedResponse&gt; send(http.BaseRequest request) async {
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>

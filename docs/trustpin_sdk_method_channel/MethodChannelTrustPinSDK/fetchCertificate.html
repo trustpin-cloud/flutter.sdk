@@ -75,6 +75,9 @@
 <p>When <code>timeoutMs</code> is non-null and positive, the platform throws
 <code>FETCH_CERTIFICATE_TIMEOUT</code> if exceeded. When <code>instanceId</code> is null, the
 global default instance is used.</p>
+<p><strong>Deprecated.</strong> Implementations and callers should prefer
+<a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/validateConnection.html">validateConnection</a>, which keeps the certificate inside the platform
+layer instead of marshalling it through the Dart isolate.</p>
 </section>
 
 
@@ -122,7 +125,7 @@ Future&lt;String&gt; fetchCertificate(String host,
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>

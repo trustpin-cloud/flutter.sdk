@@ -184,7 +184,7 @@ that can be checked programmatically:</p>
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="fetchCertificate" class="callable">
-  <span class="name"><a href="../trustpin_sdk/TrustPin/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
+  <span class="name deprecated"><a class="deprecated" href="../trustpin_sdk/TrustPin/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
@@ -232,7 +232,7 @@ string.
 </dt>
 <dd>
   Initializes this instance with the given <code>configuration</code>. Must be
-called before <a href="../trustpin_sdk/TrustPin/verify.html">verify</a>.
+called before <a class="deprecated" href="../trustpin_sdk/TrustPin/verify.html">verify</a>.
   
 
 </dd>
@@ -250,8 +250,22 @@ called before <a href="../trustpin_sdk/TrustPin/verify.html">verify</a>.
 
 </dd>
 
+        <dt id="validateConnection" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a></span><span class="signature">(<wbr><span class="parameter" id="validateConnection-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="validateConnection-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="validateConnection-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates that <code>host</code>:<code>port</code> is allowed under this instance's pinning
+configuration. Returns normally on success.
+  
+
+</dd>
+
         <dt id="verify" class="callable">
-  <span class="name"><a href="../trustpin_sdk/TrustPin/verify.html">verify</a></span><span class="signature">(<wbr><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span></span>)
+  <span class="name deprecated"><a class="deprecated" href="../trustpin_sdk/TrustPin/verify.html">verify</a></span><span class="signature">(<wbr><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
@@ -349,7 +363,7 @@ pinning configuration. Returns normally on success.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>
