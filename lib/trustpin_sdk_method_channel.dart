@@ -61,4 +61,19 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
     );
     return result!;
   }
+
+  @override
+  Future<void> validateConnection(
+    String host, {
+    int port = 443,
+    int? timeoutMs,
+    String? instanceId,
+  }) async {
+    await methodChannel.invokeMethod('validateConnection', {
+      'host': host,
+      'port': port,
+      'timeoutMs': timeoutMs,
+      'instanceId': instanceId,
+    });
+  }
 }

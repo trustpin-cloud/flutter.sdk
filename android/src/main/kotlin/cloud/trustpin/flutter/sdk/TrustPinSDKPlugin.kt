@@ -1,264 +1,55 @@
 package cloud.trustpin.flutter.sdk
 
-import cloud.trustpin.kotlin.sdk.TrustPin
-import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
-import cloud.trustpin.kotlin.sdk.TrustPinError
-import cloud.trustpin.kotlin.sdk.TrustPinLogLevel
-import cloud.trustpin.kotlin.sdk.TrustPinMode
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.StandardMethodCodec
-
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 
-import java.security.cert.CertificateException
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
-import java.io.ByteArrayInputStream
-import java.util.Base64
-import java.net.URI
-import java.net.URL
+/**
+ * Flutter method-channel entry point. All handler logic lives in
+ * `MethodHandlers.kt`; this file owns only the registration and the
+ * method-name dispatch.
+ *
+ * The channel is registered with a background TaskQueue, so call handlers and
+ * result callbacks run off the platform thread. The coroutine scope is anchored
+ * on [Dispatchers.Default]; no thread-bouncing per call.
+ */
+class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
 
-/** TrustPinSDKPlugin */
-class TrustPinSDKPlugin: FlutterPlugin, MethodCallHandler {
-  private lateinit var channel : MethodChannel
+    private lateinit var channel: MethodChannel
 
-  // Channel is registered with a background TaskQueue, so call handlers and
-  // result callbacks run off the platform thread. The scope is anchored on
-  // Default; no thread-bouncing per call.
-  private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    internal val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    val messenger = flutterPluginBinding.binaryMessenger
-    val taskQueue = messenger.makeBackgroundTaskQueue()
-    channel = MethodChannel(
-      messenger,
-      "cloud.trustpin.sdk.flutter",
-      StandardMethodCodec.INSTANCE,
-      taskQueue
-    )
-    channel.setMethodCallHandler(this)
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    when (call.method) {
-      "setup" -> handleSetup(call, result)
-      "verify" -> handleVerify(call, result)
-      "setLogLevel" -> handleSetLogLevel(call, result)
-      "fetchCertificate" -> handleFetchCertificate(call, result)
-      else -> result.notImplemented()
-    }
-  }
-
-  private fun handleSetup(call: MethodCall, result: Result) {
-    coroutineScope.launch {
-      try {
-        val organizationId = call.argument<String>("organizationId")
-        val projectId = call.argument<String>("projectId")
-        val publicKey = call.argument<String>("publicKey")
-        val instanceId = call.argument<String>("instanceId")
-        val configurationURL = call.argument<String>("configurationURL")
-        val modeString = call.argument<String>("mode") ?: "strict"
-
-        if (organizationId == null || projectId == null || publicKey == null) {
-          result.error("INVALID_ARGUMENTS", "Missing required arguments", null)
-          return@launch
-        }
-
-        val mode = when (modeString.lowercase()) {
-          "permissive" -> TrustPinMode.PERMISSIVE
-          "strict" -> TrustPinMode.STRICT
-          else -> TrustPinMode.STRICT
-        }
-
-        val url = if (configurationURL != null && configurationURL.isNotEmpty()) {
-          try {
-            URI.create(configurationURL).toURL()
-          } catch (e: Exception) {
-            throw TrustPinError.InvalidProjectConfig
-          }
-        } else {
-          null
-        }
-
-        val configuration = TrustPinConfiguration(
-          organizationId = organizationId,
-          projectId = projectId,
-          publicKey = publicKey,
-          mode = mode,
-          configurationURL = url
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        val messenger = binding.binaryMessenger
+        channel = MethodChannel(
+            messenger,
+            CHANNEL_NAME,
+            StandardMethodCodec.INSTANCE,
+            messenger.makeBackgroundTaskQueue()
         )
-
-        val trustPin = getTrustPinInstance(instanceId)
-        trustPin.setup(configuration)
-
-        result.success(null)
-      } catch (e: CancellationException) {
-        result.error("CANCELLED", "Operation was cancelled", null)
-        throw e
-      } catch (e: TrustPinError) {
-        result.error(mapTrustPinError(e), e.message, null)
-      } catch (e: Exception) {
-        result.error("SETUP_ERROR", e.message, null)
-      }
+        channel.setMethodCallHandler(this)
     }
-  }
 
-  private fun handleVerify(call: MethodCall, result: Result) {
-    coroutineScope.launch {
-      try {
-        val domain = call.argument<String>("domain")
-        val certificatePem = call.argument<String>("certificate")
-        val instanceId = call.argument<String>("instanceId")
-
-        if (domain == null || certificatePem == null) {
-          result.error("INVALID_ARGUMENTS", "Missing required arguments", null)
-          return@launch
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        when (call.method) {
+            Method.SETUP -> handleSetup(call, result)
+            Method.VERIFY -> handleVerify(call, result)
+            Method.SET_LOG_LEVEL -> handleSetLogLevel(call, result)
+            Method.FETCH_CERTIFICATE -> handleFetchCertificate(call, result)
+            Method.VALIDATE_CONNECTION -> handleValidateConnection(call, result)
+            else -> result.notImplemented()
         }
-
-        val certificate = parsePemCertificate(certificatePem)
-        val trustPin = getTrustPinInstance(instanceId)
-        trustPin.verify(domain, certificate)
-
-        result.success(null)
-      } catch (e: CancellationException) {
-        result.error("CANCELLED", "Operation was cancelled", null)
-        throw e
-      } catch (e: TrustPinError) {
-        result.error(mapTrustPinError(e), e.message, null)
-      } catch (e: Exception) {
-        result.error("VERIFY_ERROR", e.message, null)
-      }
     }
-  }
 
-  private fun handleSetLogLevel(call: MethodCall, result: Result) {
-    try {
-      val logLevelString = call.argument<String>("logLevel")
-      val instanceId = call.argument<String>("instanceId")
-
-      if (logLevelString == null) {
-        result.error("INVALID_ARGUMENTS", "Missing logLevel argument", null)
-        return
-      }
-
-      val logLevel = when (logLevelString.lowercase()) {
-        "none" -> TrustPinLogLevel.NONE
-        "error" -> TrustPinLogLevel.ERROR
-        "info" -> TrustPinLogLevel.INFO
-        "debug" -> TrustPinLogLevel.DEBUG
-        else -> TrustPinLogLevel.ERROR
-      }
-
-      val trustPin = getTrustPinInstance(instanceId)
-      trustPin.setLogLevel(logLevel)
-
-      result.success(null)
-    } catch (e: Exception) {
-      result.error("SET_LOG_LEVEL_ERROR", e.message, null)
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+        coroutineScope.cancel()
     }
-  }
-
-  private fun handleFetchCertificate(call: MethodCall, result: Result) {
-    coroutineScope.launch {
-      try {
-        val host = call.argument<String>("host")
-        val port = call.argument<Int>("port") ?: 443
-        val timeoutMs = call.argument<Int>("timeoutMs")
-        val instanceId = call.argument<String>("instanceId")
-
-        if (host == null) {
-          result.error("INVALID_ARGUMENTS", "Missing required arguments", null)
-          return@launch
-        }
-
-        val trustPin = getTrustPinInstance(instanceId)
-        val pem = if (timeoutMs != null && timeoutMs > 0) {
-          withTimeout(timeoutMs.toLong()) {
-            trustPin.fetchCertificate(host, port)
-          }
-        } else {
-          trustPin.fetchCertificate(host, port)
-        }
-
-        result.success(pem)
-      } catch (e: TimeoutCancellationException) {
-        // Must precede the generic CancellationException handler since
-        // TimeoutCancellationException is a subtype.
-        result.error(
-          "FETCH_CERTIFICATE_TIMEOUT",
-          "Timed out fetching certificate",
-          null
-        )
-      } catch (e: CancellationException) {
-        result.error("CANCELLED", "Operation was cancelled", null)
-        throw e
-      } catch (e: TrustPinError) {
-        result.error(mapTrustPinError(e), e.message, null)
-      } catch (e: Exception) {
-        result.error("FETCH_CERTIFICATE_ERROR", e.message, null)
-      }
-    }
-  }
-
-  private fun parsePemCertificate(pemCertificate: String): X509Certificate {
-    try {
-      val certificateFactory = CertificateFactory.getInstance("X.509")
-
-      val cleanPem = pemCertificate
-        .replace("-----BEGIN CERTIFICATE-----", "")
-        .replace("-----END CERTIFICATE-----", "")
-        .replace("\\s".toRegex(), "")
-
-      val decodedBytes = Base64.getDecoder().decode(cleanPem)
-
-      return ByteArrayInputStream(decodedBytes).use { inputStream ->
-        certificateFactory.generateCertificate(inputStream) as X509Certificate
-      }
-    } catch (e: CertificateException) {
-      throw TrustPinError.InvalidServerCert
-    } catch (e: IllegalArgumentException) {
-      throw TrustPinError.InvalidServerCert
-    } catch (e: ClassCastException) {
-      throw TrustPinError.InvalidServerCert
-    }
-  }
-
-  private fun getTrustPinInstance(instanceId: String?): TrustPin {
-    return if (instanceId.isNullOrEmpty()) {
-      TrustPin.default
-    } else {
-      TrustPin.instance(instanceId)
-    }
-  }
-
-  private fun mapTrustPinError(error: TrustPinError): String {
-    return when (error) {
-      is TrustPinError.InvalidProjectConfig -> "INVALID_PROJECT_CONFIG"
-      is TrustPinError.ErrorFetchingPinningInfo -> "ERROR_FETCHING_PINNING_INFO"
-      is TrustPinError.InvalidServerCert -> "INVALID_SERVER_CERT"
-      is TrustPinError.PinsMismatch -> "PINS_MISMATCH"
-      is TrustPinError.AllPinsExpired -> "ALL_PINS_EXPIRED"
-      is TrustPinError.ConfigurationValidationFailed -> "CONFIGURATION_VALIDATION_FAILED"
-      is TrustPinError.DomainNotRegistered -> "DOMAIN_NOT_REGISTERED"
-      else -> "INVALID_PROJECT_CONFIG"
-    }
-  }
-
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
-    // Cancel all running coroutines to prevent memory leaks and crashes
-    coroutineScope.cancel()
-  }
 }

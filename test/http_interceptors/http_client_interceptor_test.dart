@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:trustpin_sdk/trustpin_sdk.dart';
 import 'package:trustpin_sdk/trustpin_sdk_method_channel.dart';
 
@@ -17,7 +18,7 @@ void main() {
       platform = MethodChannelTrustPinSDK();
       methodCalls = [];
 
-      // Mock the platform method channel for TrustPin.verify calls
+      // Mock the platform method channel for TrustPin.validateConnection calls
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(platform.methodChannel,
               (MethodCall methodCall) async {
@@ -26,27 +27,19 @@ void main() {
         switch (methodCall.method) {
           case 'setup':
             return null;
-          case 'verify':
+          case 'validateConnection':
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
-            final domain = args['domain'] as String;
-            final certificate = args['certificate'] as String;
+            final host = args['host'] as String;
 
-            if (domain.isEmpty) {
+            if (host.isEmpty) {
               throw PlatformException(
-                code: 'INVALID_DOMAIN',
-                message: 'Domain cannot be empty',
+                code: 'INVALID_ARGUMENTS',
+                message: 'Missing required arguments',
               );
             }
 
-            if (!certificate.contains('BEGIN CERTIFICATE')) {
-              throw PlatformException(
-                code: 'INVALID_SERVER_CERT',
-                message: 'Invalid certificate format',
-              );
-            }
-
-            // Simulate different scenarios based on domain
-            switch (domain) {
+            // Simulate different scenarios based on host
+            switch (host) {
               case 'pins-mismatch.example.com':
                 throw PlatformException(
                   code: 'PINS_MISMATCH',
@@ -116,6 +109,67 @@ void main() {
 
         // Should be safe to close multiple times
         client.close();
+      });
+    });
+
+    group('validateConnection wiring', () {
+      test('HTTPS request invokes validateConnection (not fetchCertificate/verify)',
+          () async {
+        final inner = MockClient((request) async => http.Response('ok', 200));
+        final client = TrustPinHttpClient(inner);
+
+        final response =
+            await client.get(Uri.parse('https://api.example.com/data'));
+
+        expect(response.statusCode, 200);
+        expect(methodCalls.where((c) => c.method == 'validateConnection'),
+            hasLength(1));
+        expect(methodCalls.where((c) => c.method == 'fetchCertificate'),
+            isEmpty);
+        expect(methodCalls.where((c) => c.method == 'verify'), isEmpty);
+
+        final args =
+            Map<String, dynamic>.from(methodCalls.first.arguments as Map);
+        expect(args['host'], 'api.example.com');
+        expect(args['port'], 443);
+        expect(args['timeoutMs'], 10000);
+      });
+
+      test('non-HTTPS request skips validateConnection', () async {
+        final inner = MockClient((request) async => http.Response('ok', 200));
+        final client = TrustPinHttpClient(inner);
+
+        final response =
+            await client.get(Uri.parse('http://api.example.com/data'));
+
+        expect(response.statusCode, 200);
+        expect(methodCalls, isEmpty);
+      });
+
+      test('HTTPS validation failure propagates as TrustPinException',
+          () async {
+        final inner = MockClient((request) async => http.Response('ok', 200));
+        final client = TrustPinHttpClient(inner);
+
+        await expectLater(
+          client.get(Uri.parse('https://pins-mismatch.example.com/data')),
+          throwsA(isA<TrustPinException>().having(
+            (e) => e.code,
+            'code',
+            'PINS_MISMATCH',
+          )),
+        );
+      });
+
+      test('custom port is forwarded', () async {
+        final inner = MockClient((request) async => http.Response('ok', 200));
+        final client = TrustPinHttpClient(inner);
+
+        await client.get(Uri.parse('https://api.example.com:8443/data'));
+
+        final args =
+            Map<String, dynamic>.from(methodCalls.first.arguments as Map);
+        expect(args['port'], 8443);
       });
     });
 

@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2026-05-14
+
+### Added
+
+- `TrustPin.validateConnection(host, {port, timeout})` — atomic "is this
+  connection allowed?" entry point. The platform composes the certificate
+  fetch and pin verification inside a single channel call, so the certificate
+  never enters the Dart isolate. The `timeout` argument bounds the entire
+  operation, closing the gap where `verify` previously could not be
+  time-limited.
+- `TrustPinConfiguration.fromAssets` for loading the SDK configuration from a
+  bundled `trustpin.json` asset (shares the JSON schema with the Android SDK)
+
+### Changed
+
+- `TrustPinHttpClient` and `TrustPinDioInterceptor` now route HTTPS requests
+  through `validateConnection`. No source changes required for callers; every
+  HTTPS request now takes one channel hop instead of two. The interceptors
+  no longer hold any pinning-related Dart state (no caches, no in-flight
+  tracking).
+- Updated iOS/macOS native SDK to 4.3.1
+- Updated Android native SDK to 4.3.2
+- Aligned iOS/macOS Swift Package Manager manifests with the Swift 6.1
+  toolchain requirement used by CocoaPods and documented in the README.
+- iOS/macOS now reject malformed `configurationURL` values with
+  `INVALID_PROJECT_CONFIG`, matching Android behavior.
+- **Android minSdk bumped from 21 to 25** to match the requirement of the
+  underlying `cloud.trustpin:kotlin-sdk:4.3.2`. Apps consuming this plugin
+  must declare `minSdk >= 25` in their `android/app/build.gradle`.
+
+### Deprecated
+
+- `TrustPin.verify(domain, certificate)` and
+  `TrustPin.fetchCertificate(host, {port, timeout})` are deprecated in favor
+  of `TrustPin.validateConnection`. The deprecated methods still work and
+  remain useful for diagnostic flows (for example, computing a SHA-256
+  fingerprint from the raw PEM), but will be removed in a future major
+  release. The same deprecations apply to the corresponding
+  `TrustPinSDKPlatform` methods.
+
 ## [4.1.0] - 2026-05-02
 
 ### Changed

@@ -29,6 +29,11 @@ class MockTrustPinSDKPlatform extends TrustPinSDKPlatform
   Future<String> fetchCertificate(String host,
           {int port = 443, int? timeoutMs, String? instanceId}) =>
       Future.value('mock-certificate');
+
+  @override
+  Future<void> validateConnection(String host,
+          {int port = 443, int? timeoutMs, String? instanceId}) =>
+      Future.value();
 }
 
 class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
@@ -56,6 +61,11 @@ class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
   Future<String> fetchCertificate(String host,
           {int port = 443, int? timeoutMs, String? instanceId}) =>
       Future.value('mock-certificate');
+
+  @override
+  Future<void> validateConnection(String host,
+          {int port = 443, int? timeoutMs, String? instanceId}) =>
+      Future.value();
 }
 
 void main() {
@@ -182,6 +192,10 @@ void main() {
         expect(() async {
           await platform.setLogLevel('debug');
         }, throwsA(isA<UnimplementedError>()));
+
+        expect(() async {
+          await platform.validateConnection('api.example.com');
+        }, throwsA(isA<UnimplementedError>()));
       });
 
       test(
@@ -210,6 +224,16 @@ void main() {
             expect(
               e.message,
               contains('setLogLevel() has not been implemented'),
+            );
+          }
+
+          try {
+            await platform.validateConnection('api.example.com');
+            fail('Expected UnimplementedError');
+          } on UnimplementedError catch (e) {
+            expect(
+              e.message,
+              contains('validateConnection() has not been implemented'),
             );
           }
         },

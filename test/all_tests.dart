@@ -10,8 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'http_interceptors/dio_interceptor_test.dart' as dio_interceptor_tests;
 import 'http_interceptors/http_client_interceptor_test.dart'
     as http_client_interceptor_tests;
+import 'trustpin_configuration_test.dart' as configuration_tests;
 import 'trustpin_sdk_method_channel_test.dart' as method_channel_tests;
 import 'trustpin_sdk_platform_interface_test.dart' as platform_interface_tests;
+import 'trustpin_validate_connection_test.dart' as validate_connection_tests;
 
 void main() {
   group('TrustPin Flutter SDK - Complete Test Suite', () {
@@ -31,6 +33,14 @@ void main() {
 
     group('Platform Interface Tests', () {
       platform_interface_tests.main();
+    });
+
+    group('TrustPin.validateConnection Tests', () {
+      validate_connection_tests.main();
+    });
+
+    group('Configuration Tests', () {
+      configuration_tests.main();
     });
   });
 }

@@ -39,7 +39,7 @@ Add TrustPin SDK to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^4.1.0
+  trustpin_sdk: ^4.3.0
 ```
 
 Then install the package:
@@ -53,16 +53,16 @@ flutter pub get
 ### iOS Requirements
 
 - **Minimum iOS Version**: 13.0+
-- **Xcode**: 15.0+
-- **Swift**: 5.0+
-- **Native Dependencies**: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)
+- **Xcode**: 16.3+
+- **Swift**: 6.1+
+- **Native Dependencies**: TrustPinKit 4.3.1 (automatically configured via Swift Package Manager or CocoaPods)
 
 ### macOS Requirements
 
 - **Minimum macOS Version**: 13.0+
-- **Xcode**: 15.0+
-- **Swift**: 5.0+
-- **Native Dependencies**: TrustPin Swift SDK (automatically configured via Swift Package Manager or CocoaPods)
+- **Xcode**: 16.3+
+- **Swift**: 6.1+
+- **Native Dependencies**: TrustPinKit 4.3.1 (automatically configured via Swift Package Manager or CocoaPods)
 
 > Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
 > build settings. Flutter uses this value to align the generated Swift Package
@@ -78,10 +78,14 @@ For sandboxed macOS apps, add the network client entitlement:
 
 ### Android Requirements
 
-- **Minimum SDK**: API 21 (Android 5.0)+
+- **Minimum SDK**: API 25 (Android 7.1)+
 - **Compile SDK**: API 36
 - **Kotlin**: 2.3.0+
-- **Native Dependencies**: TrustPin Kotlin SDK (automatically configured via Gradle)
+- **Native Dependencies**: TrustPin Kotlin SDK 4.3.2 (automatically configured via Gradle)
+
+> The Flutter plugin declares `minSdk = 25` because the underlying TrustPin
+> Kotlin SDK 4.3.2 requires it. Apps consuming the plugin must therefore
+> declare `minSdk >= 25` in their `android/app/build.gradle`.
 
 ### Network Permissions
 
@@ -139,23 +143,87 @@ final config = TrustPinConfiguration(
 await TrustPin.shared.setup(config);
 ```
 
-### 3. Fetch and Verify Certificates
+#### Load configuration from a bundled JSON asset
 
-The recommended workflow is to fetch the leaf certificate from the server, then verify it against your configured pins:
+Instead of hard-coding credentials, you can ship a `trustpin.json` asset and
+load it at runtime. The schema matches the native Android SDK, so the same
+file works across platforms.
+
+Add the file to your project (for example at the project root) and declare it
+in your `pubspec.yaml`:
+
+```yaml
+flutter:
+  assets:
+    - trustpin.json
+```
+
+`trustpin.json`:
+
+```json
+{
+  "organization_id": "your-org-id",
+  "project_id": "your-project-id",
+  "public_key": "LS0tLS1CRUdJTi...",
+  "mode": "strict",
+  "configuration_url": "https://your-server.com/pins.jws"
+}
+```
+
+| Field               | Required | Notes                                                     |
+| ------------------- | -------- | --------------------------------------------------------- |
+| `organization_id`   | yes      | Non-empty string                                          |
+| `project_id`        | yes      | Non-empty string                                          |
+| `public_key`        | yes      | Base64-encoded verification key                           |
+| `mode`              | no       | `"strict"` (default) or `"permissive"`                    |
+| `configuration_url` | no       | HTTPS URL for self-hosted configs; empty treated as unset |
+
+Then load it:
 
 ```dart
-Future<void> verifyServer(String host) async {
-  try {
-    // Fetch the leaf certificate (performs OS-level TLS validation)
-    final pem = await TrustPin.shared.fetchCertificate(host);
+final config = await TrustPinConfiguration.fromAssets();
+await TrustPin.shared.setup(config);
 
-    // Verify the certificate against configured pins
-    await TrustPin.shared.verify(host, pem);
-    print('Certificate is valid and matches configured pins!');
+// Or with a custom asset path:
+final config = await TrustPinConfiguration.fromAssets(
+  assetPath: 'config/trustpin-prod.json',
+);
+```
+
+Missing, malformed, or invalid assets throw [`TrustPinException`] with code
+`INVALID_PROJECT_CONFIG`.
+
+### 3. Validate a Connection
+
+The recommended workflow is a single call to `validateConnection`. The
+platform composes the certificate fetch and pin verification inside one
+channel call, so the certificate never enters the Dart isolate and the
+`timeout` bounds the whole operation:
+
+```dart
+Future<void> checkServer(String host) async {
+  try {
+    await TrustPin.shared.validateConnection(
+      host,
+      timeout: const Duration(seconds: 5),
+    );
+    print('Connection is allowed by the configured pins.');
   } on TrustPinException catch (e) {
-    print('Verification failed: ${e.code} - ${e.message}');
+    print('Validation failed: ${e.code} - ${e.message}');
   }
 }
+```
+
+If you need the leaf certificate for diagnostics or a custom flow, the
+two-step `fetchCertificate` / `verify` pair is still available, but both are
+**deprecated** in favor of `validateConnection` and will be removed in a
+future major release:
+
+```dart
+// ignore: deprecated_member_use
+final pem = await TrustPin.shared.fetchCertificate(host);
+// ignore: deprecated_member_use
+await TrustPin.shared.verify(host, pem);
 ```
 
 ## Advanced Usage
@@ -184,9 +252,9 @@ try {
 ```
 
 The interceptor automatically:
-1. Fetches the leaf certificate via OS-level TLS validation
-2. Verifies the certificate against configured TrustPin pins
-3. Blocks requests with invalid certificates
+1. Calls `validateConnection` on the platform, which fetches the leaf
+   certificate and verifies it against configured pins in a single hop.
+2. Blocks requests when the connection does not match a configured pin.
 
 ### Integration with http package
 
@@ -268,9 +336,10 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 | `TrustPin.shared` | The shared (default) instance for most apps |
 | `TrustPin.instance(id)` | Returns a named instance (for libraries / multi-tenant) |
 | `setup(configuration)` | Initialize the instance with a [TrustPinConfiguration] |
-| `verify(domain, certificate)` | Verify a PEM certificate against configured pins |
-| `fetchCertificate(host, {port?, timeout?})` | Fetch the TLS leaf certificate from a host as PEM, with optional upper bound |
+| `validateConnection(host, {port?, timeout?})` | Atomic fetch-and-verify. **Recommended entry point** for cert-pinned HTTPS. |
 | `setLogLevel(level)` | Set logging verbosity |
+| ~~`verify(domain, certificate)`~~ | **Deprecated.** Use `validateConnection`. Retained for diagnostic flows. |
+| ~~`fetchCertificate(host, {port?, timeout?})`~~ | **Deprecated.** Use `validateConnection`. Retained for diagnostic flows that need the PEM. |
 
 ### TrustPinConfiguration
 

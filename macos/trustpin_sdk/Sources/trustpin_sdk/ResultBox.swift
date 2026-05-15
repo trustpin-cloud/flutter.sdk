@@ -1,43 +1,39 @@
 @preconcurrency import FlutterMacOS
 import Foundation
 
-// MARK: - Result boxing
+private struct ResultPayload: @unchecked Sendable {
+    let value: Any?
+}
 
-/// Boxes the ObjC-provided FlutterResult so it can be captured by @Sendable closures.
-/// Thread-safe wrapper that guarantees the underlying result block is invoked at most once.
+/// Boxes the ObjC-provided `FlutterResult` so it can be captured by
+/// `@Sendable` closures, and guarantees the underlying block is invoked at
+/// most once regardless of how many code paths try to deliver a value.
 ///
-/// On macOS, FlutterEngine does not yet support background task queues, so result
-/// delivery must happen on the main actor.
+/// On macOS, `FlutterEngine` does not yet support background task queues, so
+/// `deliver(_:)` hops to the main actor before invoking the result block.
+/// Handlers can therefore call `box.deliver(...)` from any context without
+/// worrying about isolation.
 final class ResultBox: @unchecked Sendable {
     private let _result: FlutterResult
-    private let callOnce = CallOnce()
+    private let lock = NSLock()
+    private var delivered = false
 
     init(_ result: @escaping FlutterResult) {
         self._result = result
     }
 
-    /// Call the Flutter result exactly once on the main actor.
-    @MainActor
-    func callResult(_ value: Any?) {
-        callOnce.perform {
-            _result(value)
-        }
-    }
-}
-
-// MARK: - Call Once Helper
-
-/// Helper to ensure a block is executed only once in a thread-safe manner.
-private final class CallOnce: @unchecked Sendable {
-    private var executed = false
-    private let lock = NSLock()
-
-    func perform(_ block: () -> Void) {
+    /// Delivers `value` to the Flutter side at most once on the main actor.
+    /// Subsequent calls are no-ops.
+    func deliver(_ value: Any?) {
         lock.lock()
-        defer { lock.unlock() }
+        let alreadyDelivered = delivered
+        delivered = true
+        lock.unlock()
 
-        guard !executed else { return }
-        executed = true
-        block()
+        guard !alreadyDelivered else { return }
+        let payload = ResultPayload(value: value)
+        Task { @MainActor [_result, payload] in
+            _result(payload.value)
+        }
     }
 }

@@ -1,0 +1,112 @@
+@preconcurrency import Flutter
+import Foundation
+import TrustPinKit
+
+extension TrustPinSDKPlugin {
+
+    func handleSetup(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(box, defaultCode: ErrorCode.setup) {
+            let args = try Arguments(call)
+            let organizationId = try args.requireString(Arg.organizationId)
+            let projectId = try args.requireString(Arg.projectId)
+            let publicKey = try args.requireString(Arg.publicKey)
+            let instanceId = args.optionalString(Arg.instanceId)
+            let configurationURL = try args.optionalURL(Arg.configurationURL)
+            let mode = TrustPinMode(args.optionalString(Arg.mode))
+
+            return {
+                let configuration = TrustPinConfiguration(
+                    organizationId: organizationId,
+                    projectId: projectId,
+                    publicKey: publicKey,
+                    mode: mode,
+                    configurationURL: configurationURL
+                )
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                try await trustPin.setup(configuration)
+                return nil
+            }
+        }
+    }
+
+    func handleVerify(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(box, defaultCode: ErrorCode.verify) {
+            let args = try Arguments(call)
+            let domain = try args.requireString(Arg.domain)
+            let certificate = try args.requireString(Arg.certificate)
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                try await trustPin.verify(domain: domain, certificate: certificate)
+                return nil
+            }
+        }
+    }
+
+    func handleSetLogLevel(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(box, defaultCode: ErrorCode.setLogLevel) {
+            let args = try Arguments(call)
+            let logLevel = TrustPinLogLevel(try args.requireString(Arg.logLevel))
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                trustPin.set(logLevel: logLevel)
+                return nil
+            }
+        }
+    }
+
+    func handleFetchCertificate(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(
+            box,
+            defaultCode: ErrorCode.fetchCertificate,
+            timeoutMessage: "Timed out fetching certificate"
+        ) {
+            let args = try Arguments(call)
+            let host = try args.requireString(Arg.host)
+            let port = args.optionalInt(Arg.port) ?? defaultTLSPort
+            let timeoutMs = args.optionalInt(Arg.timeoutMs)
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                try await withOptionalTimeout(milliseconds: timeoutMs) {
+                    let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                    return try await trustPin.fetchCertificate(host: host, port: port)
+                }
+            }
+        }
+    }
+
+    func handleValidateConnection(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(
+            box,
+            defaultCode: ErrorCode.validateConnection,
+            timeoutMessage: "Timed out validating connection"
+        ) {
+            let args = try Arguments(call)
+            let host = try args.requireString(Arg.host)
+            let port = args.optionalInt(Arg.port) ?? defaultTLSPort
+            let timeoutMs = args.optionalInt(Arg.timeoutMs)
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                try await withOptionalTimeout(milliseconds: timeoutMs) {
+                    let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                    let pem = try await trustPin.fetchCertificate(host: host, port: port)
+                    try await trustPin.verify(domain: host, certificate: pem)
+                }
+                return nil
+            }
+        }
+    }
+
+    /// Returns the named TrustPin instance, or the default one when `id` is
+    /// nil or empty. Kept as a static method so it never captures `self`
+    /// from inside a `@Sendable` closure.
+    static func instance(id: String?) throws -> TrustPin {
+        guard let id, !id.isEmpty else { return TrustPin.default }
+        return try TrustPin.instance(id: id)
+    }
+}

@@ -14,7 +14,7 @@ import '../trustpin_sdk.dart';
 /// [TrustPin.setup] must have been called on the underlying instance before
 /// making requests.
 class TrustPinDioInterceptor extends Interceptor {
-  static const Duration _fetchCertificateTimeout = Duration(seconds: 10);
+  static const Duration _validateTimeout = Duration(seconds: 10);
 
   final TrustPin _instance;
 
@@ -34,7 +34,11 @@ class TrustPinDioInterceptor extends Interceptor {
     // Only validate HTTPS requests
     if (uri.scheme == 'https') {
       try {
-        await _validateCertificate(uri.host, uri.port);
+        await _instance.validateConnection(
+          uri.host,
+          port: uri.port,
+          timeout: _validateTimeout,
+        );
         // Certificate validation passed, proceed with request
         handler.next(options);
       } on TrustPinException catch (e) {
@@ -62,14 +66,5 @@ class TrustPinDioInterceptor extends Interceptor {
       // Not HTTPS, proceed without validation
       handler.next(options);
     }
-  }
-
-  Future<void> _validateCertificate(String host, int port) async {
-    final pem = await _instance.fetchCertificate(
-      host,
-      port: port,
-      timeout: _fetchCertificateTimeout,
-    );
-    await _instance.verify(host, pem);
   }
 }

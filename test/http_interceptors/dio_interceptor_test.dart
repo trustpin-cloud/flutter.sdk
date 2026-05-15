@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -19,7 +20,7 @@ void main() {
       platform = MethodChannelTrustPinSDK();
       methodCalls = [];
 
-      // Mock the platform method channel for TrustPin.verify calls
+      // Mock the platform method channel for TrustPin.validateConnection calls
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(platform.methodChannel,
               (MethodCall methodCall) async {
@@ -28,27 +29,19 @@ void main() {
         switch (methodCall.method) {
           case 'setup':
             return null;
-          case 'verify':
+          case 'validateConnection':
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
-            final domain = args['domain'] as String;
-            final certificate = args['certificate'] as String;
+            final host = args['host'] as String;
 
-            if (domain.isEmpty) {
+            if (host.isEmpty) {
               throw PlatformException(
-                code: 'INVALID_DOMAIN',
-                message: 'Domain cannot be empty',
+                code: 'INVALID_ARGUMENTS',
+                message: 'Missing required arguments',
               );
             }
 
-            if (!certificate.contains('BEGIN CERTIFICATE')) {
-              throw PlatformException(
-                code: 'INVALID_SERVER_CERT',
-                message: 'Invalid certificate format',
-              );
-            }
-
-            // Simulate different scenarios based on domain
-            switch (domain) {
+            // Simulate different scenarios based on host
+            switch (host) {
               case 'pins-mismatch.example.com':
                 throw PlatformException(
                   code: 'PINS_MISMATCH',
@@ -150,6 +143,73 @@ void main() {
 
         // No method calls should have been made for HTTP requests
         expect(methodCalls.isEmpty, isTrue);
+      });
+    });
+
+    group('validateConnection wiring', () {
+      Future<dynamic> drive(RequestOptions options) {
+        final completer = Completer<dynamic>();
+        final handler = MockRequestInterceptorHandler(
+          onNext: completer.complete,
+          onReject: completer.complete,
+        );
+        interceptor.onRequest(options, handler);
+        return completer.future;
+      }
+
+      test('HTTPS request invokes validateConnection (not fetchCertificate/verify)',
+          () async {
+        final outcome = await drive(RequestOptions(
+          path: '/api/data',
+          baseUrl: 'https://api.example.com',
+        ));
+
+        expect(outcome, isA<RequestOptions>());
+        expect(methodCalls.where((c) => c.method == 'validateConnection'),
+            hasLength(1));
+        expect(methodCalls.where((c) => c.method == 'fetchCertificate'),
+            isEmpty);
+        expect(methodCalls.where((c) => c.method == 'verify'), isEmpty);
+
+        final args = Map<String, dynamic>.from(
+            methodCalls.first.arguments as Map);
+        expect(args['host'], 'api.example.com');
+        expect(args['port'], 443);
+        expect(args['timeoutMs'], 10000);
+      });
+
+      test('non-HTTPS request skips validateConnection', () async {
+        final outcome = await drive(RequestOptions(
+          path: '/api/data',
+          baseUrl: 'http://api.example.com',
+        ));
+
+        expect(outcome, isA<RequestOptions>());
+        expect(methodCalls, isEmpty);
+      });
+
+      test('validation failure rejects with DioException wrapping TrustPinException',
+          () async {
+        final outcome = await drive(RequestOptions(
+          path: '/api/data',
+          baseUrl: 'https://pins-mismatch.example.com',
+        ));
+
+        expect(outcome, isA<DioException>());
+        final err = (outcome as DioException).error;
+        expect(err, isA<TrustPinException>());
+        expect((err as TrustPinException).code, 'PINS_MISMATCH');
+      });
+
+      test('custom HTTPS port is forwarded', () async {
+        await drive(RequestOptions(
+          path: '/api/data',
+          baseUrl: 'https://api.example.com:8443',
+        ));
+
+        final args = Map<String, dynamic>.from(
+            methodCalls.first.arguments as Map);
+        expect(args['port'], 8443);
       });
     });
 
