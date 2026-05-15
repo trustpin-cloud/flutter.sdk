@@ -27,7 +27,7 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk_platform_interface/">trustpin_sdk_platform_interface.dart</a></li>
     <li><a href="../../trustpin_sdk_platform_interface/TrustPinSDKPlatform-class.html">TrustPinSDKPlatform</a></li>
-    <li class="self-crumb">fetchCertificate method</li>
+    <li class="self-crumb"><span class="deprecated">fetchCertificate</span> method</li>
   </ol>
   <div class="self-name">fetchCertificate</div>
   <form class="search navbar-right" role="search">
@@ -54,8 +54,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated-class.html">Deprecated</a>(&#39;Use validateConnection() instead.&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
-<span class="name ">fetchCertificate</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span></li>
+<span class="name deprecated">fetchCertificate</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span></li>
 <li><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span></li>
 <li><span class="parameter" id="fetchCertificate-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span></li>
 <li><span class="parameter" id="fetchCertificate-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span>, </span></li>
@@ -70,13 +75,17 @@
 <p>When <code>timeoutMs</code> is non-null and positive, the platform throws
 <code>FETCH_CERTIFICATE_TIMEOUT</code> if exceeded. When <code>instanceId</code> is null, the
 global default instance is used.</p>
+<p><strong>Deprecated.</strong> Implementations and callers should prefer
+<a href="../../trustpin_sdk_platform_interface/TrustPinSDKPlatform/validateConnection.html">validateConnection</a>, which keeps the certificate inside the platform
+layer instead of marshalling it through the Dart isolate.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;String&gt; fetchCertificate(String host,
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use validateConnection() instead.&#39;)
+Future&lt;String&gt; fetchCertificate(String host,
     {int port = 443, int? timeoutMs, String? instanceId}) {
   throw UnimplementedError(&#39;fetchCertificate() has not been implemented.&#39;);
 }</code></pre>
@@ -95,7 +104,7 @@ global default instance is used.</p>
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk_platform_interface/">trustpin_sdk_platform_interface</a></li>
     <li><a href="../../trustpin_sdk_platform_interface/TrustPinSDKPlatform-class.html">TrustPinSDKPlatform</a></li>
-    <li class="self-crumb">fetchCertificate method</li>
+    <li class="self-crumb"><span class="deprecated">fetchCertificate</span> method</li>
 </ol>
 
     <h5>TrustPinSDKPlatform class</h5>
@@ -107,7 +116,7 @@ global default instance is used.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>

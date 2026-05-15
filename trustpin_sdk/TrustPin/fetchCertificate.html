@@ -27,7 +27,7 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk.dart</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">fetchCertificate method</li>
+    <li class="self-crumb"><span class="deprecated">fetchCertificate</span> method</li>
   </ol>
   <div class="self-name">fetchCertificate</div>
   <form class="search navbar-right" role="search">
@@ -54,8 +54,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated-class.html">Deprecated</a>(&#39;Use validateConnection() instead — it keeps the certificate inside the &#39; &#39;platform layer instead of marshalling it through the Dart isolate. &#39; &#39;fetchCertificate() will be removed in a future major release.&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
-<span class="name ">fetchCertificate</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span></li>
+<span class="name deprecated">fetchCertificate</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span></li>
 <li><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span></li>
 <li><span class="parameter" id="fetchCertificate-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span>, </span></li>
 </ol>})
@@ -67,6 +72,11 @@
 <section class="desc markdown">
   <p>Returns the TLS leaf certificate served by <code>host</code>:<code>port</code> as a PEM
 string.</p>
+<p><strong>Deprecated.</strong> Prefer <a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a>, which keeps the certificate
+inside the platform layer instead of marshalling it through the Dart
+isolate. <code>fetchCertificate</code> remains supported for diagnostic flows
+where the caller needs the PEM bytes (for example, to display the
+SHA-256 fingerprint).</p>
 <p><code>timeout</code> is an optional upper bound on the call; when <code>null</code>, the
 platform default is used.</p>
 <ul>
@@ -79,7 +89,12 @@ platform default is used.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;String&gt; fetchCertificate(
+  <pre class="language-dart"><code class="language-dart">@Deprecated(
+  &#39;Use validateConnection() instead — it keeps the certificate inside the &#39;
+  &#39;platform layer instead of marshalling it through the Dart isolate. &#39;
+  &#39;fetchCertificate() will be removed in a future major release.&#39;,
+)
+Future&lt;String&gt; fetchCertificate(
   String host, {
   int port = 443,
   Duration? timeout,
@@ -110,7 +125,7 @@ platform default is used.</p>
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">fetchCertificate method</li>
+    <li class="self-crumb"><span class="deprecated">fetchCertificate</span> method</li>
 </ol>
 
     <h5>TrustPin class</h5>
@@ -122,7 +137,7 @@ platform default is used.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.1.0
+      4.3.0
   </span>
   
 </footer>
