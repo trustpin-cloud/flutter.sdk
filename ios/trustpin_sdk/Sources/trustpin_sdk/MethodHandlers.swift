@@ -29,6 +29,29 @@ extension TrustPinSDKPlugin {
         }
     }
 
+    func handleSetupWithNativeBundle(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(box, defaultCode: ErrorCode.setup) {
+            let args = try Arguments(call)
+            let fileName = args.optionalString(Arg.iosFileName)
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                // When the caller passes no filename we let the native SDK
+                // pick its own default (`TrustPin-Info.plist`) instead of
+                // duplicating the constant on the Flutter side.
+                let configuration: TrustPinConfiguration
+                if let fileName {
+                    configuration = try TrustPinConfiguration.fromPlist(.main, fileName: fileName)
+                } else {
+                    configuration = try TrustPinConfiguration.fromPlist()
+                }
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                try await trustPin.setup(configuration)
+                return nil
+            }
+        }
+    }
+
     func handleVerify(_ call: FlutterMethodCall, box: ResultBox) {
         execute(box, defaultCode: ErrorCode.verify) {
             let args = try Arguments(call)

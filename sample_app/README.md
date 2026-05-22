@@ -38,6 +38,24 @@ A comprehensive sample Flutter application demonstrating the TrustPin SDK capabi
 
 Update the default values in `lib/main.dart` with your actual TrustPin credentials for testing.
 
+### Native bundle configuration files
+
+The native-bundle setup path (`TrustPin.shared.setupWithNativeBundle()`) reads
+credentials from per-platform config files. These files contain real credentials
+and are git-ignored; a `.example` template is committed at each path. Copy each
+template to the real filename and fill in values from
+[app.trustpin.cloud](https://app.trustpin.cloud):
+
+```bash
+cp sample_app/trustpin.json.example                              sample_app/trustpin.json
+cp sample_app/android/app/src/main/assets/trustpin.json.example  sample_app/android/app/src/main/assets/trustpin.json
+cp sample_app/ios/Runner/TrustPin-Info.plist.example             sample_app/ios/Runner/TrustPin-Info.plist
+cp sample_app/macos/Runner/TrustPin-Info.plist.example           sample_app/macos/Runner/TrustPin-Info.plist
+```
+
+On iOS/macOS, add the copied `TrustPin-Info.plist` to the Runner target in Xcode
+so it lands inside the `.app` bundle.
+
 ## Building the macOS target
 
 Always build through the Flutter CLI (`flutter run -d macos` or `flutter build macos`).

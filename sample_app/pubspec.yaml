@@ -26,8 +26,6 @@ flutter:
   uses-material-design: true
   config:
     enable-swift-package-manager: true
-  assets:
-    - trustpin.json
 
 flutter_launcher_icons:
   android: true

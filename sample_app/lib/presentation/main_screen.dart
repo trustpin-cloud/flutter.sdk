@@ -38,7 +38,6 @@ class _MainScreenState extends State<MainScreen> {
   final _logScrollController = ScrollController();
 
   late final MainViewModel _viewModel;
-  bool _credentialsHydrated = false;
 
   @override
   void initState() {
@@ -49,16 +48,6 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onViewModelChanged() {
     final state = _viewModel.state;
-
-    // Hydrate the credential fields the first time the ViewModel surfaces
-    // values loaded from `trustpin.json`.
-    final loaded = _viewModel.loadedCredentials;
-    if (loaded != null && !_credentialsHydrated) {
-      _credentialsHydrated = true;
-      _organizationIdController.text = loaded.organizationId;
-      _projectIdController.text = loaded.projectId;
-      _publicKeyController.text = loaded.publicKey;
-    }
 
     final message = state.transientMessage;
     if (message != null) {
@@ -218,7 +207,7 @@ class _ConfigurationCard extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: canEditCredentials
                     ? () =>
-                          viewModel.dispatch(const ConfigureFromAssetsAction())
+                          viewModel.dispatch(const ConfigureFromBundleAction())
                     : null,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: trustPinGreen,
@@ -228,7 +217,7 @@ class _ConfigurationCard extends StatelessWidget {
                   ),
                   side: const BorderSide(color: trustPinGreen),
                 ),
-                child: const Text('Load from trustpin.json'),
+                child: const Text('Load from native bundle'),
               ),
             ),
           ],

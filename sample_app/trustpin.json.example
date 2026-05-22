@@ -1,0 +1,7 @@
+{
+  "_comment": "Template — copy to trustpin.json and fill with real values from https://app.trustpin.cloud. Required: organization_id, project_id, public_key. Optional: mode ('strict' | 'permissive'), configuration_url (HTTPS).",
+  "organization_id": "YOUR_ORGANIZATION_ID",
+  "project_id": "YOUR_PROJECT_ID",
+  "public_key": "YOUR_PUBLIC_KEY",
+  "mode": "strict"
+}

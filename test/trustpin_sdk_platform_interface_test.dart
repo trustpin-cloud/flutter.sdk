@@ -34,6 +34,15 @@ class MockTrustPinSDKPlatform extends TrustPinSDKPlatform
   Future<void> validateConnection(String host,
           {int port = 443, int? timeoutMs, String? instanceId}) =>
       Future.value();
+
+  @override
+  Future<void> setupWithNativeBundle({
+    String? iosFileName,
+    String? androidFileName,
+    String? macosFileName,
+    String? instanceId,
+  }) =>
+      Future.value();
 }
 
 class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
@@ -65,6 +74,15 @@ class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
   @override
   Future<void> validateConnection(String host,
           {int port = 443, int? timeoutMs, String? instanceId}) =>
+      Future.value();
+
+  @override
+  Future<void> setupWithNativeBundle({
+    String? iosFileName,
+    String? androidFileName,
+    String? macosFileName,
+    String? instanceId,
+  }) =>
       Future.value();
 }
 
@@ -196,6 +214,10 @@ void main() {
         expect(() async {
           await platform.validateConnection('api.example.com');
         }, throwsA(isA<UnimplementedError>()));
+
+        expect(() async {
+          await platform.setupWithNativeBundle();
+        }, throwsA(isA<UnimplementedError>()));
       });
 
       test(
@@ -234,6 +256,16 @@ void main() {
             expect(
               e.message,
               contains('validateConnection() has not been implemented'),
+            );
+          }
+
+          try {
+            await platform.setupWithNativeBundle();
+            fail('Expected UnimplementedError');
+          } on UnimplementedError catch (e) {
+            expect(
+              e.message,
+              contains('setupWithNativeBundle() has not been implemented'),
             );
           }
         },

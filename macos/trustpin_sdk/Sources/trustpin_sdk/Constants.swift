@@ -3,6 +3,7 @@ import Foundation
 /// Names of the Flutter method-channel calls handled by this plugin.
 enum Method {
     static let setup = "setup"
+    static let setupWithNativeBundle = "setupWithNativeBundle"
     static let verify = "verify"
     static let setLogLevel = "setLogLevel"
     static let fetchCertificate = "fetchCertificate"
@@ -23,6 +24,7 @@ enum Arg {
     static let host = "host"
     static let port = "port"
     static let timeoutMs = "timeoutMs"
+    static let macosFileName = "macosFileName"
 }
 
 /// Error codes returned to Dart. Keep in sync with the Dart side.

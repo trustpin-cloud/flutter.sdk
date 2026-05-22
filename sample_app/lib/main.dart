@@ -42,7 +42,7 @@ class _TrustPinSampleAppState extends State<TrustPinSampleApp> {
       create: (_) => MainViewModel(
         configurationRepository: _locator.configurationRepository,
         configure: _locator.configurePinningUseCase,
-        configureFromAssets: _locator.configurePinningFromAssetsUseCase,
+        configureFromBundle: _locator.configurePinningFromBundleUseCase,
         testConnection: _locator.testPinnedConnectionUseCase,
       ),
       child: MaterialApp(
