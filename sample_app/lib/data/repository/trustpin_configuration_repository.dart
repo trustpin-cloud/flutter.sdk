@@ -34,17 +34,10 @@ class TrustPinConfigurationRepository implements ConfigurationRepository {
   }
 
   @override
-  Future<PinningCredentials> configureFromAssets() async {
+  Future<void> configureFromBundle() async {
     try {
-      final configuration = await TrustPinConfiguration.fromAssets();
-      await TrustPin.shared.setup(configuration);
+      await TrustPin.shared.setupWithNativeBundle();
       _configured = true;
-      return PinningCredentials(
-        organizationId: configuration.organizationId,
-        projectId: configuration.projectId,
-        publicKey: configuration.publicKey,
-        mode: configuration.mode,
-      );
     } on TrustPinException catch (e) {
       _configured = false;
       throw PinningError(e.code, e.message);

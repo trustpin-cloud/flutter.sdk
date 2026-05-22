@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+		Template — copy to TrustPin-Info.plist and fill with real values from
+		https://app.trustpin.cloud. Consumed by TrustPin.shared.setupWithNativeBundle()
+		on macOS; parsed by the native Swift SDK via
+		TrustPinConfiguration.fromPlist(.main, fileName: "TrustPin-Info.plist").
+		Make sure the copied file is added to the Runner target in Xcode so it ends
+		up inside the .app bundle.
+
+		Required keys: OrganizationId, ProjectId, PublicKey.
+		Optional keys: Mode ("strict" | "permissive"), ConfigurationURL (HTTPS).
+	-->
+	<key>OrganizationId</key>
+	<string>YOUR_ORGANIZATION_ID</string>
+	<key>ProjectId</key>
+	<string>YOUR_PROJECT_ID</string>
+	<key>PublicKey</key>
+	<string>YOUR_PUBLIC_KEY</string>
+	<key>Mode</key>
+	<string>strict</string>
+</dict>
+</plist>

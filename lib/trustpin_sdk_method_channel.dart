@@ -30,6 +30,21 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
   }
 
   @override
+  Future<void> setupWithNativeBundle({
+    String? iosFileName,
+    String? androidFileName,
+    String? macosFileName,
+    String? instanceId,
+  }) async {
+    await methodChannel.invokeMethod('setupWithNativeBundle', {
+      'iosFileName': iosFileName,
+      'androidFileName': androidFileName,
+      'macosFileName': macosFileName,
+      'instanceId': instanceId,
+    });
+  }
+
+  @override
   Future<void> verify(String domain, String certificate,
       {String? instanceId}) async {
     await methodChannel.invokeMethod('verify', {

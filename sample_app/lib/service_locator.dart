@@ -3,7 +3,7 @@ import 'data/repository/trustpin_configuration_repository.dart';
 import 'domain/repository/configuration_repository.dart';
 import 'domain/repository/logger.dart';
 import 'domain/repository/network_repository.dart';
-import 'domain/usecase/configure_pinning_from_assets_use_case.dart';
+import 'domain/usecase/configure_pinning_from_bundle_use_case.dart';
 import 'domain/usecase/configure_pinning_use_case.dart';
 import 'domain/usecase/test_pinned_connection_use_case.dart';
 
@@ -19,9 +19,9 @@ class ServiceLocator {
   ConfigurePinningUseCase configurePinningUseCase(Logger logger) =>
       ConfigurePinningUseCase(configurationRepository, logger);
 
-  ConfigurePinningFromAssetsUseCase configurePinningFromAssetsUseCase(
+  ConfigurePinningFromBundleUseCase configurePinningFromBundleUseCase(
     Logger logger,
-  ) => ConfigurePinningFromAssetsUseCase(configurationRepository, logger);
+  ) => ConfigurePinningFromBundleUseCase(configurationRepository, logger);
 
   TestPinnedConnectionUseCase testPinnedConnectionUseCase(Logger logger) =>
       TestPinnedConnectionUseCase(

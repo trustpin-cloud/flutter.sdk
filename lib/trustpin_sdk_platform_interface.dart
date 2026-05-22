@@ -42,6 +42,23 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
     throw UnimplementedError('setup() has not been implemented.');
   }
 
+  /// Initializes the TrustPin SDK by loading credentials from a platform
+  /// bundle file at the native layer. The Dart side never reads or parses the
+  /// file; iOS/macOS read a Plist via `TrustPinConfiguration.fromPlist`,
+  /// Android reads a JSON asset via `TrustPinConfiguration.fromAssets`.
+  ///
+  /// Per-platform filename arguments are forwarded verbatim to the matching
+  /// native loader. A null value tells the native side to use its own default
+  /// (`TrustPin-Info.plist` on iOS/macOS, `trustpin.json` on Android).
+  Future<void> setupWithNativeBundle({
+    String? iosFileName,
+    String? androidFileName,
+    String? macosFileName,
+    String? instanceId,
+  }) {
+    throw UnimplementedError('setupWithNativeBundle() has not been implemented.');
+  }
+
   /// Verifies a PEM certificate against configured pins for [domain].
   ///
   /// When [instanceId] is null, the global default instance is used.

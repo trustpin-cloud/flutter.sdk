@@ -51,4 +51,10 @@ coverage/
 
 .claude
 
+# Sample app TrustPin credentials — kept out of the repo.
+# Each path has a committed `.example` template alongside it; copy the template
+# to the real filename and fill in values from https://app.trustpin.cloud.
 sample_app/trustpin.json
+sample_app/ios/Runner/TrustPin-Info.plist
+sample_app/macos/Runner/TrustPin-Info.plist
+sample_app/android/app/src/main/assets/trustpin.json

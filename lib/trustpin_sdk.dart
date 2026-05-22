@@ -179,6 +179,63 @@ class TrustPin {
     }
   }
 
+  /// Initializes this instance by loading credentials from a platform bundle
+  /// file at the native layer. Must be called before [validateConnection].
+  ///
+  /// The Dart side never reads, parses, or validates the file. Each native
+  /// platform owns the loader and its schema:
+  ///
+  /// - **iOS / macOS** — `TrustPinConfiguration.fromPlist(.main, fileName:)`
+  ///   reads a Plist from the host app's main bundle. Default filename
+  ///   `TrustPin-Info.plist`. Keys: `OrganizationId`, `ProjectId`,
+  ///   `PublicKey`, optional `Mode` (`"strict"` / `"permissive"`), optional
+  ///   `ConfigurationURL` (must be HTTPS).
+  /// - **Android** — `TrustPinConfiguration.fromAssets(context, fileName)`
+  ///   reads a JSON asset from `android/app/src/main/assets/`. Default
+  ///   filename `trustpin.json`. Keys: `organization_id`, `project_id`,
+  ///   `public_key`, optional `mode`, optional `configuration_url`. The
+  ///   native loader chains `withAndroidStorage(context)` internally.
+  ///
+  /// Override the per-platform filename to support multi-environment setups
+  /// (staging / production). Pass `null` (the default) to use the SDK
+  /// default for that platform.
+  ///
+  /// ```dart
+  /// // Default filenames on each platform.
+  /// await TrustPin.shared.setupWithNativeBundle();
+  ///
+  /// // Custom filenames per platform.
+  /// await TrustPin.shared.setupWithNativeBundle(
+  ///   iosFileName: 'TrustPin-Staging.plist',
+  ///   macosFileName: 'TrustPin-Staging.plist',
+  ///   androidFileName: 'trustpin-staging.json',
+  /// );
+  /// ```
+  ///
+  /// - Throws [TrustPinException] with code `INVALID_PROJECT_CONFIG` if the
+  ///   bundle file is missing, malformed, or fails schema validation on the
+  ///   native side.
+  /// - Throws [TrustPinException] with code `ERROR_FETCHING_PINNING_INFO` if
+  ///   the pinning configuration cannot be retrieved after loading the file.
+  /// - Throws [TrustPinException] with code `CONFIGURATION_VALIDATION_FAILED`
+  ///   if the configuration is rejected.
+  Future<void> setupWithNativeBundle({
+    String? iosFileName,
+    String? androidFileName,
+    String? macosFileName,
+  }) async {
+    try {
+      await TrustPinSDKPlatform.instance.setupWithNativeBundle(
+        iosFileName: iosFileName,
+        androidFileName: androidFileName,
+        macosFileName: macosFileName,
+        instanceId: _instanceId,
+      );
+    } catch (e) {
+      throw TrustPinException.fromPlatformException(e);
+    }
+  }
+
   /// Verifies that [certificate] is valid for [domain] under this instance's
   /// pinning configuration. Returns normally on success.
   ///

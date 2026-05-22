@@ -17,8 +17,8 @@ class ConfigureAction extends UiAction {
   });
 }
 
-class ConfigureFromAssetsAction extends UiAction {
-  const ConfigureFromAssetsAction();
+class ConfigureFromBundleAction extends UiAction {
+  const ConfigureFromBundleAction();
 }
 
 class TestConnectionAction extends UiAction {

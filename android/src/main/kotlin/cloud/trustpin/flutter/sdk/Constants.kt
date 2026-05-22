@@ -3,6 +3,7 @@ package cloud.trustpin.flutter.sdk
 /** Names of the Flutter method-channel calls handled by this plugin. */
 internal object Method {
     const val SETUP = "setup"
+    const val SETUP_FROM_BUNDLE = "setupWithNativeBundle"
     const val VERIFY = "verify"
     const val SET_LOG_LEVEL = "setLogLevel"
     const val FETCH_CERTIFICATE = "fetchCertificate"
@@ -23,6 +24,7 @@ internal object Arg {
     const val HOST = "host"
     const val PORT = "port"
     const val TIMEOUT_MS = "timeoutMs"
+    const val ANDROID_FILE_NAME = "androidFileName"
 }
 
 /** Error codes returned to Dart. Keep in sync with the Dart side. */

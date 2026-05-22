@@ -24,12 +24,13 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let box = ResultBox(result)
         switch call.method {
-        case Method.setup:               handleSetup(call, box: box)
-        case Method.verify:              handleVerify(call, box: box)
-        case Method.setLogLevel:         handleSetLogLevel(call, box: box)
-        case Method.fetchCertificate:    handleFetchCertificate(call, box: box)
-        case Method.validateConnection:  handleValidateConnection(call, box: box)
-        default:                         box.deliver(FlutterMethodNotImplemented)
+        case Method.setup:                  handleSetup(call, box: box)
+        case Method.setupWithNativeBundle:  handleSetupWithNativeBundle(call, box: box)
+        case Method.verify:                 handleVerify(call, box: box)
+        case Method.setLogLevel:            handleSetLogLevel(call, box: box)
+        case Method.fetchCertificate:       handleFetchCertificate(call, box: box)
+        case Method.validateConnection:     handleValidateConnection(call, box: box)
+        default:                            box.deliver(FlutterMethodNotImplemented)
         }
     }
 }

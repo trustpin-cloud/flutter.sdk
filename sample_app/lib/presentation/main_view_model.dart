@@ -5,7 +5,7 @@ import '../domain/model/domain_error.dart';
 import '../domain/model/pinning_credentials.dart';
 import '../domain/repository/configuration_repository.dart';
 import '../domain/repository/logger.dart';
-import '../domain/usecase/configure_pinning_from_assets_use_case.dart';
+import '../domain/usecase/configure_pinning_from_bundle_use_case.dart';
 import '../domain/usecase/configure_pinning_use_case.dart';
 import '../domain/usecase/test_pinned_connection_use_case.dart';
 import 'log_entry.dart';
@@ -17,8 +17,8 @@ import 'ui_state.dart';
 /// supplied [Logger]. Mirrors the Kotlin `(logger) -> UseCase` shape so a
 /// request-scoped sink can be injected per action.
 typedef ConfigureFactory = ConfigurePinningUseCase Function(Logger logger);
-typedef ConfigureFromAssetsFactory =
-    ConfigurePinningFromAssetsUseCase Function(Logger logger);
+typedef ConfigureFromBundleFactory =
+    ConfigurePinningFromBundleUseCase Function(Logger logger);
 typedef TestConnectionFactory =
     TestPinnedConnectionUseCase Function(Logger logger);
 
@@ -28,7 +28,7 @@ typedef TestConnectionFactory =
 class MainViewModel extends ChangeNotifier {
   final ConfigurationRepository _configurationRepository;
   final ConfigureFactory _configure;
-  final ConfigureFromAssetsFactory _configureFromAssets;
+  final ConfigureFromBundleFactory _configureFromBundle;
   final TestConnectionFactory _testConnection;
 
   UiState _state = UiState.initial;
@@ -42,11 +42,11 @@ class MainViewModel extends ChangeNotifier {
   MainViewModel({
     required ConfigurationRepository configurationRepository,
     required ConfigureFactory configure,
-    required ConfigureFromAssetsFactory configureFromAssets,
+    required ConfigureFromBundleFactory configureFromBundle,
     required TestConnectionFactory testConnection,
   }) : _configurationRepository = configurationRepository,
        _configure = configure,
-       _configureFromAssets = configureFromAssets,
+       _configureFromBundle = configureFromBundle,
        _testConnection = testConnection {
     _logSink.info('TrustPin Flutter Sample started');
     _logSink.info('TrustPin configured for info-level logging');
@@ -55,19 +55,12 @@ class MainViewModel extends ChangeNotifier {
     );
   }
 
-  /// Latest credentials loaded from `trustpin.json`, if any. The widget reads
-  /// this to populate the read-only credential fields after a successful
-  /// "Load from assets" action.
-  PinningCredentials? _loadedCredentials;
-
-  PinningCredentials? get loadedCredentials => _loadedCredentials;
-
   Future<void> dispatch(UiAction action) async {
     switch (action) {
       case ConfigureAction():
         await _handleConfigure(action);
-      case ConfigureFromAssetsAction():
-        await _handleConfigureFromAssets();
+      case ConfigureFromBundleAction():
+        await _handleConfigureFromBundle();
       case TestConnectionAction():
         await _handleTestConnection(action.url);
       case ClearLogAction():
@@ -107,17 +100,16 @@ class MainViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _handleConfigureFromAssets() async {
+  Future<void> _handleConfigureFromBundle() async {
     _update((s) => s.copyWith(isWorking: true));
     try {
-      final credentials = await _configureFromAssets(_logSink).call();
-      _loadedCredentials = credentials;
+      await _configureFromBundle(_logSink).call();
       _update(
         (s) => s.copyWith(
           isConfigured: true,
           isWorking: false,
           status: Status.configured,
-          transientMessage: 'TrustPin configured from trustpin.json',
+          transientMessage: 'TrustPin configured from native bundle',
         ),
       );
     } on DomainError catch (e) {

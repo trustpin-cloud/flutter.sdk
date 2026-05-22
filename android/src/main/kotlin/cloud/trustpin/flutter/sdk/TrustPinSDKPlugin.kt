@@ -1,5 +1,6 @@
 package cloud.trustpin.flutter.sdk
 
+import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -26,7 +27,17 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
 
     internal val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
+    /**
+     * Application Context captured at engine attachment. Required by the
+     * native SDK's `withAndroidStorage(context)` hardening chain, which must
+     * be applied to every [cloud.trustpin.kotlin.sdk.TrustPinConfiguration]
+     * passed to `setup` on Android.
+     */
+    internal var applicationContext: Context? = null
+        private set
+
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        applicationContext = binding.applicationContext
         val messenger = binding.binaryMessenger
         channel = MethodChannel(
             messenger,
@@ -40,6 +51,7 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             Method.SETUP -> handleSetup(call, result)
+            Method.SETUP_FROM_BUNDLE -> handleSetupWithNativeBundle(call, result)
             Method.VERIFY -> handleVerify(call, result)
             Method.SET_LOG_LEVEL -> handleSetLogLevel(call, result)
             Method.FETCH_CERTIFICATE -> handleFetchCertificate(call, result)
@@ -51,5 +63,6 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         coroutineScope.cancel()
+        applicationContext = null
     }
 }

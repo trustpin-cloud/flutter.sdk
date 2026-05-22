@@ -111,6 +111,15 @@ void main() {
             }
 
             return '-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END CERTIFICATE-----\n';
+          case 'setupWithNativeBundle':
+            // Smoke check: every key is present (even if null). Mirrors how
+            // the native side reads the dictionary.
+            final args = Map<String, dynamic>.from(methodCall.arguments as Map);
+            expect(args.containsKey('iosFileName'), isTrue);
+            expect(args.containsKey('androidFileName'), isTrue);
+            expect(args.containsKey('macosFileName'), isTrue);
+            expect(args.containsKey('instanceId'), isTrue);
+            return null;
           case 'validateConnection':
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
             final host = args['host'] as String;
@@ -497,6 +506,37 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         } on PlatformException catch (e) {
           expect(e.code, equals('VALIDATE_CONNECTION_ERROR'));
         }
+      });
+    });
+
+    group('setupWithNativeBundle()', () {
+      test('forwards null filenames so the native side uses its defaults',
+          () async {
+        await platform.setupWithNativeBundle();
+
+        expect(methodCalls.length, equals(1));
+        expect(methodCalls[0].method, equals('setupWithNativeBundle'));
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['iosFileName'], isNull);
+        expect(args['androidFileName'], isNull);
+        expect(args['macosFileName'], isNull);
+        expect(args['instanceId'], isNull);
+      });
+
+      test('forwards per-platform filename overrides verbatim', () async {
+        await platform.setupWithNativeBundle(
+          iosFileName: 'TrustPin-Staging.plist',
+          androidFileName: 'trustpin-staging.json',
+          macosFileName: 'TrustPin-Staging-macOS.plist',
+          instanceId: 'lib.networking',
+        );
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['iosFileName'], equals('TrustPin-Staging.plist'));
+        expect(args['androidFileName'], equals('trustpin-staging.json'));
+        expect(args['macosFileName'], equals('TrustPin-Staging-macOS.plist'));
+        expect(args['instanceId'], equals('lib.networking'));
       });
     });
 

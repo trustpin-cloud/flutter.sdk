@@ -2,6 +2,9 @@ package cloud.trustpin.flutter.sdk
 
 import cloud.trustpin.kotlin.sdk.TrustPin
 import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
+import cloud.trustpin.kotlin.sdk.TrustPinError
+import cloud.trustpin.kotlin.sdk.fromAssets
+import cloud.trustpin.kotlin.sdk.withAndroidStorage
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.withTimeout
@@ -14,6 +17,10 @@ internal fun TrustPinSDKPlugin.handleSetup(call: MethodCall, result: Result) {
         val instanceId = call.optionalString(Arg.INSTANCE_ID)
         val configurationURL = call.optionalURL(Arg.CONFIGURATION_URL)
         val mode = call.optionalString(Arg.MODE).toTrustPinMode()
+        // Required by the native SDK 5.0.0+ `withAndroidStorage` hardening
+        // chain. Absent only if the plugin was used before onAttachedToEngine
+        // ran, which indicates a Flutter engine attachment bug.
+        val context = applicationContext ?: throw TrustPinError.InvalidProjectConfig
 
         suspend {
             val configuration = TrustPinConfiguration(
@@ -22,7 +29,29 @@ internal fun TrustPinSDKPlugin.handleSetup(call: MethodCall, result: Result) {
                 publicKey = publicKey,
                 mode = mode,
                 configurationURL = configurationURL
-            )
+            ).withAndroidStorage(context)
+            trustPinInstance(instanceId).setup(configuration)
+            null
+        }
+    }
+}
+
+internal fun TrustPinSDKPlugin.handleSetupWithNativeBundle(call: MethodCall, result: Result) {
+    execute(coroutineScope, result, ErrorCode.SETUP) {
+        val fileName = call.optionalString(Arg.ANDROID_FILE_NAME)
+        val instanceId = call.optionalString(Arg.INSTANCE_ID)
+        val context = applicationContext ?: throw TrustPinError.InvalidProjectConfig
+
+        suspend {
+            // `fromAssets` chains `withAndroidStorage(context)` internally, so
+            // no extra hardening step is required for this path. When the
+            // caller passes no filename we let the native SDK pick its own
+            // default (`trustpin.json`) instead of duplicating the constant.
+            val configuration = if (fileName == null) {
+                TrustPinConfiguration.fromAssets(context)
+            } else {
+                TrustPinConfiguration.fromAssets(context, fileName)
+            }
             trustPinInstance(instanceId).setup(configuration)
             null
         }
