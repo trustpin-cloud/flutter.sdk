@@ -79,7 +79,7 @@
 <h2 id="installation">Installation</h2>
 <p>Add TrustPin SDK to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  trustpin_sdk: ^4.3.0
+  trustpin_sdk: ^5.0.0
 </code></pre>
 <p>Then install the package:</p>
 <pre class="language-bash"><code class="language-bash">flutter pub get
@@ -90,14 +90,14 @@
 <li><strong>Minimum iOS Version</strong>: 13.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 4.3.1 (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 5.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <h3 id="macos-requirements">macOS Requirements</h3>
 <ul>
 <li><strong>Minimum macOS Version</strong>: 13.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 4.3.1 (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 5.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <blockquote>
 <p>Set <code>MACOSX_DEPLOYMENT_TARGET = 13.0</code> (or higher) in your Xcode project's
@@ -114,11 +114,11 @@ Manager wrapper with TrustPin's minimum platform.</p>
 <li><strong>Minimum SDK</strong>: API 25 (Android 7.1)+</li>
 <li><strong>Compile SDK</strong>: API 36</li>
 <li><strong>Kotlin</strong>: 2.3.0+</li>
-<li><strong>Native Dependencies</strong>: TrustPin Kotlin SDK 4.3.2 (automatically configured via Gradle)</li>
+<li><strong>Native Dependencies</strong>: TrustPin Kotlin SDK 5.0.0 (automatically configured via Gradle)</li>
 </ul>
 <blockquote>
 <p>The Flutter plugin declares <code>minSdk = 25</code> because the underlying TrustPin
-Kotlin SDK 4.3.2 requires it. Apps consuming the plugin must therefore
+Kotlin SDK 4.3.2+ requires it. Apps consuming the plugin must therefore
 declare <code>minSdk &gt;= 25</code> in their <code>android/app/build.gradle</code>.</p>
 </blockquote>
 <h3 id="network-permissions">Network Permissions</h3>
@@ -138,44 +138,82 @@ declare <code>minSdk &gt;= 25</code> in their <code>android/app/build.gradle</co
 <li>Public Key (Base64-encoded)</li>
 </ul>
 <h3 id="2-initialize-the-sdk">2. Initialize the SDK</h3>
+<p>The <strong>recommended</strong> way to initialize TrustPin is to ship a platform-native
+configuration file with your app and let the native TrustPin SDK load it.
+The Dart side never reads, parses, or validates the file — each native
+platform owns its loader — which keeps credentials out of your Dart code
+and aligns the Flutter SDK with the iOS, macOS, and Android SDKs.</p>
 <pre class="language-dart"><code class="language-dart">import 'package:trustpin_sdk/trustpin_sdk.dart';
 
 Future&lt;void&gt; initializeTrustPin() async {
   // Optional: enable debug logging during development
   await TrustPin.shared.setLogLevel(TrustPinLogLevel.debug);
 
-  // Create a configuration with your credentials
-  const config = TrustPinConfiguration(
-    organizationId: 'your-org-id',
-    projectId: 'your-project-id',
-    publicKey: 'LS0tLS1CRUdJTi...', // Your Base64 public key
-    mode: TrustPinMode.strict, // Use strict mode for production
-  );
-
-  // Initialize the shared instance
-  await TrustPin.shared.setup(config);
+  // Load credentials from the native bundle on each platform
+  await TrustPin.shared.setupWithNativeBundle();
 }
 </code></pre>
-<p>For self-hosted configurations, pass a custom URL:</p>
-<pre class="language-dart"><code class="language-dart">final config = TrustPinConfiguration(
-  organizationId: 'your-org-id',
-  projectId: 'your-project-id',
-  publicKey: 'LS0tLS1CRUdJTi...',
-  configurationURL: Uri.parse('https://your-server.com/pins.jws'),
-);
-await TrustPin.shared.setup(config);
+<h4 id="ios--macos--trustpin-infoplist">iOS / macOS — <code>TrustPin-Info.plist</code></h4>
+<p>Drop a Plist into your Xcode <code>Runner</code> target so it ends up inside the host
+app's main bundle (<code>ios/Runner/TrustPin-Info.plist</code>,
+<code>macos/Runner/TrustPin-Info.plist</code>). Make sure the file is added to <strong>Target
+Membership</strong> in Xcode.</p>
+<pre class="language-xml"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+                       "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+  &lt;key&gt;OrganizationId&lt;/key&gt;
+  &lt;string&gt;your-org-id&lt;/string&gt;
+  &lt;key&gt;ProjectId&lt;/key&gt;
+  &lt;string&gt;your-project-id&lt;/string&gt;
+  &lt;key&gt;PublicKey&lt;/key&gt;
+  &lt;string&gt;LS0tLS1CRUdJTi...&lt;/string&gt;
+  &lt;key&gt;Mode&lt;/key&gt;
+  &lt;string&gt;strict&lt;/string&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
 </code></pre>
-<h4 id="load-configuration-from-a-bundled-json-asset">Load configuration from a bundled JSON asset</h4>
-<p>Instead of hard-coding credentials, you can ship a <code>trustpin.json</code> asset and
-load it at runtime. The schema matches the native Android SDK, so the same
-file works across platforms.</p>
-<p>Add the file to your project (for example at the project root) and declare it
-in your <code>pubspec.yaml</code>:</p>
-<pre class="language-yaml"><code class="language-yaml">flutter:
-  assets:
-    - trustpin.json
-</code></pre>
-<p><code>trustpin.json</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Plist key</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OrganizationId</code></td>
+<td>yes</td>
+<td>Non-empty string</td>
+</tr>
+<tr>
+<td><code>ProjectId</code></td>
+<td>yes</td>
+<td>Non-empty string</td>
+</tr>
+<tr>
+<td><code>PublicKey</code></td>
+<td>yes</td>
+<td>Base64-encoded verification key</td>
+</tr>
+<tr>
+<td><code>Mode</code></td>
+<td>no</td>
+<td><code>"strict"</code> (default) or <code>"permissive"</code> (lowercase)</td>
+</tr>
+<tr>
+<td><code>ConfigurationURL</code></td>
+<td>no</td>
+<td>HTTPS URL for self-hosted configs; empty treated as unset</td>
+</tr>
+</tbody>
+</table>
+<h4 id="android--trustpinjson">Android — <code>trustpin.json</code></h4>
+<p>Drop a JSON file into Android's standard assets directory:
+<code>android/app/src/main/assets/trustpin.json</code>. Gradle includes it in the APK
+automatically — no <code>pubspec.yaml</code> declaration needed.</p>
 <pre class="language-json"><code class="language-json">{
   "organization_id": "your-org-id",
   "project_id": "your-project-id",
@@ -187,7 +225,7 @@ in your <code>pubspec.yaml</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Field</th>
+<th>JSON field</th>
 <th>Required</th>
 <th>Notes</th>
 </tr>
@@ -220,17 +258,41 @@ in your <code>pubspec.yaml</code>:</p>
 </tr>
 </tbody>
 </table>
-<p>Then load it:</p>
-<pre class="language-dart"><code class="language-dart">final config = await TrustPinConfiguration.fromAssets();
-await TrustPin.shared.setup(config);
-
-// Or with a custom asset path:
-final config = await TrustPinConfiguration.fromAssets(
-  assetPath: 'config/trustpin-prod.json',
+<h4 id="custom-filenames">Custom filenames</h4>
+<p>Override the per-platform filename for multi-environment setups (staging,
+production, etc.):</p>
+<pre class="language-dart"><code class="language-dart">await TrustPin.shared.setupWithNativeBundle(
+  iosFileName: 'TrustPin-Staging.plist',
+  macosFileName: 'TrustPin-Staging.plist',
+  androidFileName: 'trustpin-staging.json',
 );
 </code></pre>
-<p>Missing, malformed, or invalid assets throw <code>`TrustPinException`</code> with code
-<code>INVALID_PROJECT_CONFIG</code>.</p>
+<p>A <code>null</code> value (the default) tells each native SDK to use its own default
+(<code>TrustPin-Info.plist</code> / <code>trustpin.json</code>).</p>
+<p>Missing, malformed, or schema-invalid files throw <code>`TrustPinException`</code> with
+code <code>INVALID_PROJECT_CONFIG</code>.</p>
+<h4 id="alternative-inline-dart-configuration">Alternative: inline Dart configuration</h4>
+<p>If you cannot ship a bundled configuration file (for example, when
+credentials must be resolved at runtime from a secret manager), pass a
+<code>TrustPinConfiguration</code> to <code>setup</code> instead:</p>
+<pre class="language-dart"><code class="language-dart">const config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'LS0tLS1CRUdJTi...', // Your Base64 public key
+  mode: TrustPinMode.strict, // Use strict mode for production
+);
+
+await TrustPin.shared.setup(config);
+</code></pre>
+<p>For self-hosted configurations, pass a custom URL:</p>
+<pre class="language-dart"><code class="language-dart">final config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'LS0tLS1CRUdJTi...',
+  configurationURL: Uri.parse('https://your-server.com/pins.jws'),
+);
+await TrustPin.shared.setup(config);
+</code></pre>
 <h3 id="3-validate-a-connection">3. Validate a Connection</h3>
 <p>The recommended workflow is a single call to <code>validateConnection</code>. The
 platform composes the certificate fetch and pin verification inside one
@@ -357,8 +419,12 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td>Returns a named instance (for libraries / multi-tenant)</td>
 </tr>
 <tr>
+<td><code>setupWithNativeBundle({iosFileName?, macosFileName?, androidFileName?})</code></td>
+<td><strong>Recommended initializer.</strong> Loads credentials from a platform-native bundle file (Plist on iOS/macOS, JSON asset on Android).</td>
+</tr>
+<tr>
 <td><code>setup(configuration)</code></td>
-<td>Initialize the instance with a <a href="trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></td>
+<td>Alternative initializer that takes an inline <a href="trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a>. Use when credentials are resolved at runtime.</td>
 </tr>
 <tr>
 <td><code>validateConnection(host, {port?, timeout?})</code></td>
@@ -367,14 +433,6 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <tr>
 <td><code>setLogLevel(level)</code></td>
 <td>Set logging verbosity</td>
-</tr>
-<tr>
-<td><del><code>verify(domain, certificate)</code></del></td>
-<td><strong>Deprecated.</strong> Use <code>validateConnection</code>. Retained for diagnostic flows.</td>
-</tr>
-<tr>
-<td><del><code>fetchCertificate(host, {port?, timeout?})</code></del></td>
-<td><strong>Deprecated.</strong> Use <code>validateConnection</code>. Retained for diagnostic flows that need the PEM.</td>
 </tr>
 </tbody>
 </table>
@@ -670,7 +728,7 @@ flutter run
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.3.0
+      5.0.0
   </span>
   
 </footer>
