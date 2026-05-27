@@ -57,6 +57,9 @@
   <p>Configuration for the TrustPin SDK.</p>
 <p>Contains all credentials and settings needed to initialize TrustPin.
 Create an instance and pass it to <a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> to configure the SDK.</p>
+<p>To load credentials from a platform bundle file (Plist on iOS/macOS, JSON
+in Android assets) without writing them into Dart source, use
+<a href="../trustpin_sdk/TrustPin/setupWithNativeBundle.html">TrustPin.setupWithNativeBundle</a> instead.</p>
 <h2 id="example">Example</h2>
 <pre class="language-dart"><code class="language-dart">const config = TrustPinConfiguration(
   organizationId: 'your-org-id',
@@ -66,8 +69,6 @@ Create an instance and pass it to <a href="../trustpin_sdk/TrustPin/setup.html">
 
 await TrustPin.shared.setup(config);
 </code></pre>
-<p>You can also load the configuration from a JSON asset bundled with your
-app using <a href="../trustpin_configuration/TrustPinConfiguration/fromAssets.html">TrustPinConfiguration.fromAssets</a>.</p>
 </section>
 
 
@@ -235,24 +236,6 @@ app using <a href="../trustpin_configuration/TrustPinConfiguration/fromAssets.ht
   </section>
     
     
-  <section class="summary offset-anchor" id="static-methods">
-    <h2>Static Methods</h2>
-    <dl class="callables">
-        <dt id="fromAssets" class="callable">
-  <span class="name"><a href="../trustpin_configuration/TrustPinConfiguration/fromAssets.html">fromAssets</a></span><span class="signature">(<wbr>{<span class="parameter" id="fromAssets-param-assetPath"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">assetPath</span> = <span class="default-value">&#39;trustpin.json&#39;</span>, </span><span class="parameter" id="fromAssets-param-bundle"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/services/AssetBundle-class.html">AssetBundle</a>?</span> <span class="parameter-name">bundle</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Loads a configuration from a JSON asset bundled with the Flutter app.
-  
-
-</dd>
-
-    </dl>
-  </section>
     
 
   </div> <!-- /.main-content -->
@@ -278,7 +261,7 @@ app using <a href="../trustpin_configuration/TrustPinConfiguration/fromAssets.ht
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.3.0
+      5.0.0
   </span>
   
 </footer>

@@ -198,6 +198,22 @@
 
 </dd>
 
+        <dt id="setupWithNativeBundle" class="callable">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/setupWithNativeBundle.html">setupWithNativeBundle</a></span><span class="signature">(<wbr>{<span class="parameter" id="setupWithNativeBundle-param-iosFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">iosFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-androidFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">androidFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-macosFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">macosFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Initializes the TrustPin SDK by loading credentials from a platform
+bundle file at the native layer. The Dart side never reads or parses the
+file; iOS/macOS read a Plist via <code>TrustPinConfiguration.fromPlist</code>,
+Android reads a JSON asset via <code>TrustPinConfiguration.fromAssets</code>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="toString" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
@@ -290,7 +306,7 @@ the Dart isolate.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      4.3.0
+      5.0.0
   </span>
   
 </footer>
