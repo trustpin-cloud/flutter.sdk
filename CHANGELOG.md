@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Certificate verification is fail-closed in **both** strict and permissive
   modes: when no validated configuration is available, verification fails with
   `ERROR_FETCHING_PINNING_INFO` regardless of mode.
+- **Internal:** the iOS and macOS native sources are now a single shared
+  `darwin/` source set (`sharedDarwinSource`) instead of two near-identical
+  copies, with `#if`-guarded platform differences. No effect on consumers —
+  both CocoaPods and Swift Package Manager integration paths are unchanged.
 
 ## [5.0.0] - 2026-05-22
 

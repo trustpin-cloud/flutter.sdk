@@ -36,5 +36,7 @@ flutter:
         pluginClass: TrustPinSDKPlugin
       ios:
         pluginClass: TrustPinSDKPlugin
+        sharedDarwinSource: true
       macos:
         pluginClass: TrustPinSDKPlugin
+        sharedDarwinSource: true

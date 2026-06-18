@@ -1,4 +1,8 @@
+#if canImport(Flutter)
+@preconcurrency import Flutter
+#elseif canImport(FlutterMacOS)
 @preconcurrency import FlutterMacOS
+#endif
 import Foundation
 import TrustPinKit
 
@@ -32,7 +36,13 @@ extension TrustPinSDKPlugin {
     func handleSetupWithNativeBundle(_ call: FlutterMethodCall, box: ResultBox) {
         execute(box, defaultCode: ErrorCode.setup) {
             let args = try Arguments(call)
+            // The Dart side sends every per-platform filename in one call; read
+            // the key matching the platform this binary was compiled for.
+            #if os(iOS)
+            let fileName = args.optionalString(Arg.iosFileName)
+            #else
             let fileName = args.optionalString(Arg.macosFileName)
+            #endif
             let instanceId = args.optionalString(Arg.instanceId)
 
             return {
@@ -94,6 +104,9 @@ extension TrustPinSDKPlugin {
             let instanceId = args.optionalString(Arg.instanceId)
 
             return {
+                // The explicit `-> String` keeps the generic `withOptionalTimeout`
+                // from inferring `T == Any?` via the enclosing `Any?`-returning
+                // closure; `Any` is not `Sendable`.
                 try await withOptionalTimeout(milliseconds: timeoutMs) { () async throws -> String in
                     let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
                     return try await trustPin.fetchCertificate(host: host, port: port)
@@ -137,6 +150,9 @@ extension TrustPinSDKPlugin {
 
             return {
                 let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                // The native API takes a `TimeInterval` (seconds); the Dart
+                // side passes milliseconds. A nil/non-positive value defers to
+                // the SDK's default timeout.
                 if let timeoutMs, timeoutMs > 0 {
                     try await trustPin.awaitConfiguration(
                         timeout: TimeInterval(timeoutMs) / 1000.0

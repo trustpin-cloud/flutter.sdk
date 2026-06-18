@@ -13,6 +13,10 @@ enum Method {
 }
 
 /// Keys used in the method-call argument map. Keep in sync with the Dart side.
+///
+/// Both `iosFileName` and `macosFileName` are declared here because the Dart
+/// side sends every per-platform key in one call; the native handler reads the
+/// one matching the platform it was compiled for (see `handleSetupWithNativeBundle`).
 enum Arg {
     static let organizationId = "organizationId"
     static let projectId = "projectId"
@@ -26,6 +30,7 @@ enum Arg {
     static let host = "host"
     static let port = "port"
     static let timeoutMs = "timeoutMs"
+    static let iosFileName = "iosFileName"
     static let macosFileName = "macosFileName"
 }
 

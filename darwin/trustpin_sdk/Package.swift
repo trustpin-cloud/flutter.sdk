@@ -6,6 +6,7 @@ import PackageDescription
 let package = Package(
     name: "trustpin_sdk",
     platforms: [
+        .iOS(.v15),
         .macOS(.v13)
     ],
     products: [

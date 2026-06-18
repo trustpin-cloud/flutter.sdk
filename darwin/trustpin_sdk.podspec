@@ -10,7 +10,10 @@ Flutter plugin for TrustPin SSL certificate pinning SDK providing secure certifi
   spec.author           = { 'TrustPin' => 'support@trustpin.cloud' }
   spec.source           = { :git => 'https://github.com/trustpin-cloud/flutter.sdk' }
   spec.source_files = 'trustpin_sdk/Sources/trustpin_sdk/**/*.swift'
-  spec.dependency 'Flutter'
+
+  # Shared iOS + macOS source set. Flutter is provided per platform.
+  spec.ios.dependency 'Flutter'
+  spec.osx.dependency 'FlutterMacOS'
   spec.dependency 'TrustPinKit', '= 6.0.0'
 
   spec.ios.deployment_target = "15.0"
