@@ -93,6 +93,25 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
     throw UnimplementedError('fetchCertificate() has not been implemented.');
   }
 
+  /// Waits until the pinning configuration has been fetched, signature-
+  /// verified, and accepted by the SDK's integrity check — the explicit
+  /// fail-closed gate that complements the now non-blocking [setup].
+  ///
+  /// When [timeoutMs] is non-null and positive, it bounds the wait; otherwise
+  /// the native SDK's default timeout applies. When [instanceId] is null, the
+  /// global default instance is used.
+  Future<void> awaitConfiguration({int? timeoutMs, String? instanceId}) {
+    throw UnimplementedError('awaitConfiguration() has not been implemented.');
+  }
+
+  /// Returns `true` when a validated pinning payload is cached and usable
+  /// without a new fetch. Pure state read — never triggers a fetch or blocks.
+  ///
+  /// When [instanceId] is null, the global default instance is used.
+  Future<bool> isConfigurationLoaded({String? instanceId}) {
+    throw UnimplementedError('isConfigurationLoaded() has not been implemented.');
+  }
+
   /// Atomically validates that [host]:[port] presents a certificate matching
   /// the configured pins. The platform composes `fetchCertificate` and
   /// `verify` inside a single channel call, so the certificate never enters

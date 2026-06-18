@@ -52,17 +52,17 @@ flutter pub get
 
 ### iOS Requirements
 
-- **Minimum iOS Version**: 13.0+
+- **Minimum iOS Version**: 15.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 5.0.0 (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)
 
 ### macOS Requirements
 
 - **Minimum macOS Version**: 13.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 5.0.0 (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)
 
 > Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
 > build settings. Flutter uses this value to align the generated Swift Package
@@ -267,6 +267,54 @@ final pem = await TrustPin.shared.fetchCertificate(host);
 await TrustPin.shared.verify(host, pem);
 ```
 
+### 4. (Optional) Gate startup on a validated configuration
+
+As of 6.0.0, `setup` / `setupWithNativeBundle` are **non-blocking**: they
+validate credentials locally and preload the pinning configuration in the
+background. They no longer throw fetch or validation errors — those surface
+fail-closed from `validateConnection` / `verify` (in **both** strict and
+permissive modes) or eagerly from `awaitConfiguration`.
+
+If your app must not start networking without a validated pinning payload,
+use `awaitConfiguration` as an explicit fail-closed gate and treat any error
+as a hard stop:
+
+```dart
+Future<void> initializeTrustPin() async {
+  await TrustPin.shared.setupWithNativeBundle(); // local validation only
+
+  try {
+    // Block until the configuration is fetched, signature-verified, and
+    // accepted by the SDK's integrity check. The native side clamps the
+    // timeout to its supported range (currently 10–120s).
+    await TrustPin.shared.awaitConfiguration(
+      timeout: const Duration(seconds: 10),
+    );
+  } on TrustPinException catch (e) {
+    // Hard stop — do NOT fall through to an unpinned HTTP client.
+    print('TrustPin configuration unavailable: ${e.code}');
+    rethrow;
+  }
+}
+```
+
+For a synchronous, non-fetching state read (for example, to decide whether the
+first request will incur a configuration wait), use `isConfigurationLoaded`:
+
+```dart
+if (await TrustPin.shared.isConfigurationLoaded) {
+  // A validated payload is cached; pinned requests won't wait on a fetch.
+}
+```
+
+Apps that prefer zero launch latency can skip the gate entirely — connection
+validation is fail-closed and refuses traffic whenever a validated
+configuration is unavailable.
+
+> **Note:** `setup` is one-shot per instance. Calling it again throws
+> `ALREADY_INITIALIZED`; use `TrustPin.instance('id')` for a separate pinning
+> context.
+
 ## Advanced Usage
 
 ### Integration with Dio
@@ -377,7 +425,9 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 | `TrustPin.shared` | The shared (default) instance for most apps |
 | `TrustPin.instance(id)` | Returns a named instance (for libraries / multi-tenant) |
 | `setupWithNativeBundle({iosFileName?, macosFileName?, androidFileName?})` | **Recommended initializer.** Loads credentials from a platform-native bundle file (Plist on iOS/macOS, JSON asset on Android). |
-| `setup(configuration)` | Alternative initializer that takes an inline [TrustPinConfiguration]. Use when credentials are resolved at runtime. |
+| `setup(configuration)` | Alternative initializer that takes an inline [TrustPinConfiguration]. Use when credentials are resolved at runtime. Non-blocking and one-shot. |
+| `awaitConfiguration({timeout?})` | Fail-closed gate: waits until the pinning configuration is fetched, signature-verified, and integrity-checked. Pairs with the non-blocking `setup`. |
+| `isConfigurationLoaded` | `Future<bool>` — synchronous, non-fetching state read of whether a validated payload is currently cached. |
 | `validateConnection(host, {port?, timeout?})` | Atomic fetch-and-verify. **Recommended entry point** for cert-pinned HTTPS. |
 | `setLogLevel(level)` | Set logging verbosity |
 
@@ -439,13 +489,15 @@ try {
 | Error Code | Getter | Description |
 |------------|--------|-------------|
 | `INVALID_PROJECT_CONFIG` | `isInvalidProjectConfig` | Invalid or missing credentials |
-| `ERROR_FETCHING_PINNING_INFO` | `isErrorFetchingPinningInfo` | Failed to fetch pinning configuration |
+| `ALREADY_INITIALIZED` | `isAlreadyInitialized` | `setup` was called again on an already-initialized instance |
+| `ERROR_FETCHING_PINNING_INFO` | `isErrorFetchingPinningInfo` | Failed to fetch pinning configuration (fail-closed in both modes) |
 | `INVALID_SERVER_CERT` | `isInvalidServerCert` | Invalid certificate format |
 | `PINS_MISMATCH` | `isPinsMismatch` | Certificate doesn't match configured pins |
 | `ALL_PINS_EXPIRED` | `isAllPinsExpired` | All pins for the domain have expired |
 | `DOMAIN_NOT_REGISTERED` | `isDomainNotRegistered` | Domain not configured (strict mode) |
 | `CONFIGURATION_VALIDATION_FAILED` | `isConfigurationValidationFailed` | Configuration validation failed |
-| `FETCH_CERTIFICATE_TIMEOUT` | `isFetchCertificateTimeout` | `fetchCertificate` exceeded its `timeout` |
+| `CONFIG_INTEGRITY_FAILED` | `isConfigIntegrityFailed` | Downloaded configuration failed the SDK's integrity check |
+| `FETCH_CERTIFICATE_TIMEOUT` | `isFetchCertificateTimeout` | A `fetchCertificate`, `validateConnection`, or `awaitConfiguration` call exceeded its `timeout` |
 
 ## Example App
 
@@ -458,6 +510,10 @@ The `sample_app/` directory contains a complete example application demonstratin
 Run the example:
 
 ```bash
+# The sample app uses Swift Package Manager (not CocoaPods) on iOS/macOS.
+# Enable Flutter's SPM integration once per machine:
+flutter config --enable-swift-package-manager
+
 cd sample_app
 flutter run
 ```

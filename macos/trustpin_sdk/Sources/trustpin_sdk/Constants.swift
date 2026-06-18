@@ -8,6 +8,8 @@ enum Method {
     static let setLogLevel = "setLogLevel"
     static let fetchCertificate = "fetchCertificate"
     static let validateConnection = "validateConnection"
+    static let awaitConfiguration = "awaitConfiguration"
+    static let isConfigurationLoaded = "isConfigurationLoaded"
 }
 
 /// Keys used in the method-call argument map. Keep in sync with the Dart side.
@@ -37,6 +39,9 @@ enum ErrorCode {
     static let fetchCertificate = "FETCH_CERTIFICATE_ERROR"
     static let fetchCertificateTimeout = "FETCH_CERTIFICATE_TIMEOUT"
     static let validateConnection = "VALIDATE_CONNECTION_ERROR"
+    static let awaitConfiguration = "AWAIT_CONFIGURATION_ERROR"
+    static let alreadyInitialized = "ALREADY_INITIALIZED"
+    static let configIntegrityFailed = "CONFIG_INTEGRITY_FAILED"
 }
 
 /// Default TCP port used when callers omit `port`.

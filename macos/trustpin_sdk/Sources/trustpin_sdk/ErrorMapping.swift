@@ -8,12 +8,17 @@ import TrustPinKit
 func mapTrustPinError(_ error: TrustPinErrors) -> String {
     switch error {
     case .invalidProjectConfig:          return "INVALID_PROJECT_CONFIG"
+    case .alreadyInitialized:            return ErrorCode.alreadyInitialized
     case .errorFetchingPinningInfo:      return "ERROR_FETCHING_PINNING_INFO"
     case .invalidServerCert:             return "INVALID_SERVER_CERT"
     case .pinsMismatch:                  return "PINS_MISMATCH"
     case .allPinsExpired:                return "ALL_PINS_EXPIRED"
     case .configurationValidationFailed: return "CONFIGURATION_VALIDATION_FAILED"
     case .domainNotRegistered:           return "DOMAIN_NOT_REGISTERED"
+    // The native SDK's end-to-end timeout shares the Flutter timeout code
+    // already used by the plugin-level `withOptionalTimeout` wrapper.
+    case .timeout:                       return ErrorCode.fetchCertificateTimeout
+    case .configIntegrityFailed:         return ErrorCode.configIntegrityFailed
     @unknown default:                    return "INVALID_PROJECT_CONFIG"
     }
 }
@@ -67,8 +72,9 @@ func flutterError(
 // MARK: - Execute helper
 
 /// The async operation produced by a handler's synchronous "parse" phase.
-/// Current handlers either return a certificate PEM string or no value.
-typealias HandlerOperation = @Sendable () async throws -> String?
+/// Handlers return a certificate PEM string, a boolean (e.g.
+/// `isConfigurationLoaded`), or no value.
+typealias HandlerOperation = @Sendable () async throws -> Any?
 
 /// Runs a handler in two phases:
 ///

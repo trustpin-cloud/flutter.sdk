@@ -12,6 +12,14 @@ A comprehensive sample Flutter application demonstrating the TrustPin SDK capabi
 
 ## Running the Sample
 
+> **iOS / macOS use Swift Package Manager, not CocoaPods.** This app has no
+> `Podfile`; the native TrustPinKit dependency is pulled in via SPM. Enable
+> Flutter's SPM integration once per machine before building for Apple
+> platforms:
+> ```bash
+> flutter config --enable-swift-package-manager
+> ```
+
 1. Navigate to the sample app directory:
    ```bash
    cd sample_app

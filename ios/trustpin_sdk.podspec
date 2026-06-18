@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = 'trustpin_sdk'
-  spec.version          = '5.0.0'
+  spec.version          = '6.0.0'
   spec.summary          = 'Flutter plugin for TrustPin SSL certificate pinning SDK'
   spec.description      = <<-DESC
 Flutter plugin for TrustPin SSL certificate pinning SDK providing secure certificate validation.
@@ -11,12 +11,12 @@ Flutter plugin for TrustPin SSL certificate pinning SDK providing secure certifi
   spec.source           = { :git => 'https://github.com/trustpin-cloud/flutter.sdk' }
   spec.source_files = 'trustpin_sdk/Sources/trustpin_sdk/**/*.swift'
   spec.dependency 'Flutter'
-  spec.dependency 'TrustPinKit', '= 5.0.0'
+  spec.dependency 'TrustPinKit', '= 6.0.0'
 
-  spec.ios.deployment_target = "13.0"
+  spec.ios.deployment_target = "15.0"
   spec.osx.deployment_target = "13.0"
-  spec.watchos.deployment_target = "7.0"
-  spec.tvos.deployment_target = "13.0"
+  spec.watchos.deployment_target = "8.0"
+  spec.tvos.deployment_target = "15.0"
   spec.visionos.deployment_target = "2.0"
 
   # Flutter.framework does not contain a i386 slice.

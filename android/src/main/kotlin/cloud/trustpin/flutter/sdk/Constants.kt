@@ -8,6 +8,8 @@ internal object Method {
     const val SET_LOG_LEVEL = "setLogLevel"
     const val FETCH_CERTIFICATE = "fetchCertificate"
     const val VALIDATE_CONNECTION = "validateConnection"
+    const val AWAIT_CONFIGURATION = "awaitConfiguration"
+    const val IS_CONFIGURATION_LOADED = "isConfigurationLoaded"
 }
 
 /** Keys used in the method-call argument map. Keep in sync with the Dart side. */
@@ -37,6 +39,9 @@ internal object ErrorCode {
     const val FETCH_CERTIFICATE = "FETCH_CERTIFICATE_ERROR"
     const val FETCH_CERTIFICATE_TIMEOUT = "FETCH_CERTIFICATE_TIMEOUT"
     const val VALIDATE_CONNECTION = "VALIDATE_CONNECTION_ERROR"
+    const val AWAIT_CONFIGURATION = "AWAIT_CONFIGURATION_ERROR"
+    const val ALREADY_INITIALIZED = "ALREADY_INITIALIZED"
+    const val CONFIG_INTEGRITY_FAILED = "CONFIG_INTEGRITY_FAILED"
 }
 
 /** Default TCP port used when callers omit `port`. */

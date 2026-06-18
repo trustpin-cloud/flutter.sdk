@@ -127,6 +127,40 @@ internal fun TrustPinSDKPlugin.handleValidateConnection(call: MethodCall, result
     }
 }
 
+internal fun TrustPinSDKPlugin.handleAwaitConfiguration(call: MethodCall, result: Result) {
+    execute(
+        coroutineScope,
+        result,
+        defaultCode = ErrorCode.AWAIT_CONFIGURATION,
+        timeoutMessage = "Timed out awaiting configuration"
+    ) {
+        val timeoutMs = call.optionalInt(Arg.TIMEOUT_MS)
+        val instanceId = call.optionalString(Arg.INSTANCE_ID)
+
+        suspend {
+            val trustPin = trustPinInstance(instanceId)
+            // The native API takes a millisecond deadline. A null/non-positive
+            // value defers to the SDK's default timeout.
+            if (timeoutMs != null && timeoutMs > 0) {
+                trustPin.awaitConfiguration(timeoutMs.toLong())
+            } else {
+                trustPin.awaitConfiguration()
+            }
+            null
+        }
+    }
+}
+
+internal fun TrustPinSDKPlugin.handleIsConfigurationLoaded(call: MethodCall, result: Result) {
+    execute(coroutineScope, result, ErrorCode.AWAIT_CONFIGURATION) {
+        val instanceId = call.optionalString(Arg.INSTANCE_ID)
+
+        suspend {
+            trustPinInstance(instanceId).isConfigurationLoaded
+        }
+    }
+}
+
 /**
  * Runs [block] directly, or under [withTimeout] when [timeoutMs] is positive.
  * Convenience wrapper used by handlers that expose `timeoutMs`.

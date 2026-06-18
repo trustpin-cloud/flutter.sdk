@@ -78,6 +78,23 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
   }
 
   @override
+  Future<void> awaitConfiguration({int? timeoutMs, String? instanceId}) async {
+    await methodChannel.invokeMethod('awaitConfiguration', {
+      'timeoutMs': timeoutMs,
+      'instanceId': instanceId,
+    });
+  }
+
+  @override
+  Future<bool> isConfigurationLoaded({String? instanceId}) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'isConfigurationLoaded',
+      {'instanceId': instanceId},
+    );
+    return result ?? false;
+  }
+
+  @override
   Future<void> validateConnection(
     String host, {
     int port = 443,

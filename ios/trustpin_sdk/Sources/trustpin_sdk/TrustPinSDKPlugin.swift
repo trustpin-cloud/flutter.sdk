@@ -28,6 +28,8 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
         case Method.setLogLevel:            handleSetLogLevel(call, box: box)
         case Method.fetchCertificate:       handleFetchCertificate(call, box: box)
         case Method.validateConnection:     handleValidateConnection(call, box: box)
+        case Method.awaitConfiguration:     handleAwaitConfiguration(call, box: box)
+        case Method.isConfigurationLoaded:  handleIsConfigurationLoaded(call, box: box)
         default:                            box.deliver(FlutterMethodNotImplemented)
         }
     }

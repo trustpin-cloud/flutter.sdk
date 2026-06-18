@@ -6,13 +6,13 @@ import PackageDescription
 let package = Package(
     name: "trustpin_sdk",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v15)
     ],
     products: [
         .library(name: "trustpin-sdk", targets: ["trustpin_sdk"])
     ],
     dependencies: [
-        .package(url: "https://github.com/trustpin-cloud/swift.sdk", exact: "5.0.0")
+        .package(url: "https://github.com/trustpin-cloud/swift.sdk", exact: "6.0.0")
     ],
     targets: [
         .target(

@@ -39,6 +39,12 @@ class TrustPinException implements Exception {
   /// Returns true for an invalid project configuration error.
   bool get isInvalidProjectConfig => code == 'INVALID_PROJECT_CONFIG';
 
+  /// Returns true if setup was called again on an already-initialized instance.
+  ///
+  /// Reconfiguration is not supported; use a separate named instance via
+  /// `TrustPin.instance(id)` for a different pinning context.
+  bool get isAlreadyInitialized => code == 'ALREADY_INITIALIZED';
+
   /// Returns true if pinning information could not be retrieved.
   bool get isErrorFetchingPinningInfo => code == 'ERROR_FETCHING_PINNING_INFO';
 
@@ -58,6 +64,11 @@ class TrustPinException implements Exception {
   bool get isConfigurationValidationFailed =>
       code == 'CONFIGURATION_VALIDATION_FAILED';
 
-  /// Returns true if a certificate fetch exceeded its timeout.
+  /// Returns true if the downloaded configuration failed the SDK's integrity
+  /// check. Treat as a hard stop and do not retry blindly.
+  bool get isConfigIntegrityFailed => code == 'CONFIG_INTEGRITY_FAILED';
+
+  /// Returns true if a certificate fetch or configuration wait exceeded its
+  /// timeout.
   bool get isFetchCertificateTimeout => code == 'FETCH_CERTIFICATE_TIMEOUT';
 }
