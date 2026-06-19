@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2026-06-18
+
+### Added
+
+- `TrustPin.awaitConfiguration({timeout})` — explicit fail-closed gate that
+  waits until the pinning configuration has been fetched, signature-verified,
+  and accepted by the SDK's integrity check. Pairs with the now non-blocking
+  `setup`.
+- `TrustPin.isConfigurationLoaded` — synchronous, non-fetching state read
+  reporting whether a validated pinning payload is currently cached.
+- New error codes surfaced through `TrustPinException`: `ALREADY_INITIALIZED`
+  (with `isAlreadyInitialized`) and `CONFIG_INTEGRITY_FAILED` (with
+  `isConfigIntegrityFailed`).
+
+### Changed
+
+- Updated iOS/macOS native SDK to 6.0.0 and Android native SDK to 6.0.0.
+- **Raised minimum deployment targets** to match TrustPinKit 6.0.0: iOS 15,
+  macOS 13, watchOS 8, tvOS 15, visionOS 2. Apps consuming this plugin must
+  raise their iOS deployment target to 15.0 (the sample app was updated to
+  match). Android `minSdk` is unchanged at 25.
+- **`setup` is now non-blocking and one-shot.** It performs local credential
+  validation and starts a background preload of the pinning configuration; it
+  no longer waits on the network. Fetch and validation errors now surface
+  fail-closed from `validateConnection` / `verify`, or eagerly from
+  `awaitConfiguration`, rather than from `setup`. Calling `setup` a second
+  time on the same instance throws `ALREADY_INITIALIZED` — create a separate
+  named instance via `TrustPin.instance(id)` for a different pinning context.
+- Certificate verification is fail-closed in **both** strict and permissive
+  modes: when no validated configuration is available, verification fails with
+  `ERROR_FETCHING_PINNING_INFO` regardless of mode.
+- **Internal:** the iOS and macOS native sources are now a single shared
+  `darwin/` source set (`sharedDarwinSource`) instead of two near-identical
+  copies, with `#if`-guarded platform differences. No effect on consumers —
+  both CocoaPods and Swift Package Manager integration paths are unchanged.
+
 ## [5.0.0] - 2026-05-22
 
 ### Added

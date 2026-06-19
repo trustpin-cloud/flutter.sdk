@@ -17,12 +17,17 @@ internal typealias HandlerOperation = suspend () -> Any?
  */
 internal fun mapTrustPinError(error: TrustPinError): String = when (error) {
     is TrustPinError.InvalidProjectConfig -> "INVALID_PROJECT_CONFIG"
+    is TrustPinError.AlreadyInitialized -> ErrorCode.ALREADY_INITIALIZED
     is TrustPinError.ErrorFetchingPinningInfo -> "ERROR_FETCHING_PINNING_INFO"
     is TrustPinError.InvalidServerCert -> "INVALID_SERVER_CERT"
     is TrustPinError.PinsMismatch -> "PINS_MISMATCH"
     is TrustPinError.AllPinsExpired -> "ALL_PINS_EXPIRED"
     is TrustPinError.ConfigurationValidationFailed -> "CONFIGURATION_VALIDATION_FAILED"
     is TrustPinError.DomainNotRegistered -> "DOMAIN_NOT_REGISTERED"
+    // The native SDK's end-to-end timeout shares the Flutter timeout code
+    // already used by the plugin-level `withTimeout` wrapper.
+    is TrustPinError.Timeout -> ErrorCode.FETCH_CERTIFICATE_TIMEOUT
+    is TrustPinError.ConfigIntegrityError -> ErrorCode.CONFIG_INTEGRITY_FAILED
     else -> "INVALID_PROJECT_CONFIG"
 }
 

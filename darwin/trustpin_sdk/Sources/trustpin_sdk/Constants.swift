@@ -8,9 +8,15 @@ enum Method {
     static let setLogLevel = "setLogLevel"
     static let fetchCertificate = "fetchCertificate"
     static let validateConnection = "validateConnection"
+    static let awaitConfiguration = "awaitConfiguration"
+    static let isConfigurationLoaded = "isConfigurationLoaded"
 }
 
 /// Keys used in the method-call argument map. Keep in sync with the Dart side.
+///
+/// Both `iosFileName` and `macosFileName` are declared here because the Dart
+/// side sends every per-platform key in one call; the native handler reads the
+/// one matching the platform it was compiled for (see `handleSetupWithNativeBundle`).
 enum Arg {
     static let organizationId = "organizationId"
     static let projectId = "projectId"
@@ -25,6 +31,7 @@ enum Arg {
     static let port = "port"
     static let timeoutMs = "timeoutMs"
     static let iosFileName = "iosFileName"
+    static let macosFileName = "macosFileName"
 }
 
 /// Error codes returned to Dart. Keep in sync with the Dart side.
@@ -37,6 +44,9 @@ enum ErrorCode {
     static let fetchCertificate = "FETCH_CERTIFICATE_ERROR"
     static let fetchCertificateTimeout = "FETCH_CERTIFICATE_TIMEOUT"
     static let validateConnection = "VALIDATE_CONNECTION_ERROR"
+    static let awaitConfiguration = "AWAIT_CONFIGURATION_ERROR"
+    static let alreadyInitialized = "ALREADY_INITIALIZED"
+    static let configIntegrityFailed = "CONFIG_INTEGRITY_FAILED"
 }
 
 /// Default TCP port used when callers omit `port`.

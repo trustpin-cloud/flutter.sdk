@@ -147,7 +147,7 @@ class TrustPin {
   TrustPin._(this._instanceId);
 
   /// Initializes this instance with the given [configuration]. Must be
-  /// called before [verify].
+  /// called before [verify] or [validateConnection].
   ///
   /// ```dart
   /// const config = TrustPinConfiguration(
@@ -159,11 +159,18 @@ class TrustPin {
   /// await TrustPin.shared.setup(config);
   /// ```
   ///
-  /// Requires network access at first call.
+  /// `setup` performs **local validation only**: it checks the credential
+  /// shapes, stores them, and starts a *background* preload of the pinning
+  /// configuration. It does not wait for the network, so it no longer throws
+  /// fetch or validation errors. Those surface later — fail-closed — from
+  /// [validateConnection] / [verify], or eagerly from [awaitConfiguration].
+  ///
+  /// Setup is **one-shot**: once an instance is configured, a second call
+  /// throws `ALREADY_INITIALIZED`. To use different credentials, create a new
+  /// named instance via [instance].
   ///
   /// - Throws [TrustPinException] with code `INVALID_PROJECT_CONFIG` if credentials are invalid or empty.
-  /// - Throws [TrustPinException] with code `ERROR_FETCHING_PINNING_INFO` if the configuration cannot be retrieved.
-  /// - Throws [TrustPinException] with code `CONFIGURATION_VALIDATION_FAILED` if the configuration is rejected.
+  /// - Throws [TrustPinException] with code `ALREADY_INITIALIZED` if this instance has already completed setup.
   Future<void> setup(TrustPinConfiguration configuration) async {
     try {
       await TrustPinSDKPlatform.instance.setup(
@@ -231,6 +238,70 @@ class TrustPin {
         macosFileName: macosFileName,
         instanceId: _instanceId,
       );
+    } catch (e) {
+      throw TrustPinException.fromPlatformException(e);
+    }
+  }
+
+  /// Waits until this instance's pinning configuration has been fetched,
+  /// signature-verified, and accepted by the SDK's integrity check — the
+  /// explicit fail-closed gate that complements the now non-blocking [setup].
+  ///
+  /// [setup] validates credentials locally and refreshes the configuration in
+  /// the *background*; it deliberately does not block on the network. Call
+  /// this when your integration must not proceed without a validated
+  /// configuration (for example, gating app start). Returns immediately when
+  /// a configuration is already available.
+  ///
+  /// ```dart
+  /// await TrustPin.shared.setup(config); // local validation only
+  /// try {
+  ///   await TrustPin.shared.awaitConfiguration(
+  ///     timeout: const Duration(seconds: 10),
+  ///   );
+  /// } on TrustPinException catch (e) {
+  ///   // Hard stop — do not build an unpinned HTTP client.
+  /// }
+  /// ```
+  ///
+  /// [timeout] bounds the wait; when `null`, the native SDK's default applies.
+  /// The native side clamps it to its supported range (currently 10–120s).
+  /// For a synchronous, non-fetching state read use [isConfigurationLoaded].
+  ///
+  /// - Throws [TrustPinException] with code `INVALID_PROJECT_CONFIG` if [setup] has not been called.
+  /// - Throws [TrustPinException] with code `ERROR_FETCHING_PINNING_INFO` if the configuration cannot be retrieved.
+  /// - Throws [TrustPinException] with code `CONFIGURATION_VALIDATION_FAILED` if the payload signature does not validate.
+  /// - Throws [TrustPinException] with code `CONFIG_INTEGRITY_FAILED` if the configuration fails the SDK's integrity check.
+  /// - Throws [TrustPinException] with code `FETCH_CERTIFICATE_TIMEOUT` if [timeout] is exceeded.
+  Future<void> awaitConfiguration({Duration? timeout}) async {
+    try {
+      await TrustPinSDKPlatform.instance.awaitConfiguration(
+        timeoutMs: timeout?.inMilliseconds,
+        instanceId: _instanceId,
+      );
+    } catch (e) {
+      throw TrustPinException.fromPlatformException(e);
+    }
+  }
+
+  /// Whether a validated pinning payload is currently cached and usable by
+  /// [verify] / [validateConnection] without a new fetch.
+  ///
+  /// Pure state read — never triggers a fetch and never blocks. Use
+  /// [awaitConfiguration] to actively wait for a configuration. A `true`
+  /// result reflects the moment of the read; a previously loaded
+  /// configuration can expire if it cannot be refreshed for an extended
+  /// period.
+  ///
+  /// ```dart
+  /// if (await TrustPin.shared.isConfigurationLoaded) {
+  ///   // Safe to make pinned requests without an initial network wait.
+  /// }
+  /// ```
+  Future<bool> get isConfigurationLoaded async {
+    try {
+      return await TrustPinSDKPlatform.instance
+          .isConfigurationLoaded(instanceId: _instanceId);
     } catch (e) {
       throw TrustPinException.fromPlatformException(e);
     }

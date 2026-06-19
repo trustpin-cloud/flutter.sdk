@@ -120,6 +120,18 @@ void main() {
             expect(args.containsKey('macosFileName'), isTrue);
             expect(args.containsKey('instanceId'), isTrue);
             return null;
+          case 'awaitConfiguration':
+            final args = Map<String, dynamic>.from(methodCall.arguments as Map);
+            final timeoutMs = args['timeoutMs'] as int?;
+            if (timeoutMs != null && timeoutMs <= 1) {
+              throw PlatformException(
+                code: 'FETCH_CERTIFICATE_TIMEOUT',
+                message: 'Timed out awaiting configuration',
+              );
+            }
+            return null;
+          case 'isConfigurationLoaded':
+            return true;
           case 'validateConnection':
             final args = Map<String, dynamic>.from(methodCall.arguments as Map);
             final host = args['host'] as String;
@@ -506,6 +518,54 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
         } on PlatformException catch (e) {
           expect(e.code, equals('VALIDATE_CONNECTION_ERROR'));
         }
+      });
+    });
+
+    group('awaitConfiguration()', () {
+      test('forwards null timeout and instanceId so the native side defaults',
+          () async {
+        await platform.awaitConfiguration();
+
+        expect(methodCalls.length, equals(1));
+        expect(methodCalls[0].method, equals('awaitConfiguration'));
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['timeoutMs'], isNull);
+        expect(args['instanceId'], isNull);
+      });
+
+      test('forwards timeoutMs and instanceId', () async {
+        await platform.awaitConfiguration(
+          timeoutMs: 10000,
+          instanceId: 'lib.networking',
+        );
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['timeoutMs'], equals(10000));
+        expect(args['instanceId'], equals('lib.networking'));
+      });
+
+      test('surfaces FETCH_CERTIFICATE_TIMEOUT from the platform', () async {
+        try {
+          await platform.awaitConfiguration(timeoutMs: 1);
+          fail('Expected PlatformException');
+        } on PlatformException catch (e) {
+          expect(e.code, equals('FETCH_CERTIFICATE_TIMEOUT'));
+        }
+      });
+    });
+
+    group('isConfigurationLoaded()', () {
+      test('returns the platform boolean and forwards instanceId', () async {
+        final loaded =
+            await platform.isConfigurationLoaded(instanceId: 'lib.networking');
+
+        expect(loaded, isTrue);
+        expect(methodCalls.length, equals(1));
+        expect(methodCalls[0].method, equals('isConfigurationLoaded'));
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['instanceId'], equals('lib.networking'));
       });
     });
 

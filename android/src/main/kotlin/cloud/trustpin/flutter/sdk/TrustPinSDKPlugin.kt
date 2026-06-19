@@ -56,6 +56,8 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
             Method.SET_LOG_LEVEL -> handleSetLogLevel(call, result)
             Method.FETCH_CERTIFICATE -> handleFetchCertificate(call, result)
             Method.VALIDATE_CONNECTION -> handleValidateConnection(call, result)
+            Method.AWAIT_CONFIGURATION -> handleAwaitConfiguration(call, result)
+            Method.IS_CONFIGURATION_LOADED -> handleIsConfigurationLoaded(call, result)
             else -> result.notImplemented()
         }
     }

@@ -1,4 +1,8 @@
+#if canImport(Flutter)
 @preconcurrency import Flutter
+#elseif canImport(FlutterMacOS)
+@preconcurrency import FlutterMacOS
+#endif
 import Foundation
 import TrustPinKit
 
