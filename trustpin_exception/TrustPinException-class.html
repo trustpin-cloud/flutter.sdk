@@ -156,6 +156,31 @@ getters to check for specific error types programmatically.</p>
 
 </dd>
 
+        <dt id="isAlreadyInitialized" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isAlreadyInitialized.html">isAlreadyInitialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if setup was called again on an already-initialized instance.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isConfigIntegrityFailed" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isConfigIntegrityFailed.html">isConfigIntegrityFailed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if the downloaded configuration failed the SDK's integrity
+check. Treat as a hard stop and do not retry blindly.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="isConfigurationValidationFailed" class="property">
   <span class="name"><a href="../trustpin_exception/TrustPinException/isConfigurationValidationFailed.html">isConfigurationValidationFailed</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -199,7 +224,8 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if a certificate fetch exceeded its timeout.
+  Returns true if a certificate fetch or configuration wait exceeded its
+timeout.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -349,7 +375,7 @@ getters to check for specific error types programmatically.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

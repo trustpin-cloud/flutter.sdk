@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the setup method from the TrustPin class, for the Dart programming language.">
-  <title>setup method - TrustPin class - trustpin_sdk library - Dart API</title>
+  <meta name="description" content="API docs for the awaitConfiguration method from the TrustPin class, for the Dart programming language.">
+  <title>awaitConfiguration method - TrustPin class - trustpin_sdk library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk.dart</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">setup method</li>
+    <li class="self-crumb">awaitConfiguration method</li>
   </ol>
-  <div class="self-name">setup</div>
+  <div class="self-name">awaitConfiguration</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,41 +49,46 @@
     data-above-sidebar="trustpin_sdk&#47;TrustPin-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">setup</span> method 
+<h1><span class="kind-method">awaitConfiguration</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">setup</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setup-param-configuration"><span class="type-annotation"><a href="../../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></span> <span class="parameter-name">configuration</span></span></li>
-</ol>)
+<span class="name ">awaitConfiguration</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="awaitConfiguration-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span>, </span></li>
+</ol>})
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Initializes this instance with the given <code>configuration</code>. Must be
-called before <a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.html">verify</a> or <a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a>.</p>
-<pre class="language-dart"><code class="language-dart">const config = TrustPinConfiguration(
-  organizationId: 'your-org-id',
-  projectId: 'your-project-id',
-  publicKey: 'your-base64-public-key',
-  mode: TrustPinMode.strict,
-);
-await TrustPin.shared.setup(config);
+  <p>Waits until this instance's pinning configuration has been fetched,
+signature-verified, and accepted by the SDK's integrity check — the
+explicit fail-closed gate that complements the now non-blocking <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a>.</p>
+<p><a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> validates credentials locally and refreshes the configuration in
+the <em>background</em>; it deliberately does not block on the network. Call
+this when your integration must not proceed without a validated
+configuration (for example, gating app start). Returns immediately when
+a configuration is already available.</p>
+<pre class="language-dart"><code class="language-dart">await TrustPin.shared.setup(config); // local validation only
+try {
+  await TrustPin.shared.awaitConfiguration(
+    timeout: const Duration(seconds: 10),
+  );
+} on TrustPinException catch (e) {
+  // Hard stop — do not build an unpinned HTTP client.
+}
 </code></pre>
-<p><code>setup</code> performs <strong>local validation only</strong>: it checks the credential
-shapes, stores them, and starts a <em>background</em> preload of the pinning
-configuration. It does not wait for the network, so it no longer throws
-fetch or validation errors. Those surface later — fail-closed — from
-<a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a> / <a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.html">verify</a>, or eagerly from <a href="../../trustpin_sdk/TrustPin/awaitConfiguration.html">awaitConfiguration</a>.</p>
-<p>Setup is <strong>one-shot</strong>: once an instance is configured, a second call
-throws <code>ALREADY_INITIALIZED</code>. To use different credentials, create a new
-named instance via <a href="../../trustpin_sdk/TrustPin/instance.html">instance</a>.</p>
+<p><code>timeout</code> bounds the wait; when <code>null</code>, the native SDK's default applies.
+The native side clamps it to its supported range (currently 10–120s).
+For a synchronous, non-fetching state read use <a href="../../trustpin_sdk/TrustPin/isConfigurationLoaded.html">isConfigurationLoaded</a>.</p>
 <ul>
-<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if credentials are invalid or empty.</li>
-<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ALREADY_INITIALIZED</code> if this instance has already completed setup.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> has not been called.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ERROR_FETCHING_PINNING_INFO</code> if the configuration cannot be retrieved.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>CONFIGURATION_VALIDATION_FAILED</code> if the payload signature does not validate.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>CONFIG_INTEGRITY_FAILED</code> if the configuration fails the SDK's integrity check.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>FETCH_CERTIFICATE_TIMEOUT</code> if <code>timeout</code> is exceeded.</li>
 </ul>
 </section>
 
@@ -91,14 +96,10 @@ named instance via <a href="../../trustpin_sdk/TrustPin/instance.html">instance<
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setup(TrustPinConfiguration configuration) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; awaitConfiguration({Duration? timeout}) async {
   try {
-    await TrustPinSDKPlatform.instance.setup(
-      configuration.organizationId,
-      configuration.projectId,
-      configuration.publicKey,
-      configurationURL: configuration.configurationURL,
-      mode: configuration.mode.value,
+    await TrustPinSDKPlatform.instance.awaitConfiguration(
+      timeoutMs: timeout?.inMilliseconds,
       instanceId: _instanceId,
     );
   } catch (e) {
@@ -120,7 +121,7 @@ named instance via <a href="../../trustpin_sdk/TrustPin/instance.html">instance<
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">setup method</li>
+    <li class="self-crumb">awaitConfiguration method</li>
 </ol>
 
     <h5>TrustPin class</h5>

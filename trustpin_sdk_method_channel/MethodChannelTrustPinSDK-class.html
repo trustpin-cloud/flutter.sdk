@@ -146,6 +146,21 @@
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="awaitConfiguration" class="callable">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/awaitConfiguration.html">awaitConfiguration</a></span><span class="signature">(<wbr>{<span class="parameter" id="awaitConfiguration-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span><span class="parameter" id="awaitConfiguration-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Waits until the pinning configuration has been fetched, signature-
+verified, and accepted by the SDK's integrity check — the explicit
+fail-closed gate that complements the now non-blocking <a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/setup.html">setup</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="fetchCertificate" class="callable">
   <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span><span class="parameter" id="fetchCertificate-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
@@ -155,6 +170,20 @@
 </dt>
 <dd>
   Fetches the TLS leaf certificate from <code>host</code> as a PEM string.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isConfigurationLoaded" class="callable">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/isConfigurationLoaded.html">isConfigurationLoaded</a></span><span class="signature">(<wbr>{<span class="parameter" id="isConfigurationLoaded-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns <code>true</code> when a validated pinning payload is cached and usable
+without a new fetch. Pure state read — never triggers a fetch or blocks.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -306,7 +335,7 @@ the Dart isolate.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

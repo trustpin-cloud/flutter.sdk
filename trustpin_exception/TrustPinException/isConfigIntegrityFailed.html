@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the TrustPinException.fromPlatformException constructor from Class TrustPinException from the trustpin_exception library, for the Dart programming language.">
-  <title>TrustPinException.fromPlatformException constructor - TrustPinException - trustpin_exception library - Dart API</title>
+  <meta name="description" content="API docs for the isConfigIntegrityFailed property from the TrustPinException class, for the Dart programming language.">
+  <title>isConfigIntegrityFailed property - TrustPinException class - trustpin_exception library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_exception/">trustpin_exception.dart</a></li>
     <li><a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a></li>
-    <li class="self-crumb">TrustPinException.fromPlatformException factory constructor</li>
+    <li class="self-crumb">isConfigIntegrityFailed property</li>
   </ol>
-  <div class="self-name">TrustPinException.fromPlatformException</div>
+  <div class="self-name">isConfigIntegrityFailed</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -43,47 +43,46 @@
   </button>
 </header>
 <main>
-  <div
-      id="dartdoc-main-content"
-      class="main-content"
-      data-above-sidebar="trustpin_exception&#47;TrustPinException-class-sidebar.html"
-      data-below-sidebar="">
-      <div>
-<h1><span class="kind-constructor">TrustPinException.fromPlatformException</span> constructor 
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="trustpin_exception&#47;TrustPinException-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">isConfigIntegrityFailed</span> property 
 </h1></div>
 
+    
+
+    
+        
+  <section id="getter">
     <section class="multi-line-signature">
       
-      <span class="name ">TrustPinException.fromPlatformException</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromPlatformException-param-error"><span class="type-annotation">dynamic</span> <span class="parameter-name">error</span></span></li>
-</ol>)
+      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+      get
+      <span class="name ">isConfigIntegrityFailed</span>
+      
+
     </section>
     
 <section class="desc markdown">
-  <p>Creates a TrustPinException from a platform exception.</p>
-<p>This factory constructor is used internally to convert platform-specific
-exceptions into TrustPinException instances.</p>
+  <p>Returns true if the downloaded configuration failed the SDK's integrity
+check. Treat as a hard stop and do not retry blindly.</p>
 </section>
-
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TrustPinException.fromPlatformException(dynamic error) {
-  if (error is PlatformException) {
-    return TrustPinException(
-      error.code,
-      error.message ?? &#39;&#39;,
-      error.details,
-    );
-  }
-  return TrustPinException(&#39;UNKNOWN_ERROR&#39;, error.toString());
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool get isConfigIntegrityFailed =&gt; code == &#39;CONFIG_INTEGRITY_FAILED&#39;;</code></pre>
 </section>
 
+  </section>
 
-  </div> <!-- /.main-content -->
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -93,14 +92,14 @@ exceptions into TrustPinException instances.</p>
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_exception/">trustpin_exception</a></li>
     <li><a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a></li>
-    <li class="self-crumb">TrustPinException.fromPlatformException factory constructor</li>
+    <li class="self-crumb">isConfigIntegrityFailed property</li>
 </ol>
 
-    <h5>TrustPinException class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-left-->
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
-  </div><!--/.sidebar-offcanvas-->
+  <h5>TrustPinException class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
 </main>
 <footer>
   <span class="no-break">

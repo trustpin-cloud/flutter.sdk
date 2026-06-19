@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the send method from the TrustPinHttpClient class, for the Dart programming language.">
-  <title>send method - TrustPinHttpClient class - http_client_interceptor library - Dart API</title>
+  <meta name="description" content="API docs for the awaitConfiguration method from the MethodChannelTrustPinSDK class, for the Dart programming language.">
+  <title>awaitConfiguration method - MethodChannelTrustPinSDK class - trustpin_sdk_method_channel library - Dart API</title>
 
 
   
@@ -25,11 +25,11 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">trustpin_sdk</a></li>
-    <li><a href="../../http_interceptors_http_client_interceptor/">http_interceptors&#47;http_client_interceptor.dart</a></li>
-    <li><a href="../../http_interceptors_http_client_interceptor/TrustPinHttpClient-class.html">TrustPinHttpClient</a></li>
-    <li class="self-crumb">send method</li>
+    <li><a href="../../trustpin_sdk_method_channel/">trustpin_sdk_method_channel.dart</a></li>
+    <li><a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK-class.html">MethodChannelTrustPinSDK</a></li>
+    <li class="self-crumb">awaitConfiguration method</li>
   </ol>
-  <div class="self-name">send</div>
+  <div class="self-name">awaitConfiguration</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -46,10 +46,10 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="http_interceptors_http_client_interceptor&#47;TrustPinHttpClient-class-sidebar.html"
+    data-above-sidebar="trustpin_sdk_method_channel&#47;MethodChannelTrustPinSDK-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">send</span> method 
+<h1><span class="kind-method">awaitConfiguration</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
@@ -59,21 +59,22 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/StreamedResponse-class.html">StreamedResponse</a></span>&gt;</span></span>
-<span class="name ">send</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="send-param-request"><span class="type-annotation"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseRequest-class.html">BaseRequest</a></span> <span class="parameter-name">request</span></span></li>
-</ol>)
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">awaitConfiguration</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="awaitConfiguration-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span></li>
+<li><span class="parameter" id="awaitConfiguration-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span>, </span></li>
+</ol>})
 
       <div class="features"><span class="feature">override</span></div>
 
     </section>
     
 <section class="desc markdown">
-  <p>Sends an HTTP request and asynchronously returns the response.</p>
-<p>Implementers should call <a href="https://pub.dev/documentation/http/1.6.0/http/BaseRequest/finalize.html">BaseRequest.finalize</a> to get the body of the
-request as a <a href="https://pub.dev/documentation/http/1.6.0/http/ByteStream-class.html">ByteStream</a>. They shouldn't make any assumptions about the
-state of the stream; it could have data written to it asynchronously at a
-later point, or it could already be closed when it's returned. Any
-internal HTTP errors should be wrapped as <a href="https://pub.dev/documentation/http/1.6.0/http/ClientException-class.html">ClientException</a>s.</p>
+  <p>Waits until the pinning configuration has been fetched, signature-
+verified, and accepted by the SDK's integrity check — the explicit
+fail-closed gate that complements the now non-blocking <a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/setup.html">setup</a>.</p>
+<p>When <code>timeoutMs</code> is non-null and positive, it bounds the wait; otherwise
+the native SDK's default timeout applies. When <code>instanceId</code> is null, the
+global default instance is used.</p>
 </section>
 
 
@@ -81,19 +82,11 @@ internal HTTP errors should be wrapped as <a href="https://pub.dev/documentation
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Future&lt;http.StreamedResponse&gt; send(http.BaseRequest request) async {
-  final uri = request.url;
-
-  &#47;&#47; Only validate HTTPS requests
-  if (uri.scheme == &#39;https&#39;) {
-    await _instance.validateConnection(
-      uri.host,
-      port: uri.port,
-      timeout: _validateTimeout,
-    );
-  }
-
-  return _inner.send(request);
+Future&lt;void&gt; awaitConfiguration({int? timeoutMs, String? instanceId}) async {
+  await methodChannel.invokeMethod(&#39;awaitConfiguration&#39;, {
+    &#39;timeoutMs&#39;: timeoutMs,
+    &#39;instanceId&#39;: instanceId,
+  });
 }</code></pre>
 </section>
 
@@ -108,12 +101,12 @@ Future&lt;http.StreamedResponse&gt; send(http.BaseRequest request) async {
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">trustpin_sdk</a></li>
-    <li><a href="../../http_interceptors_http_client_interceptor/">http_client_interceptor</a></li>
-    <li><a href="../../http_interceptors_http_client_interceptor/TrustPinHttpClient-class.html">TrustPinHttpClient</a></li>
-    <li class="self-crumb">send method</li>
+    <li><a href="../../trustpin_sdk_method_channel/">trustpin_sdk_method_channel</a></li>
+    <li><a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK-class.html">MethodChannelTrustPinSDK</a></li>
+    <li class="self-crumb">awaitConfiguration method</li>
 </ol>
 
-    <h5>TrustPinHttpClient class</h5>
+    <h5>MethodChannelTrustPinSDK class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
