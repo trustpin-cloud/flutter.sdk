@@ -146,7 +146,7 @@ that can be checked programmatically:</p>
     
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
@@ -159,6 +159,19 @@ that can be checked programmatically:</p>
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isConfigurationLoaded" class="property">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/isConfigurationLoaded.html">isConfigurationLoaded</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Whether a validated pinning payload is currently cached and usable by
+<a class="deprecated" href="../trustpin_sdk/TrustPin/verify.html">verify</a> / <a href="../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a> without a new fetch.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -183,9 +196,24 @@ that can be checked programmatically:</p>
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="awaitConfiguration" class="callable">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/awaitConfiguration.html">awaitConfiguration</a></span><span class="signature">(<wbr>{<span class="parameter" id="awaitConfiguration-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Waits until this instance's pinning configuration has been fetched,
+signature-verified, and accepted by the SDK's integrity check — the
+explicit fail-closed gate that complements the now non-blocking <a href="../trustpin_sdk/TrustPin/setup.html">setup</a>.
+  
+
+</dd>
+
         <dt id="fetchCertificate" class="callable">
   <span class="name deprecated"><a class="deprecated" href="../trustpin_sdk/TrustPin/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
 
@@ -212,7 +240,7 @@ string.
 
         <dt id="setLogLevel" class="callable">
   <span class="name"><a href="../trustpin_sdk/TrustPin/setLogLevel.html">setLogLevel</a></span><span class="signature">(<wbr><span class="parameter" id="setLogLevel-param-level"><span class="type-annotation"><a href="../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel</a></span> <span class="parameter-name">level</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -225,21 +253,21 @@ string.
 
         <dt id="setup" class="callable">
   <span class="name"><a href="../trustpin_sdk/TrustPin/setup.html">setup</a></span><span class="signature">(<wbr><span class="parameter" id="setup-param-configuration"><span class="type-annotation"><a href="../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></span> <span class="parameter-name">configuration</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
   Initializes this instance with the given <code>configuration</code>. Must be
-called before <a class="deprecated" href="../trustpin_sdk/TrustPin/verify.html">verify</a>.
+called before <a class="deprecated" href="../trustpin_sdk/TrustPin/verify.html">verify</a> or <a href="../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a>.
   
 
 </dd>
 
         <dt id="setupWithNativeBundle" class="callable">
   <span class="name"><a href="../trustpin_sdk/TrustPin/setupWithNativeBundle.html">setupWithNativeBundle</a></span><span class="signature">(<wbr>{<span class="parameter" id="setupWithNativeBundle-param-iosFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">iosFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-androidFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">androidFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-macosFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">macosFileName</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -266,7 +294,7 @@ file at the native layer. Must be called before <a href="../trustpin_sdk/TrustPi
 
         <dt id="validateConnection" class="callable">
   <span class="name"><a href="../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a></span><span class="signature">(<wbr><span class="parameter" id="validateConnection-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="validateConnection-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="validateConnection-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -280,7 +308,7 @@ configuration. Returns normally on success.
 
         <dt id="verify" class="callable">
   <span class="name deprecated"><a class="deprecated" href="../trustpin_sdk/TrustPin/verify.html">verify</a></span><span class="signature">(<wbr><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -377,7 +405,7 @@ pinning configuration. Returns normally on success.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

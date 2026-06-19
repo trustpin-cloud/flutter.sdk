@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
 <span class="name ">setup</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setup-param-configuration"><span class="type-annotation"><a href="../../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></span> <span class="parameter-name">configuration</span></span></li>
 </ol>)
 
@@ -64,7 +64,7 @@
     
 <section class="desc markdown">
   <p>Initializes this instance with the given <code>configuration</code>. Must be
-called before <a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.html">verify</a>.</p>
+called before <a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.html">verify</a> or <a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a>.</p>
 <pre class="language-dart"><code class="language-dart">const config = TrustPinConfiguration(
   organizationId: 'your-org-id',
   projectId: 'your-project-id',
@@ -73,11 +73,17 @@ called before <a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.htm
 );
 await TrustPin.shared.setup(config);
 </code></pre>
-<p>Requires network access at first call.</p>
+<p><code>setup</code> performs <strong>local validation only</strong>: it checks the credential
+shapes, stores them, and starts a <em>background</em> preload of the pinning
+configuration. It does not wait for the network, so it no longer throws
+fetch or validation errors. Those surface later — fail-closed — from
+<a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a> / <a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.html">verify</a>, or eagerly from <a href="../../trustpin_sdk/TrustPin/awaitConfiguration.html">awaitConfiguration</a>.</p>
+<p>Setup is <strong>one-shot</strong>: once an instance is configured, a second call
+throws <code>ALREADY_INITIALIZED</code>. To use different credentials, create a new
+named instance via <a href="../../trustpin_sdk/TrustPin/instance.html">instance</a>.</p>
 <ul>
 <li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>INVALID_PROJECT_CONFIG</code> if credentials are invalid or empty.</li>
-<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ERROR_FETCHING_PINNING_INFO</code> if the configuration cannot be retrieved.</li>
-<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>CONFIGURATION_VALIDATION_FAILED</code> if the configuration is rejected.</li>
+<li>Throws <a href="../../trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code <code>ALREADY_INITIALIZED</code> if this instance has already completed setup.</li>
 </ul>
 </section>
 
@@ -126,7 +132,7 @@ await TrustPin.shared.setup(config);
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

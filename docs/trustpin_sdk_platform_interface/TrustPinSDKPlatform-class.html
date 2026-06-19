@@ -139,15 +139,44 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="awaitConfiguration" class="callable">
+  <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/awaitConfiguration.html">awaitConfiguration</a></span><span class="signature">(<wbr>{<span class="parameter" id="awaitConfiguration-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span><span class="parameter" id="awaitConfiguration-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Waits until the pinning configuration has been fetched, signature-
+verified, and accepted by the SDK's integrity check — the explicit
+fail-closed gate that complements the now non-blocking <a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/setup.html">setup</a>.
+  
+
+</dd>
+
         <dt id="fetchCertificate" class="callable">
   <span class="name deprecated"><a class="deprecated" href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/fetchCertificate.html">fetchCertificate</a></span><span class="signature">(<wbr><span class="parameter" id="fetchCertificate-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="fetchCertificate-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="fetchCertificate-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span><span class="parameter" id="fetchCertificate-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
   Fetches the TLS leaf certificate from <code>host</code> as a PEM string.
+  
+
+</dd>
+
+        <dt id="isConfigurationLoaded" class="callable">
+  <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/isConfigurationLoaded.html">isConfigurationLoaded</a></span><span class="signature">(<wbr>{<span class="parameter" id="isConfigurationLoaded-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns <code>true</code> when a validated pinning payload is cached and usable
+without a new fetch. Pure state read — never triggers a fetch or blocks.
   
 
 </dd>
@@ -167,7 +196,7 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
 
         <dt id="setLogLevel" class="callable">
   <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/setLogLevel.html">setLogLevel</a></span><span class="signature">(<wbr><span class="parameter" id="setLogLevel-param-logLevel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">logLevel</span>, {</span><span class="parameter" id="setLogLevel-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -180,7 +209,7 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
 
         <dt id="setup" class="callable">
   <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/setup.html">setup</a></span><span class="signature">(<wbr><span class="parameter" id="setup-param-organizationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">organizationId</span>, </span><span class="parameter" id="setup-param-projectId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">projectId</span>, </span><span class="parameter" id="setup-param-publicKey"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">publicKey</span>, {</span><span class="parameter" id="setup-param-configurationURL"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a>?</span> <span class="parameter-name">configurationURL</span>, </span><span class="parameter" id="setup-param-mode"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">mode</span> = <span class="default-value">&#39;strict&#39;</span>, </span><span class="parameter" id="setup-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -193,7 +222,7 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
 
         <dt id="setupWithNativeBundle" class="callable">
   <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/setupWithNativeBundle.html">setupWithNativeBundle</a></span><span class="signature">(<wbr>{<span class="parameter" id="setupWithNativeBundle-param-iosFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">iosFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-androidFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">androidFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-macosFileName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">macosFileName</span>, </span><span class="parameter" id="setupWithNativeBundle-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -222,7 +251,7 @@ Android reads a JSON asset via <code>TrustPinConfiguration.fromAssets</code>.
 
         <dt id="validateConnection" class="callable">
   <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/validateConnection.html">validateConnection</a></span><span class="signature">(<wbr><span class="parameter" id="validateConnection-param-host"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="validateConnection-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">443</span>, </span><span class="parameter" id="validateConnection-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span><span class="parameter" id="validateConnection-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -238,7 +267,7 @@ the Dart isolate.
 
         <dt id="verify" class="callable">
   <span class="name deprecated"><a class="deprecated" href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/verify.html">verify</a></span><span class="signature">(<wbr><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span>, {</span><span class="parameter" id="verify-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
@@ -316,7 +345,7 @@ the Dart isolate.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

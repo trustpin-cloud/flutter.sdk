@@ -87,17 +87,17 @@
 <h2 id="platform-setup">Platform Setup</h2>
 <h3 id="ios-requirements">iOS Requirements</h3>
 <ul>
-<li><strong>Minimum iOS Version</strong>: 13.0+</li>
+<li><strong>Minimum iOS Version</strong>: 15.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 5.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <h3 id="macos-requirements">macOS Requirements</h3>
 <ul>
 <li><strong>Minimum macOS Version</strong>: 13.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 5.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <blockquote>
 <p>Set <code>MACOSX_DEPLOYMENT_TARGET = 13.0</code> (or higher) in your Xcode project's
@@ -319,6 +319,46 @@ final pem = await TrustPin.shared.fetchCertificate(host);
 // ignore: deprecated_member_use
 await TrustPin.shared.verify(host, pem);
 </code></pre>
+<h3 id="4-optional-gate-startup-on-a-validated-configuration">4. (Optional) Gate startup on a validated configuration</h3>
+<p>As of 6.0.0, <code>setup</code> / <code>setupWithNativeBundle</code> are <strong>non-blocking</strong>: they
+validate credentials locally and preload the pinning configuration in the
+background. They no longer throw fetch or validation errors — those surface
+fail-closed from <code>validateConnection</code> / <code>verify</code> (in <strong>both</strong> strict and
+permissive modes) or eagerly from <code>awaitConfiguration</code>.</p>
+<p>If your app must not start networking without a validated pinning payload,
+use <code>awaitConfiguration</code> as an explicit fail-closed gate and treat any error
+as a hard stop:</p>
+<pre class="language-dart"><code class="language-dart">Future&lt;void&gt; initializeTrustPin() async {
+  await TrustPin.shared.setupWithNativeBundle(); // local validation only
+
+  try {
+    // Block until the configuration is fetched, signature-verified, and
+    // accepted by the SDK's integrity check. The native side clamps the
+    // timeout to its supported range (currently 10–120s).
+    await TrustPin.shared.awaitConfiguration(
+      timeout: const Duration(seconds: 10),
+    );
+  } on TrustPinException catch (e) {
+    // Hard stop — do NOT fall through to an unpinned HTTP client.
+    print('TrustPin configuration unavailable: ${e.code}');
+    rethrow;
+  }
+}
+</code></pre>
+<p>For a synchronous, non-fetching state read (for example, to decide whether the
+first request will incur a configuration wait), use <code>isConfigurationLoaded</code>:</p>
+<pre class="language-dart"><code class="language-dart">if (await TrustPin.shared.isConfigurationLoaded) {
+  // A validated payload is cached; pinned requests won't wait on a fetch.
+}
+</code></pre>
+<p>Apps that prefer zero launch latency can skip the gate entirely — connection
+validation is fail-closed and refuses traffic whenever a validated
+configuration is unavailable.</p>
+<blockquote>
+<p><strong>Note:</strong> <code>setup</code> is one-shot per instance. Calling it again throws
+<code>ALREADY_INITIALIZED</code>; use <code>TrustPin.instance('id')</code> for a separate pinning
+context.</p>
+</blockquote>
 <h2 id="advanced-usage">Advanced Usage</h2>
 <h3 id="integration-with-dio">Integration with Dio</h3>
 <p>The SDK provides a built-in <code>TrustPinDioInterceptor</code> for seamless Dio integration:</p>
@@ -424,7 +464,15 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 </tr>
 <tr>
 <td><code>setup(configuration)</code></td>
-<td>Alternative initializer that takes an inline <a href="trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a>. Use when credentials are resolved at runtime.</td>
+<td>Alternative initializer that takes an inline <a href="trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a>. Use when credentials are resolved at runtime. Non-blocking and one-shot.</td>
+</tr>
+<tr>
+<td><code>awaitConfiguration({timeout?})</code></td>
+<td>Fail-closed gate: waits until the pinning configuration is fetched, signature-verified, and integrity-checked. Pairs with the non-blocking <code>setup</code>.</td>
+</tr>
+<tr>
+<td><code>isConfigurationLoaded</code></td>
+<td><code>Future&lt;bool&gt;</code> — synchronous, non-fetching state read of whether a validated payload is currently cached.</td>
 </tr>
 <tr>
 <td><code>validateConnection(host, {port?, timeout?})</code></td>
@@ -570,9 +618,14 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td>Invalid or missing credentials</td>
 </tr>
 <tr>
+<td><code>ALREADY_INITIALIZED</code></td>
+<td><code>isAlreadyInitialized</code></td>
+<td><code>setup</code> was called again on an already-initialized instance</td>
+</tr>
+<tr>
 <td><code>ERROR_FETCHING_PINNING_INFO</code></td>
 <td><code>isErrorFetchingPinningInfo</code></td>
-<td>Failed to fetch pinning configuration</td>
+<td>Failed to fetch pinning configuration (fail-closed in both modes)</td>
 </tr>
 <tr>
 <td><code>INVALID_SERVER_CERT</code></td>
@@ -600,9 +653,14 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td>Configuration validation failed</td>
 </tr>
 <tr>
+<td><code>CONFIG_INTEGRITY_FAILED</code></td>
+<td><code>isConfigIntegrityFailed</code></td>
+<td>Downloaded configuration failed the SDK's integrity check</td>
+</tr>
+<tr>
 <td><code>FETCH_CERTIFICATE_TIMEOUT</code></td>
 <td><code>isFetchCertificateTimeout</code></td>
-<td><code>fetchCertificate</code> exceeded its <code>timeout</code></td>
+<td>A <code>fetchCertificate</code>, <code>validateConnection</code>, or <code>awaitConfiguration</code> call exceeded its <code>timeout</code></td>
 </tr>
 </tbody>
 </table>
@@ -615,7 +673,11 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <li>Error handling and logging</li>
 </ul>
 <p>Run the example:</p>
-<pre class="language-bash"><code class="language-bash">cd sample_app
+<pre class="language-bash"><code class="language-bash"># The sample app uses Swift Package Manager (not CocoaPods) on iOS/macOS.
+# Enable Flutter's SPM integration once per machine:
+flutter config --enable-swift-package-manager
+
+cd sample_app
 flutter run
 </code></pre>
 <hr>
@@ -728,7 +790,7 @@ flutter run
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

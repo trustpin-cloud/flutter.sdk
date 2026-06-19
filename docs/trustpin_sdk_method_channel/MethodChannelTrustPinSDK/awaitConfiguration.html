@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the verify method from the MethodChannelTrustPinSDK class, for the Dart programming language.">
-  <title>verify method - MethodChannelTrustPinSDK class - trustpin_sdk_method_channel library - Dart API</title>
+  <meta name="description" content="API docs for the awaitConfiguration method from the MethodChannelTrustPinSDK class, for the Dart programming language.">
+  <title>awaitConfiguration method - MethodChannelTrustPinSDK class - trustpin_sdk_method_channel library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk_method_channel/">trustpin_sdk_method_channel.dart</a></li>
     <li><a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK-class.html">MethodChannelTrustPinSDK</a></li>
-    <li class="self-crumb">verify method</li>
+    <li class="self-crumb">awaitConfiguration method</li>
   </ol>
-  <div class="self-name">verify</div>
+  <div class="self-name">awaitConfiguration</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,7 +49,7 @@
     data-above-sidebar="trustpin_sdk_method_channel&#47;MethodChannelTrustPinSDK-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">verify</span> method 
+<h1><span class="kind-method">awaitConfiguration</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
@@ -60,9 +60,8 @@
     </ol>
   </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">verify</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="verify-param-domain"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">domain</span>, </span></li>
-<li><span class="parameter" id="verify-param-certificate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">certificate</span>, {</span></li>
-<li><span class="parameter" id="verify-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span>, </span></li>
+<span class="name ">awaitConfiguration</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="awaitConfiguration-param-timeoutMs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutMs</span>, </span></li>
+<li><span class="parameter" id="awaitConfiguration-param-instanceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">instanceId</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">override</span></div>
@@ -70,11 +69,12 @@
     </section>
     
 <section class="desc markdown">
-  <p>Verifies a PEM certificate against configured pins for <code>domain</code>.</p>
-<p>When <code>instanceId</code> is null, the global default instance is used.</p>
-<p><strong>Deprecated.</strong> Implementations and callers should prefer
-<a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/validateConnection.html">validateConnection</a>, which composes fetch + verify on the platform
-side in a single channel call.</p>
+  <p>Waits until the pinning configuration has been fetched, signature-
+verified, and accepted by the SDK's integrity check — the explicit
+fail-closed gate that complements the now non-blocking <a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/setup.html">setup</a>.</p>
+<p>When <code>timeoutMs</code> is non-null and positive, it bounds the wait; otherwise
+the native SDK's default timeout applies. When <code>instanceId</code> is null, the
+global default instance is used.</p>
 </section>
 
 
@@ -82,11 +82,9 @@ side in a single channel call.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Future&lt;void&gt; verify(String domain, String certificate,
-    {String? instanceId}) async {
-  await methodChannel.invokeMethod(&#39;verify&#39;, {
-    &#39;domain&#39;: domain,
-    &#39;certificate&#39;: certificate,
+Future&lt;void&gt; awaitConfiguration({int? timeoutMs, String? instanceId}) async {
+  await methodChannel.invokeMethod(&#39;awaitConfiguration&#39;, {
+    &#39;timeoutMs&#39;: timeoutMs,
     &#39;instanceId&#39;: instanceId,
   });
 }</code></pre>
@@ -105,7 +103,7 @@ Future&lt;void&gt; verify(String domain, String certificate,
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk_method_channel/">trustpin_sdk_method_channel</a></li>
     <li><a href="../../trustpin_sdk_method_channel/MethodChannelTrustPinSDK-class.html">MethodChannelTrustPinSDK</a></li>
-    <li class="self-crumb">verify method</li>
+    <li class="self-crumb">awaitConfiguration method</li>
 </ol>
 
     <h5>MethodChannelTrustPinSDK class</h5>

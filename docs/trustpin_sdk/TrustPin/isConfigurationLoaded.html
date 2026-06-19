@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the setLogLevel method from the TrustPin class, for the Dart programming language.">
-  <title>setLogLevel method - TrustPin class - trustpin_sdk library - Dart API</title>
+  <meta name="description" content="API docs for the isConfigurationLoaded property from the TrustPin class, for the Dart programming language.">
+  <title>isConfigurationLoaded property - TrustPin class - trustpin_sdk library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk.dart</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">setLogLevel method</li>
+    <li class="self-crumb">isConfigurationLoaded property</li>
   </ol>
-  <div class="self-name">setLogLevel</div>
+  <div class="self-name">isConfigurationLoaded</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,43 +49,56 @@
     data-above-sidebar="trustpin_sdk&#47;TrustPin-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">setLogLevel</span> method 
+<h1><span class="kind-property">isConfigurationLoaded</span> property 
 </h1></div>
 
+    
+
+    
+        
+  <section id="getter">
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">setLogLevel</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setLogLevel-param-level"><span class="type-annotation"><a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel</a></span> <span class="parameter-name">level</span></span></li>
-</ol>)
-
+      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+      get
+      <span class="name ">isConfigurationLoaded</span>
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Sets the log level for this instance.</p>
-<p>Use <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.error</a> or <a href="../../trustpin_log_level/TrustPinLogLevel.html">TrustPinLogLevel.none</a> in production.
-Set the level before <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> for complete coverage.</p>
+  <p>Whether a validated pinning payload is currently cached and usable by
+<a class="deprecated" href="../../trustpin_sdk/TrustPin/verify.html">verify</a> / <a href="../../trustpin_sdk/TrustPin/validateConnection.html">validateConnection</a> without a new fetch.</p>
+<p>Pure state read — never triggers a fetch and never blocks. Use
+<a href="../../trustpin_sdk/TrustPin/awaitConfiguration.html">awaitConfiguration</a> to actively wait for a configuration. A <code>true</code>
+result reflects the moment of the read; a previously loaded
+configuration can expire if it cannot be refreshed for an extended
+period.</p>
+<pre class="language-dart"><code class="language-dart">if (await TrustPin.shared.isConfigurationLoaded) {
+  // Safe to make pinned requests without an initial network wait.
+}
+</code></pre>
 </section>
-
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setLogLevel(TrustPinLogLevel level) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; get isConfigurationLoaded async {
   try {
-    await TrustPinSDKPlatform.instance
-        .setLogLevel(level.value, instanceId: _instanceId);
+    return await TrustPinSDKPlatform.instance
+        .isConfigurationLoaded(instanceId: _instanceId);
   } catch (e) {
     throw TrustPinException.fromPlatformException(e);
   }
 }</code></pre>
 </section>
 
+  </section>
 
-  </div> <!-- /.main-content -->
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -95,13 +108,13 @@ Set the level before <a href="../../trustpin_sdk/TrustPin/setup.html">setup</a> 
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/">trustpin_sdk</a></li>
     <li><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a></li>
-    <li class="self-crumb">setLogLevel method</li>
+    <li class="self-crumb">isConfigurationLoaded property</li>
 </ol>
 
-    <h5>TrustPin class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>TrustPin class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>

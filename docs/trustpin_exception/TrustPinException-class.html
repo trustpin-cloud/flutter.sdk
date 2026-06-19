@@ -87,7 +87,7 @@ getters to check for specific error types programmatically.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TrustPinException.new" class="callable">
-          <span class="name"><a href="../trustpin_exception/TrustPinException/TrustPinException.html">TrustPinException</a></span><span class="signature">(<span class="parameter" id="-param-code"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">code</span>, </span><span class="parameter" id="-param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span>, [</span><span class="parameter" id="-param-details"><span class="type-annotation">dynamic</span> <span class="parameter-name">details</span></span>])</span>
+          <span class="name"><a href="../trustpin_exception/TrustPinException/TrustPinException.html">TrustPinException</a></span><span class="signature">(<span class="parameter" id="param-code"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">code</span>, </span><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span>, [</span><span class="parameter" id="param-details"><span class="type-annotation">dynamic</span> <span class="parameter-name">details</span></span>])</span>
         </dt>
         <dd>
           Creates a new TrustPinException with the specified code and message.
@@ -156,6 +156,31 @@ getters to check for specific error types programmatically.</p>
 
 </dd>
 
+        <dt id="isAlreadyInitialized" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isAlreadyInitialized.html">isAlreadyInitialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if setup was called again on an already-initialized instance.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isConfigIntegrityFailed" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isConfigIntegrityFailed.html">isConfigIntegrityFailed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if the downloaded configuration failed the SDK's integrity
+check. Treat as a hard stop and do not retry blindly.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="isConfigurationValidationFailed" class="property">
   <span class="name"><a href="../trustpin_exception/TrustPinException/isConfigurationValidationFailed.html">isConfigurationValidationFailed</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -199,7 +224,8 @@ getters to check for specific error types programmatically.</p>
 
 </dt>
 <dd>
-  Returns true if a certificate fetch exceeded its timeout.
+  Returns true if a certificate fetch or configuration wait exceeded its
+timeout.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -349,7 +375,7 @@ getters to check for specific error types programmatically.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>

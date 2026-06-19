@@ -89,7 +89,7 @@ been called on the underlying instance before making requests.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TrustPinHttpClient.new" class="callable">
-          <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/TrustPinHttpClient.html">TrustPinHttpClient</a></span><span class="signature">(<span class="parameter" id="-param-_inner"><span class="type-annotation"><a href="https://pub.dev/documentation/http/1.6.0/http/Client-class.html">Client</a></span> <span class="parameter-name">_inner</span>, {</span><span class="parameter" id="-param-instance"><span class="type-annotation"><a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span></span>})</span>
+          <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/TrustPinHttpClient.html">TrustPinHttpClient</a></span><span class="signature">(<span class="parameter" id="param-_inner"><span class="type-annotation"><a href="https://pub.dev/documentation/http/1.6.0/http/Client-class.html">Client</a></span> <span class="parameter-name">_inner</span>, {</span><span class="parameter" id="param-instance"><span class="type-annotation"><a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span></span>})</span>
         </dt>
         <dd>
           Wraps <code>_inner</code> so HTTPS requests are validated by <code>instance</code> (or
@@ -159,7 +159,7 @@ on that instance before making requests.
 
         <dt id="delete" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/delete.html">delete</a></span><span class="signature">(<wbr><span class="parameter" id="delete-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="delete-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span>, </span><span class="parameter" id="delete-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">body</span>, </span><span class="parameter" id="delete-param-encoding"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-convert/Encoding-class.html">Encoding</a>?</span> <span class="parameter-name">encoding</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
   </span>
   
 
@@ -172,7 +172,7 @@ on that instance before making requests.
 
         <dt id="get" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/get.html">get</a></span><span class="signature">(<wbr><span class="parameter" id="get-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="get-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
   </span>
   
 
@@ -185,7 +185,7 @@ on that instance before making requests.
 
         <dt id="head" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/head.html">head</a></span><span class="signature">(<wbr><span class="parameter" id="head-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="head-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
   </span>
   
 
@@ -211,7 +211,7 @@ on that instance before making requests.
 
         <dt id="patch" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/patch.html">patch</a></span><span class="signature">(<wbr><span class="parameter" id="patch-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="patch-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span>, </span><span class="parameter" id="patch-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">body</span>, </span><span class="parameter" id="patch-param-encoding"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-convert/Encoding-class.html">Encoding</a>?</span> <span class="parameter-name">encoding</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
   </span>
   
 
@@ -225,7 +225,7 @@ URL.
 
         <dt id="post" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/post.html">post</a></span><span class="signature">(<wbr><span class="parameter" id="post-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="post-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span>, </span><span class="parameter" id="post-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">body</span>, </span><span class="parameter" id="post-param-encoding"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-convert/Encoding-class.html">Encoding</a>?</span> <span class="parameter-name">encoding</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
   </span>
   
 
@@ -239,7 +239,7 @@ URL.
 
         <dt id="put" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/put.html">put</a></span><span class="signature">(<wbr><span class="parameter" id="put-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="put-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span>, </span><span class="parameter" id="put-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">body</span>, </span><span class="parameter" id="put-param-encoding"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-convert/Encoding-class.html">Encoding</a>?</span> <span class="parameter-name">encoding</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/Response-class.html">Response</a></span>&gt;</span></span>
   </span>
   
 
@@ -253,7 +253,7 @@ URL.
 
         <dt id="read" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/read.html">read</a></span><span class="signature">(<wbr><span class="parameter" id="read-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="read-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
   </span>
   
 
@@ -267,7 +267,7 @@ returns a Future that completes to the body of the response as a String.
 
         <dt id="readBytes" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseClient/readBytes.html">readBytes</a></span><span class="signature">(<wbr><span class="parameter" id="readBytes-param-url"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a></span> <span class="parameter-name">url</span>, {</span><span class="parameter" id="readBytes-param-headers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">headers</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-typed_data/Uint8List-class.html">Uint8List</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-typed_data/Uint8List-class.html">Uint8List</a></span>&gt;</span></span>
   </span>
   
 
@@ -282,7 +282,7 @@ bytes.
 
         <dt id="send" class="callable">
   <span class="name"><a href="../http_interceptors_http_client_interceptor/TrustPinHttpClient/send.html">send</a></span><span class="signature">(<wbr><span class="parameter" id="send-param-request"><span class="type-annotation"><a href="https://pub.dev/documentation/http/1.6.0/http/BaseRequest-class.html">BaseRequest</a></span> <span class="parameter-name">request</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/StreamedResponse-class.html">StreamedResponse</a></span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/http/1.6.0/http/StreamedResponse-class.html">StreamedResponse</a></span>&gt;</span></span>
   </span>
   
 
@@ -356,7 +356,7 @@ bytes.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      5.0.0
+      6.0.0
   </span>
   
 </footer>
