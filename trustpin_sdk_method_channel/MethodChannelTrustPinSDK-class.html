@@ -101,6 +101,19 @@
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="eventChannel" class="property">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/eventChannel.html">eventChannel</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/services/EventChannel-class.html">EventChannel</a></span>
+  
+
+</dt>
+<dd>
+  Event channel carrying pin-validation verdicts from the native SDK's
+global validation listener.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -110,6 +123,32 @@
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="logEventChannel" class="property">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/logEventChannel.html">logEventChannel</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/services/EventChannel-class.html">EventChannel</a></span>
+  
+
+</dt>
+<dd>
+  Event channel carrying SDK log messages from the native SDK's global
+log sink.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="logEvents" class="property">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/logEvents.html">logEvents</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A broadcast stream of raw SDK log-message maps produced by the native
+SDK's global log sink.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -134,6 +173,19 @@
 <dd class="inherited">
   A representation of the runtime type of the object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validationEvents" class="property">
+  <span class="name"><a href="../trustpin_sdk_method_channel/MethodChannelTrustPinSDK/validationEvents.html">validationEvents</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A broadcast stream of raw pin-validation verdict maps produced by the
+native SDK's global validation listener.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -335,7 +387,7 @@ the Dart isolate.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.0.0
+      6.1.0
   </span>
   
 </footer>

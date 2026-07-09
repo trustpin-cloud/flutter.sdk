@@ -254,6 +254,20 @@ timeout.
 
 </dd>
 
+        <dt id="isLockTimeout" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isLockTimeout.html">isLockTimeout</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if the SDK could not acquire an internal lock within its
+configured timeout. Treat as pathology: do not retry blindly.
+Android only; iOS/macOS never produce this code.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="isPinsMismatch" class="property">
   <span class="name"><a href="../trustpin_exception/TrustPinException/isPinsMismatch.html">isPinsMismatch</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -262,6 +276,51 @@ timeout.
 </dt>
 <dd>
   Returns true if the certificate was rejected for the given domain.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isSetupInProgress" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isSetupInProgress.html">isSetupInProgress</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if another <code>setup</code> call was already in flight on the same
+instance. Distinct from an invalid configuration — the credentials may
+be correct; wait for the in-flight setup to finish or retry after a
+brief delay. Android only; iOS/macOS never produce this code.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isSslContextSetupFailed" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isSslContextSetupFailed.html">isSslContextSetupFailed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if the platform's TLS stack failed to initialize while
+setting up the SDK's pinned socket factory or trust manager.
+Android only; iOS/macOS never produce this code.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isUnsupportedDevice" class="property">
+  <span class="name"><a href="../trustpin_exception/TrustPinException/isUnsupportedDevice.html">isUnsupportedDevice</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns true if the SDK refused to operate because the runtime
+environment is not a supported production Android device (for example
+an emulator or a non-OEM OS image running a release build). Treat as a
+hard stop; recovery is environmental, not code-side.
+Android only; iOS/macOS never produce this code.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -375,7 +434,7 @@ timeout.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.0.0
+      6.1.0
   </span>
   
 </footer>

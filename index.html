@@ -79,7 +79,7 @@
 <h2 id="installation">Installation</h2>
 <p>Add TrustPin SDK to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  trustpin_sdk: ^5.0.0
+  trustpin_sdk: ^6.1.0
 </code></pre>
 <p>Then install the package:</p>
 <pre class="language-bash"><code class="language-bash">flutter pub get
@@ -90,14 +90,14 @@
 <li><strong>Minimum iOS Version</strong>: 15.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 6.1.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <h3 id="macos-requirements">macOS Requirements</h3>
 <ul>
 <li><strong>Minimum macOS Version</strong>: 13.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 6.1.0 (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <blockquote>
 <p>Set <code>MACOSX_DEPLOYMENT_TARGET = 13.0</code> (or higher) in your Xcode project's
@@ -359,6 +359,40 @@ configuration is unavailable.</p>
 <code>ALREADY_INITIALIZED</code>; use <code>TrustPin.instance('id')</code> for a separate pinning
 context.</p>
 </blockquote>
+<h3 id="5-optional-record-validation-telemetry">5. (Optional) Record validation telemetry</h3>
+<p><code>TrustPin.validationEvents</code> streams every definitive pin-validation verdict —
+the signal apps use to record suspected machine-in-the-middle incidents in
+the field and to monitor a pinning rollout:</p>
+<pre class="language-dart"><code class="language-dart">final subscription = TrustPin.validationEvents.listen((event) {
+  if (event.isFailure) {
+    analytics.recordPinningIncident(
+      domain: event.domain,
+      code: event.error!.code, // PINS_MISMATCH, ALL_PINS_EXPIRED,
+                               // or DOMAIN_NOT_REGISTERED
+    );
+  }
+});
+</code></pre>
+<p>The stream is <strong>observe-only</strong>: by the time an event arrives the connection
+has already been allowed or rejected, and nothing done with the event can
+change that verdict. One stream reports verdicts from every TrustPin
+instance (<code>event.instanceId</code> is <code>'default'</code> for <code>TrustPin.shared</code>). Failure
+events fire only for definitive pin verdicts and carry the presented leaf
+certificate as PEM in <code>event.certificatePem</code> — attacker-supplied data, so
+sanitize it before rendering or forwarding. Transient conditions
+(configuration fetch failures, timeouts) fail verification through the normal
+error contract but produce no event.</p>
+<h3 id="6-optional-route-sdk-logs-into-your-logging-pipeline">6. (Optional) Route SDK logs into your logging pipeline</h3>
+<p>By default the native SDK logs to logcat (Android) and the system log
+(iOS/macOS). <code>TrustPin.logs</code> redirects that output to Dart — into an in-app
+console, a file logger, or crash-reporter breadcrumbs:</p>
+<pre class="language-dart"><code class="language-dart">final subscription = TrustPin.logs.listen((event) {
+  debugPrint('[TrustPin/${event.level.value}] ${event.message}');
+});
+</code></pre>
+<p>One stream carries the output of every instance (<code>event.instanceId</code> tells
+them apart). How much is logged is still set per instance with
+<code>setLogLevel</code>; the stream only chooses where already-filtered messages go.</p>
 <h2 id="advanced-usage">Advanced Usage</h2>
 <h3 id="integration-with-dio">Integration with Dio</h3>
 <p>The SDK provides a built-in <code>TrustPinDioInterceptor</code> for seamless Dio integration:</p>
@@ -481,6 +515,14 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <tr>
 <td><code>setLogLevel(level)</code></td>
 <td>Set logging verbosity</td>
+</tr>
+<tr>
+<td><code>TrustPin.validationEvents</code></td>
+<td>Static broadcast <code>Stream&lt;TrustPinValidationEvent&gt;</code> of definitive pin-validation verdicts across all instances, for field telemetry. Observe-only.</td>
+</tr>
+<tr>
+<td><code>TrustPin.logs</code></td>
+<td>Static broadcast <code>Stream&lt;TrustPinLogEvent&gt;</code> of the SDK's log output across all instances. Verbosity per instance via <code>setLogLevel</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -662,6 +704,26 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td><code>isFetchCertificateTimeout</code></td>
 <td>A <code>fetchCertificate</code>, <code>validateConnection</code>, or <code>awaitConfiguration</code> call exceeded its <code>timeout</code></td>
 </tr>
+<tr>
+<td><code>SETUP_IN_PROGRESS</code></td>
+<td><code>isSetupInProgress</code></td>
+<td>Another <code>setup</code> call was already in flight on the same instance (Android only)</td>
+</tr>
+<tr>
+<td><code>LOCK_TIMEOUT</code></td>
+<td><code>isLockTimeout</code></td>
+<td>The SDK could not acquire an internal lock in time; do not retry blindly (Android only)</td>
+</tr>
+<tr>
+<td><code>SSL_CONTEXT_SETUP_FAILED</code></td>
+<td><code>isSslContextSetupFailed</code></td>
+<td>The platform TLS stack failed to initialize (Android only)</td>
+</tr>
+<tr>
+<td><code>UNSUPPORTED_DEVICE</code></td>
+<td><code>isUnsupportedDevice</code></td>
+<td>The runtime environment is not a supported production Android device (Android only)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="example-app">Example App</h2>
@@ -720,6 +782,13 @@ flutter run
 <dd>
 </dd>
 
+          <dt id="trustpin_log_event">
+  <span class="name"><a href="trustpin_log_event/">trustpin_log_event</a></span> 
+
+</dt>
+<dd>
+</dd>
+
           <dt id="trustpin_log_level">
   <span class="name"><a href="trustpin_log_level/">trustpin_log_level</a></span> 
 
@@ -755,6 +824,13 @@ flutter run
 <dd>
 </dd>
 
+          <dt id="trustpin_validation_event">
+  <span class="name"><a href="trustpin_validation_event/">trustpin_validation_event</a></span> 
+
+</dt>
+<dd>
+</dd>
+
         </dl>
       </section>
   </div> <!-- /.main-content -->
@@ -776,11 +852,13 @@ flutter run
       <li><a href="http_interceptors_http_client_interceptor/">http_interceptors/http_client_interceptor</a></li>
       <li><a href="trustpin_configuration/">trustpin_configuration</a></li>
       <li><a href="trustpin_exception/">trustpin_exception</a></li>
+      <li><a href="trustpin_log_event/">trustpin_log_event</a></li>
       <li><a href="trustpin_log_level/">trustpin_log_level</a></li>
       <li><a href="trustpin_mode/">trustpin_mode</a></li>
       <li><a href="trustpin_sdk/">trustpin_sdk</a></li>
       <li><a href="trustpin_sdk_method_channel/">trustpin_sdk_method_channel</a></li>
       <li><a href="trustpin_sdk_platform_interface/">trustpin_sdk_platform_interface</a></li>
+      <li><a href="trustpin_validation_event/">trustpin_validation_event</a></li>
 </ol>
 
   </div>
@@ -790,7 +868,7 @@ flutter run
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.0.0
+      6.1.0
   </span>
   
 </footer>
