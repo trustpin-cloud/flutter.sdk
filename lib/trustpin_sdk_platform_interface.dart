@@ -56,7 +56,8 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
     String? macosFileName,
     String? instanceId,
   }) {
-    throw UnimplementedError('setupWithNativeBundle() has not been implemented.');
+    throw UnimplementedError(
+        'setupWithNativeBundle() has not been implemented.');
   }
 
   /// Verifies a PEM certificate against configured pins for [domain].
@@ -109,7 +110,35 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
   ///
   /// When [instanceId] is null, the global default instance is used.
   Future<bool> isConfigurationLoaded({String? instanceId}) {
-    throw UnimplementedError('isConfigurationLoaded() has not been implemented.');
+    throw UnimplementedError(
+        'isConfigurationLoaded() has not been implemented.');
+  }
+
+  /// A broadcast stream of raw pin-validation verdict maps produced by the
+  /// native SDK's global validation listener.
+  ///
+  /// Each event map carries `instanceId` and `domain`; failure events add
+  /// `code` (stable error code), `message`, and `certificatePem` (the
+  /// presented leaf certificate). A `null` `code` marks a success event.
+  ///
+  /// The listener is global on the native side: one stream reports verdicts
+  /// from every TrustPin instance, distinguished by `instanceId`. The native
+  /// listener is installed when the first Dart subscription starts and
+  /// removed when the last one cancels.
+  Stream<Map<Object?, Object?>> get validationEvents {
+    throw UnimplementedError('validationEvents has not been implemented.');
+  }
+
+  /// A broadcast stream of raw SDK log-message maps produced by the native
+  /// SDK's global log sink.
+  ///
+  /// Each event map carries `level` (`'error'` / `'info'` / `'debug'`),
+  /// `instanceId`, and `message`. The sink is global on the native side: one
+  /// stream carries the output of every TrustPin instance. The native sink is
+  /// installed when the first Dart subscription starts and removed when the
+  /// last one cancels.
+  Stream<Map<Object?, Object?>> get logEvents {
+    throw UnimplementedError('logEvents has not been implemented.');
   }
 
   /// Atomically validates that [host]:[port] presents a certificate matching

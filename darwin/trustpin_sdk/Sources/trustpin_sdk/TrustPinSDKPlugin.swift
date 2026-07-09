@@ -16,6 +16,10 @@ import AppKit
 public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
 
     private static let channelName = "cloud.trustpin.sdk.flutter"
+    private static let validationEventsChannelName =
+        "cloud.trustpin.sdk.flutter/validation_events"
+    private static let logEventsChannelName =
+        "cloud.trustpin.sdk.flutter/log_events"
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel: FlutterMethodChannel
@@ -41,6 +45,26 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
         )
         #endif
         registrar.addMethodCallDelegate(TrustPinSDKPlugin(), channel: channel)
+
+        // Validation-verdict telemetry and SDK log routing. Both event
+        // channels stay on the main thread; the stream handlers hop every
+        // event to the main queue before touching the sink.
+        #if os(iOS)
+        let messenger = registrar.messenger()
+        #else
+        let messenger = registrar.messenger
+        #endif
+        let validationEventsChannel = FlutterEventChannel(
+            name: validationEventsChannelName,
+            binaryMessenger: messenger
+        )
+        validationEventsChannel.setStreamHandler(ValidationEventsStreamHandler())
+
+        let logEventsChannel = FlutterEventChannel(
+            name: logEventsChannelName,
+            binaryMessenger: messenger
+        )
+        logEventsChannel.setStreamHandler(LogEventsStreamHandler())
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

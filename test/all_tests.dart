@@ -12,7 +12,9 @@ import 'http_interceptors/http_client_interceptor_test.dart'
     as http_client_interceptor_tests;
 import 'trustpin_sdk_method_channel_test.dart' as method_channel_tests;
 import 'trustpin_sdk_platform_interface_test.dart' as platform_interface_tests;
+import 'trustpin_log_events_test.dart' as log_events_tests;
 import 'trustpin_validate_connection_test.dart' as validate_connection_tests;
+import 'trustpin_validation_events_test.dart' as validation_events_tests;
 
 void main() {
   group('TrustPin Flutter SDK - Complete Test Suite', () {
@@ -36,6 +38,14 @@ void main() {
 
     group('TrustPin.validateConnection Tests', () {
       validate_connection_tests.main();
+    });
+
+    group('Validation Events Tests', () {
+      validation_events_tests.main();
+    });
+
+    group('Log Events Tests', () {
+      log_events_tests.main();
     });
   });
 }

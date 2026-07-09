@@ -1,14 +1,18 @@
 import 'trustpin_configuration.dart';
 import 'trustpin_exception.dart';
+import 'trustpin_log_event.dart';
 import 'trustpin_log_level.dart';
 import 'trustpin_sdk_platform_interface.dart';
+import 'trustpin_validation_event.dart';
 
 export 'http_interceptors/dio_interceptor.dart';
 export 'http_interceptors/http_client_interceptor.dart';
 export 'trustpin_configuration.dart';
 export 'trustpin_exception.dart';
+export 'trustpin_log_event.dart';
 export 'trustpin_log_level.dart';
 export 'trustpin_mode.dart';
+export 'trustpin_validation_event.dart';
 
 /// TrustPin SSL certificate pinning SDK for Flutter applications.
 ///
@@ -138,6 +142,65 @@ class TrustPin {
     assert(id.trim().isNotEmpty, 'TrustPin instance id cannot be empty.');
     return _instances.putIfAbsent(id, () => TrustPin._(id));
   }
+
+  /// A broadcast stream of definitive pin-validation verdicts, for field
+  /// telemetry (recording suspected machine-in-the-middle incidents) and for
+  /// monitoring a pinning rollout.
+  ///
+  /// The underlying native listener is **global**: this one stream reports
+  /// verdicts from every TrustPin instance, each event tagged with the
+  /// [TrustPinValidationEvent.instanceId] that produced it (`'default'` for
+  /// [shared]). The listener observes; it never decides — by the time an
+  /// event arrives the connection has already been allowed or rejected, and
+  /// nothing done with the event can change that verdict.
+  ///
+  /// Failure events fire only for definitive pin verdicts (`PINS_MISMATCH`,
+  /// `ALL_PINS_EXPIRED`, `DOMAIN_NOT_REGISTERED` in strict mode) and carry
+  /// the presented leaf certificate as PEM — attacker-supplied data, so
+  /// sanitize it before rendering or forwarding. Transient conditions
+  /// (configuration fetch failures, timeouts) still fail verification through
+  /// the documented error contract but produce no event. Success events fire
+  /// when a registered domain's certificate matches a pin.
+  ///
+  /// ```dart
+  /// final subscription = TrustPin.validationEvents.listen((event) {
+  ///   if (event.isFailure) {
+  ///     analytics.recordPinningIncident(
+  ///       domain: event.domain,
+  ///       code: event.error!.code,
+  ///     );
+  ///   }
+  /// });
+  /// ```
+  ///
+  /// The native listener is installed when the first subscription starts and
+  /// removed when the last one cancels.
+  static Stream<TrustPinValidationEvent> get validationEvents =>
+      TrustPinSDKPlatform.instance.validationEvents
+          .map(TrustPinValidationEvent.fromMap);
+
+  /// A broadcast stream of the native SDK's log output, for routing SDK logs
+  /// into the host app's logging pipeline (an in-app console, a file logger,
+  /// a crash reporter's breadcrumbs, …).
+  ///
+  /// The underlying native log sink is **global**: this one stream carries
+  /// the output of every TrustPin instance, each message tagged with the
+  /// [TrustPinLogEvent.instanceId] that produced it (`'default'` for
+  /// [shared]). What is logged — and at which verbosity — is still controlled
+  /// per instance via [setLogLevel]; the stream only chooses where
+  /// already-filtered messages go. While no one listens, the native SDK logs
+  /// to its platform default (logcat on Android, stdout/os_log on iOS/macOS).
+  ///
+  /// ```dart
+  /// final subscription = TrustPin.logs.listen((event) {
+  ///   debugPrint('[TrustPin/${event.level.value}] ${event.message}');
+  /// });
+  /// ```
+  ///
+  /// The native sink is installed when the first subscription starts and
+  /// removed when the last one cancels.
+  static Stream<TrustPinLogEvent> get logs =>
+      TrustPinSDKPlatform.instance.logEvents.map(TrustPinLogEvent.fromMap);
 
   /// The instance identifier passed to the native platform layer.
   /// `null` for the shared (default) instance.

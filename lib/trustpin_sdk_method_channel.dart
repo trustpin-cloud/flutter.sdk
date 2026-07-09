@@ -10,6 +10,35 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('cloud.trustpin.sdk.flutter');
 
+  /// Event channel carrying pin-validation verdicts from the native SDK's
+  /// global validation listener.
+  @visibleForTesting
+  final eventChannel =
+      const EventChannel('cloud.trustpin.sdk.flutter/validation_events');
+
+  /// Event channel carrying SDK log messages from the native SDK's global
+  /// log sink.
+  @visibleForTesting
+  final logEventChannel =
+      const EventChannel('cloud.trustpin.sdk.flutter/log_events');
+
+  /// Memoized so every Dart listener shares one native subscription; the
+  /// native listener is installed on the first listen and removed after the
+  /// last cancel.
+  Stream<Map<Object?, Object?>>? _validationEvents;
+  Stream<Map<Object?, Object?>>? _logEvents;
+
+  @override
+  Stream<Map<Object?, Object?>> get validationEvents =>
+      _validationEvents ??= eventChannel
+          .receiveBroadcastStream()
+          .map((event) => (event as Map).cast<Object?, Object?>());
+
+  @override
+  Stream<Map<Object?, Object?>> get logEvents => _logEvents ??= logEventChannel
+      .receiveBroadcastStream()
+      .map((event) => (event as Map).cast<Object?, Object?>());
+
   @override
   Future<void> setup(
     String organizationId,

@@ -157,7 +157,8 @@ void main() {
         return completer.future;
       }
 
-      test('HTTPS request invokes validateConnection (not fetchCertificate/verify)',
+      test(
+          'HTTPS request invokes validateConnection (not fetchCertificate/verify)',
           () async {
         final outcome = await drive(RequestOptions(
           path: '/api/data',
@@ -167,12 +168,12 @@ void main() {
         expect(outcome, isA<RequestOptions>());
         expect(methodCalls.where((c) => c.method == 'validateConnection'),
             hasLength(1));
-        expect(methodCalls.where((c) => c.method == 'fetchCertificate'),
-            isEmpty);
+        expect(
+            methodCalls.where((c) => c.method == 'fetchCertificate'), isEmpty);
         expect(methodCalls.where((c) => c.method == 'verify'), isEmpty);
 
-        final args = Map<String, dynamic>.from(
-            methodCalls.first.arguments as Map);
+        final args =
+            Map<String, dynamic>.from(methodCalls.first.arguments as Map);
         expect(args['host'], 'api.example.com');
         expect(args['port'], 443);
         expect(args['timeoutMs'], 10000);
@@ -188,7 +189,8 @@ void main() {
         expect(methodCalls, isEmpty);
       });
 
-      test('validation failure rejects with DioException wrapping TrustPinException',
+      test(
+          'validation failure rejects with DioException wrapping TrustPinException',
           () async {
         final outcome = await drive(RequestOptions(
           path: '/api/data',
@@ -207,8 +209,8 @@ void main() {
           baseUrl: 'https://api.example.com:8443',
         ));
 
-        final args = Map<String, dynamic>.from(
-            methodCalls.first.arguments as Map);
+        final args =
+            Map<String, dynamic>.from(methodCalls.first.arguments as Map);
         expect(args['port'], 8443);
       });
     });

@@ -16,19 +16,26 @@ internal typealias HandlerOperation = suspend () -> Any?
  * matching the previous behaviour.
  */
 internal fun mapTrustPinError(error: TrustPinError): String = when (error) {
-    is TrustPinError.InvalidProjectConfig -> "INVALID_PROJECT_CONFIG"
+    is TrustPinError.InvalidProjectConfig -> ErrorCode.INVALID_PROJECT_CONFIG
     is TrustPinError.AlreadyInitialized -> ErrorCode.ALREADY_INITIALIZED
-    is TrustPinError.ErrorFetchingPinningInfo -> "ERROR_FETCHING_PINNING_INFO"
-    is TrustPinError.InvalidServerCert -> "INVALID_SERVER_CERT"
-    is TrustPinError.PinsMismatch -> "PINS_MISMATCH"
-    is TrustPinError.AllPinsExpired -> "ALL_PINS_EXPIRED"
-    is TrustPinError.ConfigurationValidationFailed -> "CONFIGURATION_VALIDATION_FAILED"
-    is TrustPinError.DomainNotRegistered -> "DOMAIN_NOT_REGISTERED"
-    // The native SDK's end-to-end timeout shares the Flutter timeout code
-    // already used by the plugin-level `withTimeout` wrapper.
+    is TrustPinError.ErrorFetchingPinningInfo -> ErrorCode.ERROR_FETCHING_PINNING_INFO
+    is TrustPinError.InvalidServerCert -> ErrorCode.INVALID_SERVER_CERT
+    is TrustPinError.PinsMismatch -> ErrorCode.PINS_MISMATCH
+    is TrustPinError.AllPinsExpired -> ErrorCode.ALL_PINS_EXPIRED
+    is TrustPinError.ConfigurationValidationFailed ->
+        ErrorCode.CONFIGURATION_VALIDATION_FAILED
+    is TrustPinError.DomainNotRegistered -> ErrorCode.DOMAIN_NOT_REGISTERED
     is TrustPinError.Timeout -> ErrorCode.FETCH_CERTIFICATE_TIMEOUT
     is TrustPinError.ConfigIntegrityError -> ErrorCode.CONFIG_INTEGRITY_FAILED
-    else -> "INVALID_PROJECT_CONFIG"
+    // Documented cross-platform contract: operations before setup surface as
+    // INVALID_PROJECT_CONFIG, matching the iOS/macOS SDK which has no
+    // separate not-initialized case.
+    is TrustPinError.NotInitialized -> ErrorCode.INVALID_PROJECT_CONFIG
+    is TrustPinError.SetupInProgress -> ErrorCode.SETUP_IN_PROGRESS
+    is TrustPinError.LockTimeout -> ErrorCode.LOCK_TIMEOUT
+    is TrustPinError.SSLContextSetupFailed -> ErrorCode.SSL_CONTEXT_SETUP_FAILED
+    is TrustPinError.UnsupportedDevice -> ErrorCode.UNSUPPORTED_DEVICE
+    else -> ErrorCode.INVALID_PROJECT_CONFIG
 }
 
 /**
@@ -40,16 +47,17 @@ internal fun mapTrustPinError(error: TrustPinError): String = when (error) {
  * terminal outcome of the handler, not a cancellation request directed at
  * the surrounding scope.
  *
- * Order matters: [TimeoutCancellationException] must be checked before its
- * superclass [CancellationException].
+ * Timeouts are enforced by the native SDK (surfacing as
+ * [TrustPinError.Timeout]); the [TimeoutCancellationException] branch is
+ * defensive, in case a `kotlinx.coroutines` timeout ever leaks through, and
+ * must stay before its superclass [CancellationException].
  */
 internal fun Result.deliverError(
     error: Throwable,
-    defaultCode: String,
-    timeoutMessage: String = "Timed out"
+    defaultCode: String
 ): Boolean = when (error) {
     is TimeoutCancellationException -> {
-        error(ErrorCode.FETCH_CERTIFICATE_TIMEOUT, timeoutMessage, null)
+        error(ErrorCode.FETCH_CERTIFICATE_TIMEOUT, "Timed out", null)
         false
     }
     is CancellationException -> {
@@ -83,13 +91,12 @@ internal fun execute(
     scope: CoroutineScope,
     result: Result,
     defaultCode: String,
-    timeoutMessage: String = "Timed out",
     parse: () -> HandlerOperation
 ) {
     val operation: HandlerOperation = try {
         parse()
     } catch (e: Exception) {
-        result.deliverError(e, defaultCode, timeoutMessage)
+        result.deliverError(e, defaultCode)
         return
     }
 
@@ -97,7 +104,7 @@ internal fun execute(
         try {
             result.success(operation())
         } catch (e: Exception) {
-            val shouldRethrow = result.deliverError(e, defaultCode, timeoutMessage)
+            val shouldRethrow = result.deliverError(e, defaultCode)
             if (shouldRethrow) throw e
         }
     }

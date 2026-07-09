@@ -11,45 +11,38 @@ import TrustPinKit
 /// matching the previous behaviour.
 func mapTrustPinError(_ error: TrustPinErrors) -> String {
     switch error {
-    case .invalidProjectConfig:          return "INVALID_PROJECT_CONFIG"
+    case .invalidProjectConfig:          return ErrorCode.invalidProjectConfig
     case .alreadyInitialized:            return ErrorCode.alreadyInitialized
-    case .errorFetchingPinningInfo:      return "ERROR_FETCHING_PINNING_INFO"
-    case .invalidServerCert:             return "INVALID_SERVER_CERT"
-    case .pinsMismatch:                  return "PINS_MISMATCH"
-    case .allPinsExpired:                return "ALL_PINS_EXPIRED"
-    case .configurationValidationFailed: return "CONFIGURATION_VALIDATION_FAILED"
-    case .domainNotRegistered:           return "DOMAIN_NOT_REGISTERED"
-    // The native SDK's end-to-end timeout shares the Flutter timeout code
-    // already used by the plugin-level `withOptionalTimeout` wrapper.
+    case .errorFetchingPinningInfo:      return ErrorCode.errorFetchingPinningInfo
+    case .invalidServerCert:             return ErrorCode.invalidServerCert
+    case .pinsMismatch:                  return ErrorCode.pinsMismatch
+    case .allPinsExpired:                return ErrorCode.allPinsExpired
+    case .configurationValidationFailed: return ErrorCode.configurationValidationFailed
+    case .domainNotRegistered:           return ErrorCode.domainNotRegistered
     case .timeout:                       return ErrorCode.fetchCertificateTimeout
     case .configIntegrityFailed:         return ErrorCode.configIntegrityFailed
-    @unknown default:                    return "INVALID_PROJECT_CONFIG"
+    @unknown default:                    return ErrorCode.invalidProjectConfig
     }
 }
 
 /// Converts any error thrown from a handler into a `FlutterError` with the
 /// appropriate stable code and message.
 ///
+/// Timeouts are enforced by the native SDK and arrive as
+/// `TrustPinErrors.timeout`, mapped like every other SDK error case.
+///
 /// - parameters:
 ///   - error: the thrown error
 ///   - defaultCode: code used for generic, unclassified errors
-///   - timeoutMessage: message used when the error is `OperationTimeoutError`
 func flutterError(
     from error: Error,
-    defaultCode: String,
-    timeoutMessage: String = "Timed out"
+    defaultCode: String
 ) -> FlutterError {
     switch error {
     case is CancellationError:
         return FlutterError(
             code: ErrorCode.cancelled,
             message: "Operation was cancelled",
-            details: nil
-        )
-    case is OperationTimeoutError:
-        return FlutterError(
-            code: ErrorCode.fetchCertificateTimeout,
-            message: timeoutMessage,
             details: nil
         )
     case let invalid as InvalidArgumentsError:
@@ -91,18 +84,13 @@ typealias HandlerOperation = @Sendable () async throws -> Any?
 func execute(
     _ box: ResultBox,
     defaultCode: String,
-    timeoutMessage: String = "Timed out",
     _ parse: () throws -> HandlerOperation
 ) {
     let operation: HandlerOperation
     do {
         operation = try parse()
     } catch {
-        box.deliver(flutterError(
-            from: error,
-            defaultCode: defaultCode,
-            timeoutMessage: timeoutMessage
-        ))
+        box.deliver(flutterError(from: error, defaultCode: defaultCode))
         return
     }
 
@@ -113,11 +101,7 @@ func execute(
             try Task.checkCancellation()
             box.deliver(value)
         } catch {
-            box.deliver(flutterError(
-                from: error,
-                defaultCode: defaultCode,
-                timeoutMessage: timeoutMessage
-            ))
+            box.deliver(flutterError(from: error, defaultCode: defaultCode))
         }
     }
 }

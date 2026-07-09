@@ -71,4 +71,27 @@ class TrustPinException implements Exception {
   /// Returns true if a certificate fetch or configuration wait exceeded its
   /// timeout.
   bool get isFetchCertificateTimeout => code == 'FETCH_CERTIFICATE_TIMEOUT';
+
+  /// Returns true if another `setup` call was already in flight on the same
+  /// instance. Distinct from an invalid configuration — the credentials may
+  /// be correct; wait for the in-flight setup to finish or retry after a
+  /// brief delay. Android only; iOS/macOS never produce this code.
+  bool get isSetupInProgress => code == 'SETUP_IN_PROGRESS';
+
+  /// Returns true if the SDK could not acquire an internal lock within its
+  /// configured timeout. Treat as pathology: do not retry blindly.
+  /// Android only; iOS/macOS never produce this code.
+  bool get isLockTimeout => code == 'LOCK_TIMEOUT';
+
+  /// Returns true if the platform's TLS stack failed to initialize while
+  /// setting up the SDK's pinned socket factory or trust manager.
+  /// Android only; iOS/macOS never produce this code.
+  bool get isSslContextSetupFailed => code == 'SSL_CONTEXT_SETUP_FAILED';
+
+  /// Returns true if the SDK refused to operate because the runtime
+  /// environment is not a supported production Android device (for example
+  /// an emulator or a non-OEM OS image running a release build). Treat as a
+  /// hard stop; recovery is environmental, not code-side.
+  /// Android only; iOS/macOS never produce this code.
+  bool get isUnsupportedDevice => code == 'UNSUPPORTED_DEVICE';
 }

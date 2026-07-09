@@ -1,7 +1,9 @@
 package cloud.trustpin.flutter.sdk
 
 import android.content.Context
+import cloud.trustpin.kotlin.sdk.TrustPin
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -24,6 +26,8 @@ import kotlinx.coroutines.cancel
 class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
 
     private lateinit var channel: MethodChannel
+    private lateinit var validationEventsChannel: EventChannel
+    private lateinit var logEventsChannel: EventChannel
 
     internal val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -46,6 +50,12 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
             messenger.makeBackgroundTaskQueue()
         )
         channel.setMethodCallHandler(this)
+
+        validationEventsChannel = EventChannel(messenger, VALIDATION_EVENTS_CHANNEL_NAME)
+        validationEventsChannel.setStreamHandler(ValidationEventsStreamHandler())
+
+        logEventsChannel = EventChannel(messenger, LOG_EVENTS_CHANNEL_NAME)
+        logEventsChannel.setStreamHandler(LogEventsStreamHandler())
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -64,6 +74,12 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        validationEventsChannel.setStreamHandler(null)
+        logEventsChannel.setStreamHandler(null)
+        // The engine goes away without a Dart-side cancel; drop the global
+        // native hooks so they cannot outlive the channels they feed.
+        TrustPin.setValidationListener(null)
+        TrustPin.setLogSink(null)
         coroutineScope.cancel()
         applicationContext = null
     }

@@ -12,9 +12,9 @@ void main() {
   // initialized first.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set the SDK log level once at process start. The ViewModel pushes its
-  // own narrative into the in-app log feed; this just controls SDK-internal
-  // chatter.
+  // Set the SDK log level once at process start. This controls how much the
+  // SDK logs; the ViewModel routes that output into the in-app feed via
+  // `TrustPin.logs`, alongside its own narrative.
   TrustPin.shared.setLogLevel(TrustPinLogLevel.info);
 
   runApp(const TrustPinSampleApp());

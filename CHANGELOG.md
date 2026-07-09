@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2026-07-09
+
+### Added
+
+- `TrustPin.validationEvents` — static broadcast stream of
+  `TrustPinValidationEvent`, surfacing the native SDKs' new validation
+  telemetry hook. Events fire for definitive pin verdicts only
+  (`PINS_MISMATCH`, `ALL_PINS_EXPIRED`, `DOMAIN_NOT_REGISTERED` in strict
+  mode, plus successes on registered domains) and are observe-only: the
+  verdict is decided before the event is emitted. Failure events carry the
+  presented leaf certificate as PEM. One stream covers all instances; the
+  native listener is installed on first listen and removed on last cancel.
+- `TrustPin.logs` — static broadcast stream of `TrustPinLogEvent`,
+  surfacing the native SDKs' new global log sink. Routes SDK log output
+  (level, instanceId, message) into the host app's logging pipeline; while
+  no one listens the SDK keeps logging to its platform default. Per-instance
+  verbosity remains controlled by `setLogLevel`. The native sink is
+  installed on first listen and removed on last cancel.
+- New Android-only error codes surfaced through `TrustPinException`:
+  `SETUP_IN_PROGRESS` (`isSetupInProgress`), `LOCK_TIMEOUT`
+  (`isLockTimeout`), `SSL_CONTEXT_SETUP_FAILED` (`isSslContextSetupFailed`),
+  and `UNSUPPORTED_DEVICE` (`isUnsupportedDevice`). These cases previously
+  collapsed into `INVALID_PROJECT_CONFIG`. An operation attempted before
+  `setup` still maps to `INVALID_PROJECT_CONFIG` on every platform.
+
+### Changed
+
+- Updated iOS/macOS native SDK to 6.1.0 and Android native SDK to 6.1.2.
+  No deployment-target or `minSdk` changes.
+- Timeouts for `fetchCertificate` and `validateConnection` are now enforced
+  by the native SDKs (`timeout:` overloads on iOS/macOS, the `timeout`
+  parameter on Android) instead of a plugin-level race. For
+  `validateConnection` the caller's timeout still bounds the composed
+  operation: the verify phase receives whatever the fetch phase left of the
+  budget. Timeouts keep surfacing as `FETCH_CERTIFICATE_TIMEOUT`.
+
 ## [6.0.0] - 2026-06-18
 
 ### Added
