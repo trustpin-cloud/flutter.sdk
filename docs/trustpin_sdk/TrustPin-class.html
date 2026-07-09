@@ -347,6 +347,20 @@ pinning configuration. Returns normally on success.
   <section class="summary offset-anchor" id="static-properties">
     <h2>Static Properties</h2>
     <dl class="properties">
+        <dt id="logs" class="property">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/logs.html">logs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../trustpin_log_event/TrustPinLogEvent-class.html">TrustPinLogEvent</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A broadcast stream of the native SDK's log output, for routing SDK logs
+into the host app's logging pipeline (an in-app console, a file logger,
+a crash reporter's breadcrumbs, …).
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="shared" class="property">
   <span class="name"><a href="../trustpin_sdk/TrustPin/shared.html">shared</a></span>
   <span class="signature">&#8594; <a href="../trustpin_sdk/TrustPin-class.html">TrustPin</a></span>
@@ -356,6 +370,20 @@ pinning configuration. Returns normally on success.
 <dd>
   The shared (default) TrustPin instance.
   <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="validationEvents" class="property">
+  <span class="name"><a href="../trustpin_sdk/TrustPin/validationEvents.html">validationEvents</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../trustpin_validation_event/TrustPinValidationEvent-class.html">TrustPinValidationEvent</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A broadcast stream of definitive pin-validation verdicts, for field
+telemetry (recording suspected machine-in-the-middle incidents) and for
+monitoring a pinning rollout.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -405,7 +433,7 @@ pinning configuration. Returns normally on success.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.0.0
+      6.1.0
   </span>
   
 </footer>

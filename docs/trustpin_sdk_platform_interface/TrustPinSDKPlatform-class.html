@@ -102,7 +102,7 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
@@ -118,6 +118,19 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
 
 </dd>
 
+        <dt id="logEvents" class="property">
+  <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/logEvents.html">logEvents</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A broadcast stream of raw SDK log-message maps produced by the native
+SDK's global log sink.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
@@ -127,6 +140,19 @@ all methods. The default implementation uses <a href="../trustpin_sdk_method_cha
 <dd class="inherited">
   A representation of the runtime type of the object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validationEvents" class="property">
+  <span class="name"><a href="../trustpin_sdk_platform_interface/TrustPinSDKPlatform/validationEvents.html">validationEvents</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A broadcast stream of raw pin-validation verdict maps produced by the
+native SDK's global validation listener.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -345,7 +371,7 @@ the Dart isolate.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.0.0
+      6.1.0
   </span>
   
 </footer>
