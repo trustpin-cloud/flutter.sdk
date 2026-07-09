@@ -39,7 +39,7 @@ Add TrustPin SDK to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^5.0.0
+  trustpin_sdk: ^6.0.0
 ```
 
 Then install the package:
@@ -55,14 +55,14 @@ flutter pub get
 - **Minimum iOS Version**: 15.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.1.0 (automatically configured via Swift Package Manager or CocoaPods)
 
 ### macOS Requirements
 
 - **Minimum macOS Version**: 13.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.0.0 (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.1.0 (automatically configured via Swift Package Manager or CocoaPods)
 
 > Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
 > build settings. Flutter uses this value to align the generated Swift Package
@@ -315,6 +315,50 @@ configuration is unavailable.
 > `ALREADY_INITIALIZED`; use `TrustPin.instance('id')` for a separate pinning
 > context.
 
+### 5. (Optional) Record validation telemetry
+
+`TrustPin.validationEvents` streams every definitive pin-validation verdict —
+the signal apps use to record suspected machine-in-the-middle incidents in
+the field and to monitor a pinning rollout:
+
+```dart
+final subscription = TrustPin.validationEvents.listen((event) {
+  if (event.isFailure) {
+    analytics.recordPinningIncident(
+      domain: event.domain,
+      code: event.error!.code, // PINS_MISMATCH, ALL_PINS_EXPIRED,
+                               // or DOMAIN_NOT_REGISTERED
+    );
+  }
+});
+```
+
+The stream is **observe-only**: by the time an event arrives the connection
+has already been allowed or rejected, and nothing done with the event can
+change that verdict. One stream reports verdicts from every TrustPin
+instance (`event.instanceId` is `'default'` for `TrustPin.shared`). Failure
+events fire only for definitive pin verdicts and carry the presented leaf
+certificate as PEM in `event.certificatePem` — attacker-supplied data, so
+sanitize it before rendering or forwarding. Transient conditions
+(configuration fetch failures, timeouts) fail verification through the normal
+error contract but produce no event.
+
+### 6. (Optional) Route SDK logs into your logging pipeline
+
+By default the native SDK logs to logcat (Android) and the system log
+(iOS/macOS). `TrustPin.logs` redirects that output to Dart — into an in-app
+console, a file logger, or crash-reporter breadcrumbs:
+
+```dart
+final subscription = TrustPin.logs.listen((event) {
+  debugPrint('[TrustPin/${event.level.value}] ${event.message}');
+});
+```
+
+One stream carries the output of every instance (`event.instanceId` tells
+them apart). How much is logged is still set per instance with
+`setLogLevel`; the stream only chooses where already-filtered messages go.
+
 ## Advanced Usage
 
 ### Integration with Dio
@@ -430,6 +474,8 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 | `isConfigurationLoaded` | `Future<bool>` — synchronous, non-fetching state read of whether a validated payload is currently cached. |
 | `validateConnection(host, {port?, timeout?})` | Atomic fetch-and-verify. **Recommended entry point** for cert-pinned HTTPS. |
 | `setLogLevel(level)` | Set logging verbosity |
+| `TrustPin.validationEvents` | Static broadcast `Stream<TrustPinValidationEvent>` of definitive pin-validation verdicts across all instances, for field telemetry. Observe-only. |
+| `TrustPin.logs` | Static broadcast `Stream<TrustPinLogEvent>` of the SDK's log output across all instances. Verbosity per instance via `setLogLevel`. |
 
 ### TrustPinConfiguration
 
@@ -498,6 +544,10 @@ try {
 | `CONFIGURATION_VALIDATION_FAILED` | `isConfigurationValidationFailed` | Configuration validation failed |
 | `CONFIG_INTEGRITY_FAILED` | `isConfigIntegrityFailed` | Downloaded configuration failed the SDK's integrity check |
 | `FETCH_CERTIFICATE_TIMEOUT` | `isFetchCertificateTimeout` | A `fetchCertificate`, `validateConnection`, or `awaitConfiguration` call exceeded its `timeout` |
+| `SETUP_IN_PROGRESS` | `isSetupInProgress` | Another `setup` call was already in flight on the same instance (Android only) |
+| `LOCK_TIMEOUT` | `isLockTimeout` | The SDK could not acquire an internal lock in time; do not retry blindly (Android only) |
+| `SSL_CONTEXT_SETUP_FAILED` | `isSslContextSetupFailed` | The platform TLS stack failed to initialize (Android only) |
+| `UNSUPPORTED_DEVICE` | `isUnsupportedDevice` | The runtime environment is not a supported production Android device (Android only) |
 
 ## Example App
 

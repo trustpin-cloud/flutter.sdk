@@ -92,11 +92,7 @@ extension TrustPinSDKPlugin {
     }
 
     func handleFetchCertificate(_ call: FlutterMethodCall, box: ResultBox) {
-        execute(
-            box,
-            defaultCode: ErrorCode.fetchCertificate,
-            timeoutMessage: "Timed out fetching certificate"
-        ) {
+        execute(box, defaultCode: ErrorCode.fetchCertificate) {
             let args = try Arguments(call)
             let host = try args.requireString(Arg.host)
             let port = args.optionalInt(Arg.port) ?? defaultTLSPort
@@ -104,23 +100,24 @@ extension TrustPinSDKPlugin {
             let instanceId = args.optionalString(Arg.instanceId)
 
             return {
-                // The explicit `-> String` keeps the generic `withOptionalTimeout`
-                // from inferring `T == Any?` via the enclosing `Any?`-returning
-                // closure; `Any` is not `Sendable`.
-                try await withOptionalTimeout(milliseconds: timeoutMs) { () async throws -> String in
-                    let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
-                    return try await trustPin.fetchCertificate(host: host, port: port)
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                // A nil/non-positive timeout defers to the native SDK's
+                // default; the SDK throws `TrustPinErrors.timeout` when the
+                // bound is exceeded.
+                if let timeoutMs, timeoutMs > 0 {
+                    return try await trustPin.fetchCertificate(
+                        host: host,
+                        port: port,
+                        timeout: TimeInterval(timeoutMs) / 1000.0
+                    )
                 }
+                return try await trustPin.fetchCertificate(host: host, port: port)
             }
         }
     }
 
     func handleValidateConnection(_ call: FlutterMethodCall, box: ResultBox) {
-        execute(
-            box,
-            defaultCode: ErrorCode.validateConnection,
-            timeoutMessage: "Timed out validating connection"
-        ) {
+        execute(box, defaultCode: ErrorCode.validateConnection) {
             let args = try Arguments(call)
             let host = try args.requireString(Arg.host)
             let port = args.optionalInt(Arg.port) ?? defaultTLSPort
@@ -128,8 +125,26 @@ extension TrustPinSDKPlugin {
             let instanceId = args.optionalString(Arg.instanceId)
 
             return {
-                try await withOptionalTimeout(milliseconds: timeoutMs) {
-                    let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                if let timeoutMs, timeoutMs > 0 {
+                    // The caller's timeout bounds the composed operation. The
+                    // native API takes one bound per call, so the verify
+                    // phase gets whatever the fetch phase left of the budget.
+                    let timeout = TimeInterval(timeoutMs) / 1000.0
+                    let start = Date()
+                    let pem = try await trustPin.fetchCertificate(
+                        host: host,
+                        port: port,
+                        timeout: timeout
+                    )
+                    let remaining = timeout - Date().timeIntervalSince(start)
+                    guard remaining > 0 else { throw TrustPinErrors.timeout }
+                    try await trustPin.verify(
+                        domain: host,
+                        certificate: pem,
+                        timeout: remaining
+                    )
+                } else {
                     let pem = try await trustPin.fetchCertificate(host: host, port: port)
                     try await trustPin.verify(domain: host, certificate: pem)
                 }
@@ -139,11 +154,7 @@ extension TrustPinSDKPlugin {
     }
 
     func handleAwaitConfiguration(_ call: FlutterMethodCall, box: ResultBox) {
-        execute(
-            box,
-            defaultCode: ErrorCode.awaitConfiguration,
-            timeoutMessage: "Timed out awaiting configuration"
-        ) {
+        execute(box, defaultCode: ErrorCode.awaitConfiguration) {
             let args = try Arguments(call)
             let timeoutMs = args.optionalInt(Arg.timeoutMs)
             let instanceId = args.optionalString(Arg.instanceId)

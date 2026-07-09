@@ -7,7 +7,6 @@ import cloud.trustpin.kotlin.sdk.fromAssets
 import cloud.trustpin.kotlin.sdk.withAndroidStorage
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel.Result
-import kotlinx.coroutines.withTimeout
 
 internal fun TrustPinSDKPlugin.handleSetup(call: MethodCall, result: Result) {
     execute(coroutineScope, result, ErrorCode.SETUP) {
@@ -85,40 +84,45 @@ internal fun TrustPinSDKPlugin.handleSetLogLevel(call: MethodCall, result: Resul
 }
 
 internal fun TrustPinSDKPlugin.handleFetchCertificate(call: MethodCall, result: Result) {
-    execute(
-        coroutineScope,
-        result,
-        defaultCode = ErrorCode.FETCH_CERTIFICATE,
-        timeoutMessage = "Timed out fetching certificate"
-    ) {
+    execute(coroutineScope, result, ErrorCode.FETCH_CERTIFICATE) {
         val host = call.requireString(Arg.HOST)
         val port = call.optionalInt(Arg.PORT) ?: DEFAULT_TLS_PORT
         val timeoutMs = call.optionalInt(Arg.TIMEOUT_MS)
         val instanceId = call.optionalString(Arg.INSTANCE_ID)
 
         suspend {
-            withOptionalTimeout(timeoutMs) {
-                trustPinInstance(instanceId).fetchCertificate(host, port)
+            val trustPin = trustPinInstance(instanceId)
+            // A null/non-positive timeout defers to the native SDK's default;
+            // the SDK raises TrustPinError.Timeout when the bound is exceeded.
+            if (timeoutMs != null && timeoutMs > 0) {
+                trustPin.fetchCertificate(host, port, timeoutMs.toLong())
+            } else {
+                trustPin.fetchCertificate(host, port)
             }
         }
     }
 }
 
 internal fun TrustPinSDKPlugin.handleValidateConnection(call: MethodCall, result: Result) {
-    execute(
-        coroutineScope,
-        result,
-        defaultCode = ErrorCode.VALIDATE_CONNECTION,
-        timeoutMessage = "Timed out validating connection"
-    ) {
+    execute(coroutineScope, result, ErrorCode.VALIDATE_CONNECTION) {
         val host = call.requireString(Arg.HOST)
         val port = call.optionalInt(Arg.PORT) ?: DEFAULT_TLS_PORT
         val timeoutMs = call.optionalInt(Arg.TIMEOUT_MS)
         val instanceId = call.optionalString(Arg.INSTANCE_ID)
 
         suspend {
-            withOptionalTimeout(timeoutMs) {
-                val trustPin = trustPinInstance(instanceId)
+            val trustPin = trustPinInstance(instanceId)
+            if (timeoutMs != null && timeoutMs > 0) {
+                // The caller's timeout bounds the composed operation. The
+                // native API takes one bound per call, so the verify phase
+                // gets whatever the fetch phase left of the budget.
+                val start = System.nanoTime()
+                val pem = trustPin.fetchCertificate(host, port, timeoutMs.toLong())
+                val elapsedMs = (System.nanoTime() - start) / 1_000_000
+                val remainingMs = timeoutMs - elapsedMs
+                if (remainingMs <= 0) throw TrustPinError.Timeout
+                trustPin.verify(host, parsePemCertificate(pem), remainingMs)
+            } else {
                 val pem = trustPin.fetchCertificate(host, port)
                 trustPin.verify(host, parsePemCertificate(pem))
             }
@@ -128,12 +132,7 @@ internal fun TrustPinSDKPlugin.handleValidateConnection(call: MethodCall, result
 }
 
 internal fun TrustPinSDKPlugin.handleAwaitConfiguration(call: MethodCall, result: Result) {
-    execute(
-        coroutineScope,
-        result,
-        defaultCode = ErrorCode.AWAIT_CONFIGURATION,
-        timeoutMessage = "Timed out awaiting configuration"
-    ) {
+    execute(coroutineScope, result, ErrorCode.AWAIT_CONFIGURATION) {
         val timeoutMs = call.optionalInt(Arg.TIMEOUT_MS)
         val instanceId = call.optionalString(Arg.INSTANCE_ID)
 
@@ -159,19 +158,6 @@ internal fun TrustPinSDKPlugin.handleIsConfigurationLoaded(call: MethodCall, res
             trustPinInstance(instanceId).isConfigurationLoaded
         }
     }
-}
-
-/**
- * Runs [block] directly, or under [withTimeout] when [timeoutMs] is positive.
- * Convenience wrapper used by handlers that expose `timeoutMs`.
- */
-internal suspend fun <T> withOptionalTimeout(
-    timeoutMs: Int?,
-    block: suspend () -> T
-): T = if (timeoutMs != null && timeoutMs > 0) {
-    withTimeout(timeoutMs.toLong()) { block() }
-} else {
-    block()
 }
 
 /**

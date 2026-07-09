@@ -446,7 +446,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Q1jx8...
     });
 
     group('validateConnection()', () {
-      test('should call native validateConnection with default port and no timeout',
+      test(
+          'should call native validateConnection with default port and no timeout',
           () async {
         await platform.validateConnection('api.example.com');
 

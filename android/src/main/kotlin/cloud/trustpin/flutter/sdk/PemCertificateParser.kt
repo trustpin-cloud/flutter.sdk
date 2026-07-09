@@ -32,3 +32,17 @@ internal fun parsePemCertificate(pem: String): X509Certificate {
         throw TrustPinError.InvalidServerCert
     }
 }
+
+/**
+ * Encodes an [X509Certificate] as a PEM string (64-character Base64 lines
+ * between BEGIN/END markers), or returns `null` when the certificate cannot
+ * be re-encoded. Used to hand the presented leaf certificate of a validation
+ * verdict to Dart; a `null` must never abort event delivery.
+ */
+internal fun encodePemCertificate(certificate: X509Certificate): String? = try {
+    val base64 = Base64.getMimeEncoder(64, "\n".toByteArray())
+        .encodeToString(certificate.encoded)
+    "-----BEGIN CERTIFICATE-----\n$base64\n-----END CERTIFICATE-----"
+} catch (_: CertificateException) {
+    null
+}

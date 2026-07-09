@@ -113,7 +113,8 @@ void main() {
     });
 
     group('validateConnection wiring', () {
-      test('HTTPS request invokes validateConnection (not fetchCertificate/verify)',
+      test(
+          'HTTPS request invokes validateConnection (not fetchCertificate/verify)',
           () async {
         final inner = MockClient((request) async => http.Response('ok', 200));
         final client = TrustPinHttpClient(inner);
@@ -124,8 +125,8 @@ void main() {
         expect(response.statusCode, 200);
         expect(methodCalls.where((c) => c.method == 'validateConnection'),
             hasLength(1));
-        expect(methodCalls.where((c) => c.method == 'fetchCertificate'),
-            isEmpty);
+        expect(
+            methodCalls.where((c) => c.method == 'fetchCertificate'), isEmpty);
         expect(methodCalls.where((c) => c.method == 'verify'), isEmpty);
 
         final args =

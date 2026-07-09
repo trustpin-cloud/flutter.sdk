@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:trustpin_sdk/trustpin_sdk.dart';
 
@@ -39,6 +41,16 @@ class MainViewModel extends ChangeNotifier {
     _update((s) => s.copyWith(logEntries: [...s.logEntries, entry]));
   });
 
+  /// Pin-validation verdicts from the native SDK (`TrustPin.validationEvents`).
+  /// Fires for definitive verdicts only; the connection has already been
+  /// allowed or rejected by the time an event arrives.
+  late final StreamSubscription<TrustPinValidationEvent> _validationEvents;
+
+  /// The native SDK's own log output (`TrustPin.logs`), routed into the same
+  /// in-app feed as the sample's narrative so SDK-internal chatter is visible
+  /// next to it.
+  late final StreamSubscription<TrustPinLogEvent> _sdkLogs;
+
   MainViewModel({
     required ConfigurationRepository configurationRepository,
     required ConfigureFactory configure,
@@ -48,11 +60,50 @@ class MainViewModel extends ChangeNotifier {
        _configure = configure,
        _configureFromBundle = configureFromBundle,
        _testConnection = testConnection {
+    _validationEvents = TrustPin.validationEvents.listen(
+      _onValidationEvent,
+      onError: (Object e) => _logSink.error('Validation event stream: $e'),
+    );
+    _sdkLogs = TrustPin.logs.listen(
+      _onSdkLog,
+      onError: (Object e) => _logSink.error('SDK log stream: $e'),
+    );
     _logSink.info('TrustPin Flutter Sample started');
     _logSink.info('TrustPin configured for info-level logging');
     _state = _state.copyWith(
       isConfigured: _configurationRepository.isConfigured(),
     );
+  }
+
+  /// Telemetry hook: a real app would record failures with its analytics or
+  /// crash-reporting pipeline; the sample folds them into the log feed.
+  void _onValidationEvent(TrustPinValidationEvent event) {
+    if (event.isSuccess) {
+      _logSink.success('Pin validation succeeded for ${event.domain}');
+    } else {
+      _logSink.warning(
+        'Pin validation FAILED for ${event.domain}: ${event.error!.code}',
+      );
+    }
+  }
+
+  void _onSdkLog(TrustPinLogEvent event) {
+    final message = '[SDK] ${event.message}';
+    switch (event.level) {
+      case TrustPinLogLevel.error:
+        _logSink.error(message);
+      case TrustPinLogLevel.debug:
+        _logSink.debug(message);
+      case TrustPinLogLevel.info || TrustPinLogLevel.none:
+        _logSink.info(message);
+    }
+  }
+
+  @override
+  void dispose() {
+    _validationEvents.cancel();
+    _sdkLogs.cancel();
+    super.dispose();
   }
 
   Future<void> dispatch(UiAction action) async {
