@@ -55,14 +55,14 @@ flutter pub get
 - **Minimum iOS Version**: 15.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.1.0 (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.2.x (automatically configured via Swift Package Manager or CocoaPods)
 
 ### macOS Requirements
 
 - **Minimum macOS Version**: 13.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.1.0 (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.2.x (automatically configured via Swift Package Manager or CocoaPods)
 
 > Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
 > build settings. Flutter uses this value to align the generated Swift Package
