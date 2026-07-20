@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = 'trustpin_sdk'
-  spec.version          = '6.1.0'
+  spec.version          = '6.2.0'
   spec.summary          = 'Flutter plugin for TrustPin SSL certificate pinning SDK'
   spec.description      = <<-DESC
 Flutter plugin for TrustPin SSL certificate pinning SDK providing secure certificate validation.
@@ -14,7 +14,7 @@ Flutter plugin for TrustPin SSL certificate pinning SDK providing secure certifi
   # Shared iOS + macOS source set. Flutter is provided per platform.
   spec.ios.dependency 'Flutter'
   spec.osx.dependency 'FlutterMacOS'
-  spec.dependency 'TrustPinKit', '= 6.1.0'
+  spec.dependency 'TrustPinKit', '~> 6.2.0'
 
   spec.ios.deployment_target = "15.0"
   spec.osx.deployment_target = "13.0"
