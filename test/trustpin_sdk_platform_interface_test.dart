@@ -13,6 +13,7 @@ class MockTrustPinSDKPlatform extends TrustPinSDKPlatform
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
+    String? embeddedConfigurationFile,
   }) =>
       Future.value();
 
@@ -54,6 +55,7 @@ class TestTrustPinSDKPlatform extends TrustPinSDKPlatform {
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
+    String? embeddedConfigurationFile,
   }) =>
       Future.value();
 

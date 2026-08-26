@@ -55,14 +55,14 @@ flutter pub get
 - **Minimum iOS Version**: 15.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.2.x (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.3.x (automatically configured via Swift Package Manager or CocoaPods)
 
 ### macOS Requirements
 
 - **Minimum macOS Version**: 13.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.2.x (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 6.3.x (automatically configured via Swift Package Manager or CocoaPods)
 
 > Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
 > build settings. Flutter uses this value to align the generated Swift Package
@@ -161,6 +161,7 @@ Membership** in Xcode.
 | `PublicKey`        | yes      | Base64-encoded verification key                           |
 | `Mode`             | no       | `"strict"` (default) or `"permissive"` (lowercase)        |
 | `ConfigurationURL` | no       | HTTPS URL for self-hosted configs; empty treated as unset |
+| `EmbeddedConfigurationFile` | no | Resource name of a bundled signed configuration (see [Embedded configuration](#embedded-configuration)) |
 
 #### Android — `trustpin.json`
 
@@ -185,6 +186,7 @@ automatically — no `pubspec.yaml` declaration needed.
 | `public_key`        | yes      | Base64-encoded verification key                           |
 | `mode`              | no       | `"strict"` (default) or `"permissive"`                    |
 | `configuration_url` | no       | HTTPS URL for self-hosted configs; empty treated as unset |
+| `embedded_configuration_asset` | no | Asset name of a bundled signed configuration (see [Embedded configuration](#embedded-configuration)) |
 
 #### Custom filenames
 
@@ -202,7 +204,7 @@ await TrustPin.shared.setupWithNativeBundle(
 A `null` value (the default) tells each native SDK to use its own default
 (`TrustPin-Info.plist` / `trustpin.json`).
 
-Missing, malformed, or schema-invalid files throw [`TrustPinException`] with
+Missing, malformed, or schema-invalid files throw [TrustPinException] with
 code `INVALID_PROJECT_CONFIG`.
 
 #### Alternative: inline Dart configuration
@@ -233,6 +235,62 @@ final config = TrustPinConfiguration(
 );
 await TrustPin.shared.setup(config);
 ```
+
+#### Embedded configuration
+
+TrustPin fetches its signed pinning configuration online and keeps the last
+validated one on the device. For the one case where neither exists, the app's
+**very first start while every configuration source is unreachable**, you can
+ship a signed configuration inside the app as a last-resort fallback.
+
+Download the signed configuration for your project from the TrustPin dashboard
+and add it to **both** platforms under the same file name:
+
+- **iOS / macOS**: `ios/Runner/trustpin-seed.b64` (and `macos/Runner/...`),
+  added to the target's **Copy Bundle Resources**.
+- **Android**: `android/app/src/main/assets/trustpin-seed.b64`.
+
+This is **not** a Flutter asset: files listed under `assets:` in
+`pubspec.yaml` live inside `flutter_assets/` and are invisible to the native
+bundle/asset loaders. Ship it per platform, exactly like `TrustPin-Info.plist`
+and `trustpin.json`.
+
+Then reference it by name:
+
+```dart
+final config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'LS0tLS1CRUdJTi...',
+  embeddedConfigurationFile: 'trustpin-seed.b64',
+);
+await TrustPin.shared.setup(config);
+```
+
+With `setupWithNativeBundle`, declare it in the platform config file instead
+(`EmbeddedConfigurationFile` in the plist, `embedded_configuration_asset` in
+`trustpin.json`); no Dart change needed.
+
+**Requirements**
+
+- **Use it only in apps protected by RASP** (runtime application
+  self-protection) that guards bundled resources against modification. An
+  unprotected app must not ship an embedded configuration.
+- **The file must be the unmodified signed payload** from the dashboard. It is
+  verified against `publicKey` during setup; a file that is missing,
+  unreadable, or fails verification throws [TrustPinException] with code
+  `INVALID_PROJECT_CONFIG`.
+- **Regenerate it in CI on every release**, so it is never older than the app
+  that ships it. Pins expire on their own schedule, and an embedded configuration
+  whose pins have all expired is equivalent to having no fallback.
+
+**Behaviour**
+
+- It is never preferred over an online source or over a configuration the SDK
+  has already fetched and validated.
+- It is subject to the same integrity checks as any other configuration: a
+  device that has already trusted a newer configuration will not accept an
+  older embedded one.
 
 ### 3. Validate a Connection
 
@@ -486,6 +544,7 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 | `publicKey` | `String` | Base64-encoded public key issued by the TrustPin dashboard (required) |
 | `configurationURL` | `Uri?` | Optional override for the configuration source (self-hosted setups only) |
 | `mode` | `TrustPinMode` | Pinning mode (default: `strict`) |
+| `embeddedConfigurationFile` | `String?` | Optional bundled signed configuration used only when every online source is unreachable. See [Embedded configuration](#embedded-configuration) |
 
 ### TrustPinMode
 

@@ -17,6 +17,8 @@ extension TrustPinSDKPlugin {
             let instanceId = args.optionalString(Arg.instanceId)
             let configurationURL = try args.optionalURL(Arg.configurationURL)
             let mode = TrustPinMode(args.optionalString(Arg.mode))
+            let embeddedConfigurationURL =
+                try args.optionalBundleResourceURL(Arg.embeddedConfigurationFile)
 
             return {
                 let configuration = TrustPinConfiguration(
@@ -24,7 +26,8 @@ extension TrustPinSDKPlugin {
                     projectId: projectId,
                     publicKey: publicKey,
                     mode: mode,
-                    configurationURL: configurationURL
+                    configurationURL: configurationURL,
+                    embeddedConfigurationURL: embeddedConfigurationURL
                 )
                 let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
                 try await trustPin.setup(configuration)

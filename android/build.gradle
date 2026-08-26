@@ -1,5 +1,5 @@
 group = "cloud.trustpin.flutter.sdk"
-version = "6.2.0"
+version = "6.3.0"
 
 buildscript {
     ext.kotlin_version = "2.3.0"
@@ -52,12 +52,12 @@ android {
     }
 
     dependencies {
-        // Pin the native SDK to the 6.2.x patch line. `strictly` prevents
+        // Pin the native SDK to the 6.3.x patch line. `strictly` prevents
         // Gradle's conflict resolution from silently selecting a newer
         // minor/major pulled in transitively by the consuming app.
         implementation("cloud.trustpin:kotlin-sdk") {
             version {
-                strictly("[6.2.0, 6.3.0)")
+                strictly("[6.3.0, 6.4.0)")
             }
         }
 

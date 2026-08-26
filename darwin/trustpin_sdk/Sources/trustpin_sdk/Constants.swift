@@ -32,6 +32,7 @@ enum Arg {
     static let timeoutMs = "timeoutMs"
     static let iosFileName = "iosFileName"
     static let macosFileName = "macosFileName"
+    static let embeddedConfigurationFile = "embeddedConfigurationFile"
 }
 
 /// Keys of the validation- and log-event maps sent to Dart. Keep in sync

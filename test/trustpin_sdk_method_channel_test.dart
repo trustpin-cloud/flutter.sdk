@@ -196,6 +196,19 @@ void main() {
         expect(args['projectId'], equals('test-project'));
         expect(args['publicKey'], equals('test-key'));
         expect(args['mode'], equals('strict'));
+        expect(args['embeddedConfigurationFile'], isNull);
+      });
+
+      test('forwards the embedded configuration file name', () async {
+        await platform.setup(
+          'test-org',
+          'test-project',
+          'test-key',
+          embeddedConfigurationFile: 'trustpin-seed.b64',
+        );
+
+        final args = Map<String, dynamic>.from(methodCalls[0].arguments as Map);
+        expect(args['embeddedConfigurationFile'], equals('trustpin-seed.b64'));
       });
 
       test('should use strict mode as default', () async {

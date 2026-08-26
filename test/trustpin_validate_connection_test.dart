@@ -20,6 +20,7 @@ class _RecordingPlatform extends TrustPinSDKPlatform
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
+    String? embeddedConfigurationFile,
   }) =>
       Future.value();
 
