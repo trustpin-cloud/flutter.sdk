@@ -78,7 +78,7 @@ await TrustPin.shared.setup(config);
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TrustPinConfiguration.new" class="callable">
-          <span class="name"><a href="../trustpin_configuration/TrustPinConfiguration/TrustPinConfiguration.html">TrustPinConfiguration.new</a></span><span class="signature">({<span class="parameter" id="-param-organizationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">organizationId</span>, </span><span class="parameter" id="-param-projectId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">projectId</span>, </span><span class="parameter" id="-param-publicKey"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">publicKey</span>, </span><span class="parameter" id="-param-configurationURL"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a>?</span> <span class="parameter-name">configurationURL</span>, </span><span class="parameter" id="-param-mode"><span class="type-annotation"><a href="../trustpin_mode/TrustPinMode.html">TrustPinMode</a></span> <span class="parameter-name">mode</span> = <span class="default-value">TrustPinMode.strict</span></span>})</span>
+          <span class="name"><a href="../trustpin_configuration/TrustPinConfiguration/TrustPinConfiguration.html">TrustPinConfiguration.new</a></span><span class="signature">({<span class="parameter" id="-param-organizationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">organizationId</span>, </span><span class="parameter" id="-param-projectId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">projectId</span>, </span><span class="parameter" id="-param-publicKey"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">publicKey</span>, </span><span class="parameter" id="-param-configurationURL"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a>?</span> <span class="parameter-name">configurationURL</span>, </span><span class="parameter" id="-param-mode"><span class="type-annotation"><a href="../trustpin_mode/TrustPinMode.html">TrustPinMode</a></span> <span class="parameter-name">mode</span> = <span class="default-value">TrustPinMode.strict</span>, </span><span class="parameter" id="-param-embeddedConfigurationFile"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">embeddedConfigurationFile</span></span>})</span>
         </dt>
         <dd>
           Creates a TrustPin configuration.
@@ -100,6 +100,21 @@ await TrustPin.shared.setup(config);
 </dt>
 <dd>
   Optional override for the configuration source.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="embeddedConfigurationFile" class="property">
+  <span class="name"><a href="../trustpin_configuration/TrustPinConfiguration/embeddedConfigurationFile.html">embeddedConfigurationFile</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  Name of a signed configuration bundled with the app, used as a
+<strong>last-resort fallback</strong> when no online source and no previously fetched
+configuration is available, typically the app's very first start during
+an outage.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -261,7 +276,7 @@ await TrustPin.shared.setup(config);
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      6.3.0
   </span>
   
 </footer>

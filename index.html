@@ -90,14 +90,14 @@
 <li><strong>Minimum iOS Version</strong>: 15.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 6.2.x (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 6.3.x (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <h3 id="macos-requirements">macOS Requirements</h3>
 <ul>
 <li><strong>Minimum macOS Version</strong>: 13.0+</li>
 <li><strong>Xcode</strong>: 16.3+</li>
 <li><strong>Swift</strong>: 6.1+</li>
-<li><strong>Native Dependencies</strong>: TrustPinKit 6.2.x (automatically configured via Swift Package Manager or CocoaPods)</li>
+<li><strong>Native Dependencies</strong>: TrustPinKit 6.3.x (automatically configured via Swift Package Manager or CocoaPods)</li>
 </ul>
 <blockquote>
 <p>Set <code>MACOSX_DEPLOYMENT_TARGET = 13.0</code> (or higher) in your Xcode project's
@@ -208,6 +208,11 @@ Membership</strong> in Xcode.</p>
 <td>no</td>
 <td>HTTPS URL for self-hosted configs; empty treated as unset</td>
 </tr>
+<tr>
+<td><code>EmbeddedConfigurationFile</code></td>
+<td>no</td>
+<td>Resource name of a bundled signed configuration (see <a href="#embedded-configuration">Embedded configuration</a>)</td>
+</tr>
 </tbody>
 </table>
 <h4 id="android--trustpinjson">Android — <code>trustpin.json</code></h4>
@@ -256,6 +261,11 @@ automatically — no <code>pubspec.yaml</code> declaration needed.</p>
 <td>no</td>
 <td>HTTPS URL for self-hosted configs; empty treated as unset</td>
 </tr>
+<tr>
+<td><code>embedded_configuration_asset</code></td>
+<td>no</td>
+<td>Asset name of a bundled signed configuration (see <a href="#embedded-configuration">Embedded configuration</a>)</td>
+</tr>
 </tbody>
 </table>
 <h4 id="custom-filenames">Custom filenames</h4>
@@ -269,7 +279,7 @@ production, etc.):</p>
 </code></pre>
 <p>A <code>null</code> value (the default) tells each native SDK to use its own default
 (<code>TrustPin-Info.plist</code> / <code>trustpin.json</code>).</p>
-<p>Missing, malformed, or schema-invalid files throw <code>`TrustPinException`</code> with
+<p>Missing, malformed, or schema-invalid files throw <a href="trustpin_exception/TrustPinException-class.html">TrustPinException</a> with
 code <code>INVALID_PROJECT_CONFIG</code>.</p>
 <h4 id="alternative-inline-dart-configuration">Alternative: inline Dart configuration</h4>
 <p>If you cannot ship a bundled configuration file (for example, when
@@ -293,6 +303,55 @@ await TrustPin.shared.setup(config);
 );
 await TrustPin.shared.setup(config);
 </code></pre>
+<h4 id="embedded-configuration">Embedded configuration</h4>
+<p>TrustPin fetches its signed pinning configuration online and keeps the last
+validated one on the device. For the one case where neither exists, the app's
+<strong>very first start while every configuration source is unreachable</strong>, you can
+ship a signed configuration inside the app as a last-resort fallback.</p>
+<p>Download the signed configuration for your project from the TrustPin dashboard
+and add it to <strong>both</strong> platforms under the same file name:</p>
+<ul>
+<li><strong>iOS / macOS</strong>: <code>ios/Runner/trustpin-seed.b64</code> (and <code>macos/Runner/...</code>),
+added to the target's <strong>Copy Bundle Resources</strong>.</li>
+<li><strong>Android</strong>: <code>android/app/src/main/assets/trustpin-seed.b64</code>.</li>
+</ul>
+<p>This is <strong>not</strong> a Flutter asset: files listed under <code>assets:</code> in
+<code>pubspec.yaml</code> live inside <code>flutter_assets/</code> and are invisible to the native
+bundle/asset loaders. Ship it per platform, exactly like <code>TrustPin-Info.plist</code>
+and <code>trustpin.json</code>.</p>
+<p>Then reference it by name:</p>
+<pre class="language-dart"><code class="language-dart">final config = TrustPinConfiguration(
+  organizationId: 'your-org-id',
+  projectId: 'your-project-id',
+  publicKey: 'LS0tLS1CRUdJTi...',
+  embeddedConfigurationFile: 'trustpin-seed.b64',
+);
+await TrustPin.shared.setup(config);
+</code></pre>
+<p>With <code>setupWithNativeBundle</code>, declare it in the platform config file instead
+(<code>EmbeddedConfigurationFile</code> in the plist, <code>embedded_configuration_asset</code> in
+<code>trustpin.json</code>); no Dart change needed.</p>
+<p><strong>Requirements</strong></p>
+<ul>
+<li><strong>Use it only in apps protected by RASP</strong> (runtime application
+self-protection) that guards bundled resources against modification. An
+unprotected app must not ship an embedded configuration.</li>
+<li><strong>The file must be the unmodified signed payload</strong> from the dashboard. It is
+verified against <code>publicKey</code> during setup; a file that is missing,
+unreadable, or fails verification throws <a href="trustpin_exception/TrustPinException-class.html">TrustPinException</a> with code
+<code>INVALID_PROJECT_CONFIG</code>.</li>
+<li><strong>Regenerate it in CI on every release</strong>, so it is never older than the app
+that ships it. Pins expire on their own schedule, and an embedded configuration
+whose pins have all expired is equivalent to having no fallback.</li>
+</ul>
+<p><strong>Behaviour</strong></p>
+<ul>
+<li>It is never preferred over an online source or over a configuration the SDK
+has already fetched and validated.</li>
+<li>It is subject to the same integrity checks as any other configuration: a
+device that has already trusted a newer configuration will not accept an
+older embedded one.</li>
+</ul>
 <h3 id="3-validate-a-connection">3. Validate a Connection</h3>
 <p>The recommended workflow is a single call to <code>validateConnection</code>. The
 platform composes the certificate fetch and pin verification inside one
@@ -560,6 +619,11 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 <td><code>mode</code></td>
 <td><code>TrustPinMode</code></td>
 <td>Pinning mode (default: <code>strict</code>)</td>
+</tr>
+<tr>
+<td><code>embeddedConfigurationFile</code></td>
+<td><code>String?</code></td>
+<td>Optional bundled signed configuration used only when every online source is unreachable. See <a href="#embedded-configuration">Embedded configuration</a></td>
 </tr>
 </tbody>
 </table>
@@ -868,7 +932,7 @@ flutter run
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      6.3.0
   </span>
   
 </footer>

@@ -59,6 +59,7 @@
 <li><span class="parameter" id="-param-publicKey"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">publicKey</span>, </span></li>
 <li><span class="parameter" id="-param-configurationURL"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Uri-class.html">Uri</a>?</span> <span class="parameter-name">configurationURL</span>, </span></li>
 <li><span class="parameter" id="-param-mode"><span class="type-annotation"><a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode</a></span> <span class="parameter-name">mode</span> = <span class="default-value">TrustPinMode.strict</span>, </span></li>
+<li><span class="parameter" id="-param-embeddedConfigurationFile"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">embeddedConfigurationFile</span>, </span></li>
 </ol>})
     </section>
     
@@ -70,6 +71,7 @@
 <li>Parameter <code>publicKey</code>: Base64-encoded public key issued by the TrustPin dashboard</li>
 <li>Parameter <code>configurationURL</code>: Optional override for the configuration source. Defaults to <code>null</code> for the TrustPin-hosted configuration</li>
 <li>Parameter <code>mode</code>: The pinning mode (default: <a href="../../trustpin_mode/TrustPinMode.html">TrustPinMode.strict</a>)</li>
+<li>Parameter <code>embeddedConfigurationFile</code>: Optional bundled signed configuration used only when every online source is unreachable. Defaults to <code>null</code></li>
 </ul>
 </section>
 
@@ -83,6 +85,7 @@
   required this.publicKey,
   this.configurationURL,
   this.mode = TrustPinMode.strict,
+  this.embeddedConfigurationFile,
 });</code></pre>
 </section>
 
@@ -111,7 +114,7 @@
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      6.3.0
   </span>
   
 </footer>

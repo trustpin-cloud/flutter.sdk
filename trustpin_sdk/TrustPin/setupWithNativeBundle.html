@@ -74,12 +74,16 @@ platform owns the loader and its schema:</p>
 reads a Plist from the host app's main bundle. Default filename
 <code>TrustPin-Info.plist</code>. Keys: <code>OrganizationId</code>, <code>ProjectId</code>,
 <code>PublicKey</code>, optional <code>Mode</code> (<code>"strict"</code> / <code>"permissive"</code>), optional
-<code>ConfigurationURL</code> (must be HTTPS).</li>
+<code>ConfigurationURL</code> (must be HTTPS), optional
+<code>EmbeddedConfigurationFile</code> (bundled resource name; see
+<a href="../../trustpin_configuration/TrustPinConfiguration/embeddedConfigurationFile.html">TrustPinConfiguration.embeddedConfigurationFile</a>).</li>
 <li><strong>Android</strong> — <code>TrustPinConfiguration.fromAssets(context, fileName)</code>
 reads a JSON asset from <code>android/app/src/main/assets/</code>. Default
 filename <code>trustpin.json</code>. Keys: <code>organization_id</code>, <code>project_id</code>,
-<code>public_key</code>, optional <code>mode</code>, optional <code>configuration_url</code>. The
-native loader chains <code>withAndroidStorage(context)</code> internally.</li>
+<code>public_key</code>, optional <code>mode</code>, optional <code>configuration_url</code>, optional
+<code>embedded_configuration_asset</code> (bundled asset name; see
+<a href="../../trustpin_configuration/TrustPinConfiguration/embeddedConfigurationFile.html">TrustPinConfiguration.embeddedConfigurationFile</a>). The native loader
+chains <code>withAndroidStorage(context)</code> internally.</li>
 </ul>
 <p>Override the per-platform filename to support multi-environment setups
 (staging / production). Pass <code>null</code> (the default) to use the SDK
@@ -152,7 +156,7 @@ if the configuration is rejected.</li>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      6.3.0
   </span>
   
 </footer>

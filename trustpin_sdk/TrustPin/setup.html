@@ -100,6 +100,7 @@ named instance via <a href="../../trustpin_sdk/TrustPin/instance.html">instance<
       configurationURL: configuration.configurationURL,
       mode: configuration.mode.value,
       instanceId: _instanceId,
+      embeddedConfigurationFile: configuration.embeddedConfigurationFile,
     );
   } catch (e) {
     throw TrustPinException.fromPlatformException(e);
@@ -132,7 +133,7 @@ named instance via <a href="../../trustpin_sdk/TrustPin/instance.html">instance<
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      6.3.0
   </span>
   
 </footer>

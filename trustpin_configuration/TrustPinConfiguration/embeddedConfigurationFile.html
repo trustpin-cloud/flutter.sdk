@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the organizationId property from the TrustPinConfiguration class, for the Dart programming language.">
-  <title>organizationId property - TrustPinConfiguration class - trustpin_configuration library - Dart API</title>
+  <meta name="description" content="API docs for the embeddedConfigurationFile property from the TrustPinConfiguration class, for the Dart programming language.">
+  <title>embeddedConfigurationFile property - TrustPinConfiguration class - trustpin_configuration library - Dart API</title>
 
 
   
@@ -27,9 +27,9 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_configuration/">trustpin_configuration.dart</a></li>
     <li><a href="../../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></li>
-    <li class="self-crumb">organizationId property</li>
+    <li class="self-crumb">embeddedConfigurationFile property</li>
   </ol>
-  <div class="self-name">organizationId</div>
+  <div class="self-name">embeddedConfigurationFile</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -49,26 +49,46 @@
     data-above-sidebar="trustpin_configuration&#47;TrustPinConfiguration-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-property">organizationId</span> property 
+<h1><span class="kind-property">embeddedConfigurationFile</span> property 
 </h1></div>
 
     
       <section class="multi-line-signature">
         
-        <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>
-        <span class="name ">organizationId</span>
+        <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?
+        <span class="name ">embeddedConfigurationFile</span>
         <div class="features"><span class="feature">final</span></div>
 
       </section>
       
 <section class="desc markdown">
-  <p>Your organization identifier from the TrustPin dashboard.</p>
+  <p>Name of a signed configuration bundled with the app, used as a
+<strong>last-resort fallback</strong> when no online source and no previously fetched
+configuration is available, typically the app's very first start during
+an outage.</p>
+<p>The same file name is resolved on each platform:</p>
+<ul>
+<li><strong>iOS / macOS</strong>: a resource of the app's main bundle. Add the file to
+the app target's <em>Copy Bundle Resources</em>.</li>
+<li><strong>Android</strong>: an asset, i.e. <code>android/app/src/main/assets/&lt;name&gt;</code>.</li>
+</ul>
+<p>Note this is <strong>not</strong> a Flutter asset declared in <code>pubspec.yaml</code>: Flutter
+assets live inside <code>flutter_assets/</code> and are not visible to the native
+bundle/asset loaders. Ship the file per platform, exactly like
+<code>TrustPin-Info.plist</code> / <code>trustpin.json</code>.</p>
+<p>Use it only in applications protected by runtime application
+self-protection (RASP) that guards bundled resources against
+modification. The file must be the unmodified signed payload downloaded
+from the TrustPin dashboard for this project; it is verified against
+<a href="../../trustpin_configuration/TrustPinConfiguration/publicKey.html">publicKey</a> during setup, and regenerating it in CI on every release
+keeps it from going stale.</p>
+<p>Leave <code>null</code> (the default) to ship no fallback.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">final String organizationId;</code></pre>
+  <pre class="language-dart"><code class="language-dart">final String? embeddedConfigurationFile;</code></pre>
 </section>
 
 
@@ -85,7 +105,7 @@
     <li><a href="../../index.html">trustpin_sdk</a></li>
     <li><a href="../../trustpin_configuration/">trustpin_configuration</a></li>
     <li><a href="../../trustpin_configuration/TrustPinConfiguration-class.html">TrustPinConfiguration</a></li>
-    <li class="self-crumb">organizationId property</li>
+    <li class="self-crumb">embeddedConfigurationFile property</li>
 </ol>
 
   <h5>TrustPinConfiguration class</h5>
