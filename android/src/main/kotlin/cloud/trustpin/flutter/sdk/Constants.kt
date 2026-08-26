@@ -27,6 +27,7 @@ internal object Arg {
     const val PORT = "port"
     const val TIMEOUT_MS = "timeoutMs"
     const val ANDROID_FILE_NAME = "androidFileName"
+    const val EMBEDDED_CONFIGURATION_FILE = "embeddedConfigurationFile"
 }
 
 /** Error codes returned to Dart. Keep in sync with the Dart side. */

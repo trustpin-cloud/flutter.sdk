@@ -64,6 +64,18 @@ struct Arguments {
         }
         return url
     }
+
+    /// Resolves an optional bundled-resource *name* to a file URL in the app's
+    /// main bundle. Missing / empty returns nil; a name that does not resolve
+    /// throws `invalidProjectConfig`, matching the native plist loader's
+    /// behaviour for `EmbeddedConfigurationFile`.
+    func optionalBundleResourceURL(_ key: String) throws -> URL? {
+        guard let name = optionalString(key) else { return nil }
+        guard let url = Bundle.main.url(forResource: name, withExtension: nil) else {
+            throw TrustPinErrors.invalidProjectConfig
+        }
+        return url
+    }
 }
 
 // MARK: - Domain value parsing

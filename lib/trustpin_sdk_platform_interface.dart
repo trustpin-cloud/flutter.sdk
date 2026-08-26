@@ -38,6 +38,7 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
+    String? embeddedConfigurationFile,
   }) {
     throw UnimplementedError('setup() has not been implemented.');
   }

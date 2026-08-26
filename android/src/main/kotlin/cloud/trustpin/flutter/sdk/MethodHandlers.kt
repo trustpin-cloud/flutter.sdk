@@ -1,5 +1,6 @@
 package cloud.trustpin.flutter.sdk
 
+import cloud.trustpin.kotlin.sdk.EmbeddedConfiguration
 import cloud.trustpin.kotlin.sdk.TrustPin
 import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
 import cloud.trustpin.kotlin.sdk.TrustPinError
@@ -16,6 +17,11 @@ internal fun TrustPinSDKPlugin.handleSetup(call: MethodCall, result: Result) {
         val instanceId = call.optionalString(Arg.INSTANCE_ID)
         val configurationURL = call.optionalURL(Arg.CONFIGURATION_URL)
         val mode = call.optionalString(Arg.MODE).toTrustPinMode()
+        // A bundled asset name, resolved by `withAndroidStorage` below: it
+        // reads `assets/<name>` and fails setup with InvalidProjectConfig when
+        // the asset is missing or unreadable.
+        val embeddedConfiguration = call.optionalString(Arg.EMBEDDED_CONFIGURATION_FILE)
+            ?.let { EmbeddedConfiguration.Asset(it) }
         // Required by the native SDK 5.0.0+ `withAndroidStorage` hardening
         // chain. Absent only if the plugin was used before onAttachedToEngine
         // ran, which indicates a Flutter engine attachment bug.
@@ -27,7 +33,8 @@ internal fun TrustPinSDKPlugin.handleSetup(call: MethodCall, result: Result) {
                 projectId = projectId,
                 publicKey = publicKey,
                 mode = mode,
-                configurationURL = configurationURL
+                configurationURL = configurationURL,
+                embeddedConfiguration = embeddedConfiguration
             ).withAndroidStorage(context)
             trustPinInstance(instanceId).setup(configuration)
             null

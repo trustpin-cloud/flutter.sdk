@@ -243,6 +243,7 @@ class TrustPin {
         configurationURL: configuration.configurationURL,
         mode: configuration.mode.value,
         instanceId: _instanceId,
+        embeddedConfigurationFile: configuration.embeddedConfigurationFile,
       );
     } catch (e) {
       throw TrustPinException.fromPlatformException(e);
@@ -259,12 +260,16 @@ class TrustPin {
   ///   reads a Plist from the host app's main bundle. Default filename
   ///   `TrustPin-Info.plist`. Keys: `OrganizationId`, `ProjectId`,
   ///   `PublicKey`, optional `Mode` (`"strict"` / `"permissive"`), optional
-  ///   `ConfigurationURL` (must be HTTPS).
+  ///   `ConfigurationURL` (must be HTTPS), optional
+  ///   `EmbeddedConfigurationFile` (bundled resource name; see
+  ///   [TrustPinConfiguration.embeddedConfigurationFile]).
   /// - **Android** — `TrustPinConfiguration.fromAssets(context, fileName)`
   ///   reads a JSON asset from `android/app/src/main/assets/`. Default
   ///   filename `trustpin.json`. Keys: `organization_id`, `project_id`,
-  ///   `public_key`, optional `mode`, optional `configuration_url`. The
-  ///   native loader chains `withAndroidStorage(context)` internally.
+  ///   `public_key`, optional `mode`, optional `configuration_url`, optional
+  ///   `embedded_configuration_asset` (bundled asset name; see
+  ///   [TrustPinConfiguration.embeddedConfigurationFile]). The native loader
+  ///   chains `withAndroidStorage(context)` internally.
   ///
   /// Override the per-platform filename to support multi-environment setups
   /// (staging / production). Pass `null` (the default) to use the SDK

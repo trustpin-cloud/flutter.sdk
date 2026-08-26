@@ -47,6 +47,7 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
     Uri? configurationURL,
     String mode = 'strict',
     String? instanceId,
+    String? embeddedConfigurationFile,
   }) async {
     await methodChannel.invokeMethod('setup', {
       'organizationId': organizationId,
@@ -55,6 +56,7 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
       'configurationURL': configurationURL?.toString(),
       'mode': mode,
       'instanceId': instanceId,
+      'embeddedConfigurationFile': embeddedConfigurationFile,
     });
   }
 
