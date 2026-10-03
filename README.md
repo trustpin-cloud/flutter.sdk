@@ -39,7 +39,7 @@ Add TrustPin SDK to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^6.1.0
+  trustpin_sdk: ^6.4.0
 ```
 
 Then install the package:

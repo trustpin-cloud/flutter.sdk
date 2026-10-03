@@ -52,12 +52,12 @@ android {
     }
 
     dependencies {
-        // Pin the native SDK to the 6.3.x patch line. `strictly` prevents
+        // Pin the native SDK to the 6.4.x patch line. `strictly` prevents
         // Gradle's conflict resolution from silently selecting a newer
         // minor/major pulled in transitively by the consuming app.
         implementation("cloud.trustpin:kotlin-sdk") {
             version {
-                strictly("[6.3.0, 6.4.0)")
+                strictly("[6.4.0, 6.5.0)")
             }
         }
 
