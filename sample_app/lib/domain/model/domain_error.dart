@@ -24,6 +24,13 @@ class PinningError extends DomainError {
   const PinningError(this.code, super.message);
 }
 
+/// TrustPinAttest rejected the configuration or an operation.
+class AttestationError extends DomainError {
+  final String code;
+
+  const AttestationError(this.code, super.message);
+}
+
 /// Transport-level failure during a network request.
 class NetworkError extends DomainError {
   const NetworkError(super.message);

@@ -27,6 +27,7 @@ migrate_working_dir/
 # Flutter/Dart/Pub related
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
 /pubspec.lock
+/trustpin_attest/pubspec.lock
 **/doc/api/
 .dart_tool/
 .flutter-plugins
@@ -58,3 +59,4 @@ sample_app/trustpin.json
 sample_app/ios/Runner/TrustPin-Info.plist
 sample_app/macos/Runner/TrustPin-Info.plist
 sample_app/android/app/src/main/assets/trustpin.json
+sample_app/assets/api-test.json

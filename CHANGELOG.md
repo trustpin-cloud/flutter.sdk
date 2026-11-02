@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] - 2026-11-02
+
+### Added
+
+- App attestation support, with the new companion package `trustpin_attest`.
+  Once it is set up, `TrustPinHttpClient` and `TrustPinDioInterceptor` add
+  the `TrustPin-Attestation` header to HTTPS requests for the attested hosts.
+  A header the request already carries is never replaced. Without
+  `trustpin_attest`, nothing changes.
+- `TrustPin.attestationHeaders(url, {method, headers})` and
+  `TrustPin.redirectedRequestHeaders(url, {method, headers})`, for HTTP
+  clients other than the built-in integrations. Neither throws.
+- `TrustPinDioInterceptor(dio: dio)`: with the `Dio` instance, the interceptor
+  follows the redirects of attested requests itself.
+
+### Changed
+
+- **Breaking:** requires Flutter 3.44.0 or later, the first stable release
+  with Swift Package Manager on by default.
+- **Breaking:** iOS and macOS use Swift Package Manager only. The plugin no
+  longer ships a podspec; apps that turned Swift Package Manager off must turn
+  it back on (`flutter config --enable-swift-package-manager`).
+- Updated iOS/macOS native SDK to 7.1.0 and Android native SDK to 7.1.0.
+  Native dependencies now accept patch updates within 7.1.x only (SwiftPM
+  `upToNextMinor`, Gradle `strictly("[7.1.0, 7.2.0)")`).
+
+### Security
+
+- An attestation header never follows a redirect unchecked. For requests
+  that carry one, `TrustPinHttpClient` (and `TrustPinDioInterceptor` given
+  `dio`) follow `GET` and `HEAD` redirects themselves: each hop is pinned and
+  gets its own header, and credentials and cookies are dropped when the
+  redirect leaves the origin, as `dart:io` does. Other requests that carry the
+  header aren't followed: the redirect response reaches the app.
+
 ## [6.4.0] - 2026-10-03
 
 ### Changed

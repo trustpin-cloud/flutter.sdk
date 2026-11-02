@@ -78,6 +78,9 @@ public final class TrustPinSDKPlugin: NSObject, FlutterPlugin {
         case Method.validateConnection:     handleValidateConnection(call, box: box)
         case Method.awaitConfiguration:     handleAwaitConfiguration(call, box: box)
         case Method.isConfigurationLoaded:  handleIsConfigurationLoaded(call, box: box)
+        case Method.attestationHeaders:     handleAttestationHeaders(call, box: box)
+        case Method.redirectedRequestHeaders:
+            handleRedirectedRequestHeaders(call, box: box)
         default:                            box.deliver(FlutterMethodNotImplemented)
         }
     }

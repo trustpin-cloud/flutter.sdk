@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trustpin_sdk/trustpin_sdk.dart';
 
+import 'presentation/attestation_view_model.dart';
 import 'presentation/main_screen.dart';
 import 'presentation/main_view_model.dart';
 import 'service_locator.dart';
@@ -38,13 +39,28 @@ class _TrustPinSampleAppState extends State<TrustPinSampleApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<MainViewModel>(
-      create: (_) => MainViewModel(
-        configurationRepository: _locator.configurationRepository,
-        configure: _locator.configurePinningUseCase,
-        configureFromBundle: _locator.configurePinningFromBundleUseCase,
-        testConnection: _locator.testPinnedConnectionUseCase,
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<MainViewModel>(
+          create: (_) => MainViewModel(
+            configurationRepository: _locator.configurationRepository,
+            configure: _locator.configurePinningUseCase,
+            configureFromBundle: _locator.configurePinningFromBundleUseCase,
+            testConnection: _locator.testPinnedConnectionUseCase,
+            fetchCertificate: _locator.fetchCertificateUseCase,
+          ),
+        ),
+        ChangeNotifierProvider<AttestationViewModel>(
+          create: (_) => AttestationViewModel(
+            repository: _locator.attestationRepository,
+            setUp: _locator.setUpAttestationUseCase,
+            callProtectedEndpoint: _locator.callProtectedEndpointUseCase,
+            callSensitiveEndpoint: _locator.callSensitiveEndpointUseCase,
+            signOut: _locator.signOutSessionUseCase,
+            reset: _locator.resetAttestationUseCase,
+          ),
+        ),
+      ],
       child: MaterialApp(
         title: 'TrustPin Sample',
         theme: ThemeData(

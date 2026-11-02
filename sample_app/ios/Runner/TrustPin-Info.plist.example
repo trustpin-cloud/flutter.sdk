@@ -12,6 +12,10 @@
 
             Required keys: OrganizationId, ProjectId, PublicKey.
             Optional keys: Mode ("strict" | "permissive"), ConfigurationURL (HTTPS).
+
+            App attestation (TrustPinAttest.shared.setupWithNativeBundle()):
+            AttestVerifierURL (your verifier's https URL) and AttestedHosts (the
+            hosts that receive the TrustPin-Attestation header).
         -->
         <key>OrganizationId</key>
         <string>YOUR_ORGANIZATION_ID</string>
@@ -21,5 +25,11 @@
         <string>YOUR_PUBLIC_KEY</string>
         <key>Mode</key>
         <string>strict</string>
+        <key>AttestVerifierURL</key>
+        <string>https://attest.example.com</string>
+        <key>AttestedHosts</key>
+        <array>
+            <string>api.example.com</string>
+        </array>
     </dict>
 </plist>

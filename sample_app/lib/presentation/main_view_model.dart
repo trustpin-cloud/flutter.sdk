@@ -9,6 +9,7 @@ import '../domain/repository/configuration_repository.dart';
 import '../domain/repository/logger.dart';
 import '../domain/usecase/configure_pinning_from_bundle_use_case.dart';
 import '../domain/usecase/configure_pinning_use_case.dart';
+import '../domain/usecase/fetch_certificate_use_case.dart';
 import '../domain/usecase/test_pinned_connection_use_case.dart';
 import 'log_entry.dart';
 import 'ui_action.dart';
@@ -23,8 +24,10 @@ typedef ConfigureFromBundleFactory =
     ConfigurePinningFromBundleUseCase Function(Logger logger);
 typedef TestConnectionFactory =
     TestPinnedConnectionUseCase Function(Logger logger);
+typedef FetchCertificateFactory =
+    FetchCertificateUseCase Function(Logger logger);
 
-/// Orchestrates use cases for the single-screen sample. Holds the canonical
+/// Orchestrates the Pinning tab's use cases. Holds the canonical
 /// [UiState] and exposes a single [dispatch] entry point — the widget tree
 /// has no direct handle on the repositories or use cases.
 class MainViewModel extends ChangeNotifier {
@@ -32,6 +35,7 @@ class MainViewModel extends ChangeNotifier {
   final ConfigureFactory _configure;
   final ConfigureFromBundleFactory _configureFromBundle;
   final TestConnectionFactory _testConnection;
+  final FetchCertificateFactory _fetchCertificate;
 
   UiState _state = UiState.initial;
 
@@ -56,10 +60,12 @@ class MainViewModel extends ChangeNotifier {
     required ConfigureFactory configure,
     required ConfigureFromBundleFactory configureFromBundle,
     required TestConnectionFactory testConnection,
+    required FetchCertificateFactory fetchCertificate,
   }) : _configurationRepository = configurationRepository,
        _configure = configure,
        _configureFromBundle = configureFromBundle,
-       _testConnection = testConnection {
+       _testConnection = testConnection,
+       _fetchCertificate = fetchCertificate {
     _validationEvents = TrustPin.validationEvents.listen(
       _onValidationEvent,
       onError: (Object e) => _logSink.error('Validation event stream: $e'),
@@ -88,7 +94,7 @@ class MainViewModel extends ChangeNotifier {
   }
 
   void _onSdkLog(TrustPinLogEvent event) {
-    final message = '[SDK] ${event.message}';
+    final message = '[TrustPinKit] ${event.message}';
     switch (event.level) {
       case TrustPinLogLevel.error:
         _logSink.error(message);
@@ -114,8 +120,13 @@ class MainViewModel extends ChangeNotifier {
         await _handleConfigureFromBundle();
       case TestConnectionAction():
         await _handleTestConnection(action.url);
+      case FetchCertificateAction():
+        await _handleFetchCertificate(action.url);
       case ClearLogAction():
         _update((s) => s.copyWith(logEntries: const <LogEntry>[]));
+        _logSink.info('Welcome to TrustPin Flutter Sample');
+        _logSink.info('Configure TrustPin and test connections...');
+        _logSink.info('🧹 Log cleared');
       case ConsumeTransientMessageAction():
         _update((s) => s.copyWith(clearTransientMessage: true));
     }
@@ -196,8 +207,25 @@ class MainViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> _handleFetchCertificate(String url) async {
+    _update((s) => s.copyWith(isWorking: true, status: Status.fetching));
+    try {
+      await _fetchCertificate(_logSink).call(url);
+    } on DomainError catch (e) {
+      _update((s) => s.copyWith(transientMessage: _messageFor(e)));
+    } finally {
+      _update(
+        (s) => s.copyWith(
+          isWorking: false,
+          status: s.isConfigured ? Status.configured : Status.notConfigured,
+        ),
+      );
+    }
+  }
+
   String _messageFor(DomainError e) => switch (e) {
     PinningError() => 'TrustPin validation failed: ${e.message}',
+    AttestationError() => 'Attestation failed: ${e.message}',
     NetworkError() => 'Connection failed: ${e.message}',
     ValidationError() => e.message,
     UnknownError() => 'Unexpected error: ${e.message}',

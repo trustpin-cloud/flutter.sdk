@@ -49,6 +49,34 @@ struct Arguments {
         raw[key] as? Int
     }
 
+    /// Returns a string-to-string map, or an empty one when the key is
+    /// missing. Entries whose key or value isn't a String are dropped.
+    func stringMap(_ key: String) -> [String: String] {
+        guard let map = raw[key] as? [AnyHashable: Any] else { return [:] }
+        var result: [String: String] = [:]
+        for (name, value) in map {
+            if let name = name as? String, let value = value as? String {
+                result[name] = value
+            }
+        }
+        return result
+    }
+
+    /// Builds the `URLRequest` an attestation-header call describes: the
+    /// `url`, `method` and `headers` arguments.
+    func request() throws -> URLRequest {
+        let rawURL = try requireString(Arg.url)
+        guard let url = URL(string: rawURL), url.scheme != nil, url.host != nil else {
+            throw InvalidArgumentsError(message: "Invalid argument: \(Arg.url)")
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = optionalString(Arg.method) ?? "GET"
+        for (name, value) in stringMap(Arg.headers) {
+            request.setValue(value, forHTTPHeaderField: name)
+        }
+        return request
+    }
+
     /// Parses an optional URL argument. A missing or empty value returns nil.
     /// Malformed values throw `TrustPinErrors.invalidProjectConfig`, matching
     /// Android's `URI.create(...).toURL()` bridge behaviour.

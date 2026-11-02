@@ -1,0 +1,84 @@
+group = "cloud.trustpin.flutter.attest"
+version = "7.1.0"
+
+buildscript {
+    ext.kotlin_version = "2.3.0"
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.7.3")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+    namespace = "cloud.trustpin.flutter.attest"
+
+    compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+        test.java.srcDirs += "src/test/kotlin"
+    }
+
+    defaultConfig {
+        // 25 is the floor imposed by cloud.trustpin:kotlin-attest.
+        minSdk = 25
+    }
+
+    dependencies {
+        // Pin the native SDKs to the 7.1.x patch line, the same line as the
+        // trustpin_sdk plugin: the attestation module registers itself on the
+        // pinning SDK's instances. `strictly` prevents Gradle's conflict
+        // resolution from silently selecting a newer minor/major pulled in
+        // transitively by the consuming app.
+        implementation("cloud.trustpin:kotlin-attest") {
+            version {
+                strictly("[7.1.0, 7.2.0)")
+            }
+        }
+        implementation("cloud.trustpin:kotlin-sdk") {
+            version {
+                strictly("[7.1.0, 7.2.0)")
+            }
+        }
+
+        testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+
+            testLogging {
+               events "passed", "skipped", "failed", "standardOut", "standardError"
+               outputs.upToDateWhen {false}
+               showStandardStreams = true
+            }
+        }
+    }
+}

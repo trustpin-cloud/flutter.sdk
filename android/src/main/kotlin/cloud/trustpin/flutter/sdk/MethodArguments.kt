@@ -1,5 +1,6 @@
 package cloud.trustpin.flutter.sdk
 
+import cloud.trustpin.kotlin.sdk.TrustPinAttestationRequest
 import cloud.trustpin.kotlin.sdk.TrustPinError
 import cloud.trustpin.kotlin.sdk.TrustPinLogLevel
 import cloud.trustpin.kotlin.sdk.TrustPinMode
@@ -37,6 +38,23 @@ internal fun MethodCall.optionalString(key: String): String? {
 
 /** Returns the value for [key] as an Int, or null when missing / not an Int. */
 internal fun MethodCall.optionalInt(key: String): Int? = argument<Int>(key)
+
+/**
+ * Builds the request an attestation-header call describes: the `url`,
+ * `method` and `headers` arguments. Each header value becomes a one-element
+ * list; entries whose key or value isn't a String are dropped.
+ */
+internal fun MethodCall.attestationRequest(): TrustPinAttestationRequest {
+    val url = requireString(Arg.URL)
+    val method = optionalString(Arg.METHOD) ?: "GET"
+    val raw = argument<Map<*, *>>(Arg.HEADERS) ?: emptyMap<Any, Any>()
+    val headers = buildMap {
+        for ((name, value) in raw) {
+            if (name is String && value is String) put(name, listOf(value))
+        }
+    }
+    return TrustPinAttestationRequest(url, method, headers)
+}
 
 /**
  * Parses an optional URL argument. A missing or empty value returns null.

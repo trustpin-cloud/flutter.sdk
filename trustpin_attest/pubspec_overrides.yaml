@@ -1,0 +1,5 @@
+# Development only: build against the trustpin_sdk in this repository.
+# Excluded from the published package (.pubignore).
+dependency_overrides:
+  trustpin_sdk:
+    path: ..

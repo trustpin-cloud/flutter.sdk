@@ -1,0 +1,2 @@
+# Development-only path override to the trustpin_sdk in this repository.
+pubspec_overrides.yaml
