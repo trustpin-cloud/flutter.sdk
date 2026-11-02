@@ -85,15 +85,36 @@ Future&lt;http.StreamedResponse&gt; send(http.BaseRequest request) async {
   final uri = request.url;
 
   &#47;&#47; Only validate HTTPS requests
-  if (uri.scheme == &#39;https&#39;) {
-    await _instance.validateConnection(
-      uri.host,
-      port: uri.port,
-      timeout: _validateTimeout,
-    );
+  if (uri.scheme != &#39;https&#39;) {
+    return _inner.send(request);
   }
 
-  return _inner.send(request);
+  await _validate(uri);
+
+  final attestation = await _instance.attestationHeaders(
+    uri,
+    method: request.method,
+    headers: request.headers,
+  );
+  var added = false;
+  for (final entry in attestation.entries) {
+    if (!hasHeader(request.headers, entry.key)) {
+      request.headers[entry.key] = entry.value;
+      added = true;
+    }
+  }
+  if (!added) {
+    return _inner.send(request);
+  }
+
+  &#47;&#47; The request carries an attestation header: never let the inner
+  &#47;&#47; client follow a redirect with it.
+  final follow =
+      request.followRedirects &amp;&amp; isRedirectableMethod(request.method);
+  request.followRedirects = false;
+  final response = await _inner.send(request);
+  if (!follow) return response;
+  return _followRedirects(request, response);
 }</code></pre>
 </section>
 
@@ -122,7 +143,7 @@ Future&lt;http.StreamedResponse&gt; send(http.BaseRequest request) async {
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      7.1.0
   </span>
   
 </footer>

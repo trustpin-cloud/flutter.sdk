@@ -58,6 +58,12 @@
 <p>Wraps any <a href="https://pub.dev/documentation/http/1.6.0/http/Client-class.html">http.Client</a> and validates HTTPS requests through TrustPin.
 Non-HTTPS requests pass through unchanged. <a href="../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have
 been called on the underlying instance before making requests.</p>
+<p>When the app uses the <code>trustpin_attest</code> package, HTTPS requests to its
+attested hosts also get the <code>TrustPin-Attestation</code> header (see
+<a href="../trustpin_sdk/TrustPin/attestationHeaders.html">TrustPin.attestationHeaders</a>). A header the request already carries is
+never replaced. Redirects of such a request are followed by this client,
+so each hop is pinned and gets its own attestation header: the header
+meant for one host never reaches another.</p>
 </section>
 
 
@@ -356,7 +362,7 @@ bytes.
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.2.0
+      7.1.0
   </span>
   
 </footer>
