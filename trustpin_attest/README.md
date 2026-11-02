@@ -28,8 +28,8 @@ verifying tokens in your API are covered at
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^7.1.0
-  trustpin_attest: ^7.1.0
+  trustpin_sdk: ^7.1.1
+  trustpin_attest: ^7.1.1
 ```
 
 Both packages must be on the same version. They wrap the native 7.1.x SDKs
@@ -51,7 +51,7 @@ Both packages must be on the same version. They wrap the native 7.1.x SDKs
   registered as a domain of your TrustPin project, because verifier calls are
   pinned. In strict mode an unregistered verifier host fails every call
   (`VERIFIER_UNAVAILABLE`) and no header is sent. It must speak contract
-  version 2 or newer (verifier 0.2.2 or later); an older one is refused
+  version 2 or newer (verifier 1.0.0 or later); an older one is refused
   (`VERIFIER_INCOMPATIBLE`).
 - **iOS and macOS:** add the **App Attest** capability to the Runner target.
   It adds the entitlement `com.apple.developer.devicecheck.appattest-environment`:

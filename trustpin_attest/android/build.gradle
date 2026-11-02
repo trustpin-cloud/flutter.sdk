@@ -1,5 +1,5 @@
 group = "cloud.trustpin.flutter.attest"
-version = "7.1.0"
+version = "7.1.1"
 
 buildscript {
     ext.kotlin_version = "2.3.0"
@@ -51,19 +51,19 @@ android {
     }
 
     dependencies {
-        // Pin the native SDKs to the 7.1.x patch line, the same line as the
+        // Pin the native SDKs to the 7.1.x patch line from 7.1.1, the same line as the
         // trustpin_sdk plugin: the attestation module registers itself on the
         // pinning SDK's instances. `strictly` prevents Gradle's conflict
         // resolution from silently selecting a newer minor/major pulled in
         // transitively by the consuming app.
         implementation("cloud.trustpin:kotlin-attest") {
             version {
-                strictly("[7.1.0, 7.2.0)")
+                strictly("[7.1.1, 7.2.0)")
             }
         }
         implementation("cloud.trustpin:kotlin-sdk") {
             version {
-                strictly("[7.1.0, 7.2.0)")
+                strictly("[7.1.1, 7.2.0)")
             }
         }
 
