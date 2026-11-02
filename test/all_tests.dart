@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'http_interceptors/dio_interceptor_test.dart' as dio_interceptor_tests;
 import 'http_interceptors/http_client_interceptor_test.dart'
     as http_client_interceptor_tests;
+import 'trustpin_attestation_headers_test.dart' as attestation_headers_tests;
 import 'trustpin_sdk_method_channel_test.dart' as method_channel_tests;
 import 'trustpin_sdk_platform_interface_test.dart' as platform_interface_tests;
 import 'trustpin_log_events_test.dart' as log_events_tests;
@@ -46,6 +47,10 @@ void main() {
 
     group('Log Events Tests', () {
       log_events_tests.main();
+    });
+
+    group('Attestation Headers Tests', () {
+      attestation_headers_tests.main();
     });
   });
 }

@@ -191,6 +191,33 @@ extension TrustPinSDKPlugin {
         }
     }
 
+    func handleAttestationHeaders(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(box, defaultCode: ErrorCode.attestationHeaders) {
+            let args = try Arguments(call)
+            let request = try args.request()
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                return await trustPin.attestationHeaders(for: request)
+            }
+        }
+    }
+
+    func handleRedirectedRequestHeaders(_ call: FlutterMethodCall, box: ResultBox) {
+        execute(box, defaultCode: ErrorCode.attestationHeaders) {
+            let args = try Arguments(call)
+            let request = try args.request()
+            let instanceId = args.optionalString(Arg.instanceId)
+
+            return {
+                let trustPin = try TrustPinSDKPlugin.instance(id: instanceId)
+                let redirected = await trustPin.redirectedRequest(request)
+                return redirected.allHTTPHeaderFields ?? [:]
+            }
+        }
+    }
+
     /// Returns the named TrustPin instance, or the default one when `id` is
     /// nil or empty. Kept as a static method so it never captures `self`
     /// from inside a `@Sendable` closure.

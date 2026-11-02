@@ -74,81 +74,80 @@ update_pubspec_version() {
     log_success "Updated pubspec.yaml version to $new_version"
 }
 
-# Update version in iOS podspec
-update_ios_podspec() {
+# Update version in the Android library's build.gradle
+update_android_version() {
     local new_version=$1
-    local podspec_file="ios/trustpin_sdk.podspec"
-    
-    if [[ -f "$podspec_file" ]]; then
-        log_info "Updating version in iOS podspec to $new_version"
-        
-        # Create backup
-        cp "$podspec_file" "$podspec_file.bak"
-        
-        # Update version
+    local gradle_file="android/build.gradle"
+
+    if [[ -f "$gradle_file" ]]; then
+        log_info "Updating version in Android build.gradle to $new_version"
+
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            sed -i '' "s/spec\.version.*=.*/spec.version          = '$new_version'/" "$podspec_file"
+            sed -i '' "s/^version = \".*\"/version = \"$new_version\"/" "$gradle_file"
         else
-            # Linux
-            sed -i "s/spec\.version.*=.*/spec.version          = '$new_version'/" "$podspec_file"
+            sed -i "s/^version = \".*\"/version = \"$new_version\"/" "$gradle_file"
         fi
-        
-        rm "$podspec_file.bak"
-        log_success "Updated iOS podspec version to $new_version"
+
+        log_success "Updated Android build.gradle version to $new_version"
     else
-        log_warning "iOS podspec not found at $podspec_file"
+        log_error "Android build.gradle not found at $gradle_file"
+        exit 1
     fi
 }
 
-# Update version in macOS podspec
-update_macos_podspec() {
+# Update the trustpin_attest package: its version, its Android library
+# version, and its trustpin_sdk constraint to the same MAJOR.MINOR line (the
+# two plugins must resolve the same native SDK version).
+update_attest_version() {
     local new_version=$1
-    local podspec_file="macos/trustpin_sdk.podspec"
-    
-    if [[ -f "$podspec_file" ]]; then
-        log_info "Updating version in macOS podspec to $new_version"
-        
-        # Create backup
-        cp "$podspec_file" "$podspec_file.bak"
-        
-        # Update version
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            sed -i '' "s/spec\.version.*=.*/spec.version          = '$new_version'/" "$podspec_file"
-        else
-            # Linux
-            sed -i "s/spec\.version.*=.*/spec.version          = '$new_version'/" "$podspec_file"
-        fi
-        
-        rm "$podspec_file.bak"
-        log_success "Updated macOS podspec version to $new_version"
-    else
-        log_warning "macOS podspec not found at $podspec_file"
+    local pubspec="trustpin_attest/pubspec.yaml"
+    local gradle_file="trustpin_attest/android/build.gradle"
+    local core="${new_version%%[-+]*}"
+    local major="${core%%.*}"
+    local minor="$(echo "$core" | cut -d. -f2)"
+    local constraint="'>=${major}.${minor}.0 <${major}.$((minor + 1)).0'"
+
+    if [[ ! -f "$pubspec" || ! -f "$gradle_file" ]]; then
+        log_error "trustpin_attest package not found"
+        exit 1
     fi
+    log_info "Updating trustpin_attest to $new_version (trustpin_sdk $constraint)"
+
+    local sed_inplace=(-i)
+    [[ "$OSTYPE" == "darwin"* ]] && sed_inplace=(-i '')
+    sed "${sed_inplace[@]}" "s/^version: .*/version: $new_version/" "$pubspec"
+    sed "${sed_inplace[@]}" "s/^  trustpin_sdk: .*/  trustpin_sdk: $constraint/" "$pubspec"
+    sed "${sed_inplace[@]}" "s/^version = \".*\"/version = \"$new_version\"/" "$gradle_file"
+
+    if ! grep -q "^version: $new_version$" "$pubspec"; then
+        log_error "Failed to update version in $pubspec"
+        exit 1
+    fi
+    log_success "Updated trustpin_attest to $new_version"
 }
 
-# Check if CHANGELOG.md contains the new version
+# Check if a changelog (default CHANGELOG.md) contains the new version
 check_changelog() {
     local new_version=$1
+    local changelog="${2:-CHANGELOG.md}"
     
-    log_info "Checking if CHANGELOG.md contains version $new_version"
+    log_info "Checking if $changelog contains version $new_version"
     
-    if [[ ! -f "CHANGELOG.md" ]]; then
-        log_error "CHANGELOG.md not found"
-        log_error "Please create CHANGELOG.md and add an entry for version $new_version"
+    if [[ ! -f "$changelog" ]]; then
+        log_error "$changelog not found"
+        log_error "Please create $changelog and add an entry for version $new_version"
         return 1
     fi
     
     # Check if the version exists in the changelog
-    if grep -q "## \[$new_version\]" CHANGELOG.md; then
-        log_success "Found version $new_version in CHANGELOG.md"
+    if grep -q "## \[$new_version\]" "$changelog"; then
+        log_success "Found version $new_version in $changelog"
         return 0
-    elif grep -q "## $new_version" CHANGELOG.md; then
-        log_success "Found version $new_version in CHANGELOG.md"
+    elif grep -q "## $new_version" "$changelog"; then
+        log_success "Found version $new_version in $changelog"
         return 0
     else
-        log_error "Version $new_version not found in CHANGELOG.md"
+        log_error "Version $new_version not found in $changelog"
         log_error "Please add a changelog entry for version $new_version before releasing"
         log_error ""
         log_error "Expected format:"
@@ -254,6 +253,19 @@ run_tests() {
         )
     fi
     
+    # Run the trustpin_attest package's tests
+    log_info "Running trustpin_attest tests..."
+    (
+        cd trustpin_attest
+        flutter pub get >/dev/null
+        if flutter test; then
+            log_success "trustpin_attest tests passed"
+        else
+            log_error "trustpin_attest tests failed"
+            exit 1
+        fi
+    )
+
     # Run sample app tests if they exist
     if [[ -d "sample_app/test" && -n "$(ls -A sample_app/test 2>/dev/null)" ]]; then
         log_info "Running sample app tests..."
@@ -279,6 +291,13 @@ run_analysis() {
         log_success "Static analysis passed"
     else
         log_error "Static analysis failed"
+        exit 1
+    fi
+
+    if (cd trustpin_attest && dart analyze --fatal-infos); then
+        log_success "trustpin_attest static analysis passed"
+    else
+        log_error "trustpin_attest static analysis failed"
         exit 1
     fi
 }
@@ -330,8 +349,9 @@ main() {
     # Confirm with user
     echo
     log_warning "This will:"
-    echo "  1. Update version in pubspec.yaml and podspecs"
-    echo "  2. Check that CHANGELOG.md contains version $new_version"
+    echo "  1. Update version in pubspec.yaml and android/build.gradle, and in"
+    echo "     trustpin_attest (pubspec, android/build.gradle, trustpin_sdk range)"
+    echo "  2. Check that both CHANGELOG.md files contain version $new_version"
     echo "  3. Run comprehensive test suite (unit tests only)"
     echo "  4. Generate API documentation"
     echo "  5. Run static analysis and package validation"
@@ -352,12 +372,15 @@ main() {
     # Step 1: Update versions
     log_info "Step 1: Updating versions..."
     update_pubspec_version "$new_version"
-    update_ios_podspec "$new_version"
-    update_macos_podspec "$new_version"
+    update_android_version "$new_version"
+    update_attest_version "$new_version"
     
     # Step 2: Check changelog
-    log_info "Step 2: Checking changelog..."
+    log_info "Step 2: Checking changelogs..."
     if ! check_changelog "$new_version"; then
+        exit 1
+    fi
+    if ! check_changelog "$new_version" trustpin_attest/CHANGELOG.md; then
         exit 1
     fi
     
@@ -383,7 +406,7 @@ main() {
     echo
     log_info "Next steps:"
     echo "  1. Review the changes:"
-    echo "     - pubspec.yaml"
+    echo "     - pubspec.yaml, trustpin_attest/pubspec.yaml"
     echo "     - docs/ directory"
     echo "  2. Commit the changes:"
     echo "     git add ."
@@ -391,8 +414,9 @@ main() {
     echo "  3. Create and push a tag:"
     echo "     git tag v$new_version"
     echo "     git push origin main --tags"
-    echo "  4. Publish to pub.dev:"
-    echo "     dart pub publish"
+    echo "  4. Publish to pub.dev, in this order:"
+    echo "     dart pub publish                       # trustpin_sdk"
+    echo "     trustpin_attest/tool/publish.sh        # needs trustpin_sdk $new_version on pub.dev"
     echo "  5. Deploy docs to GitHub Pages (if configured)"
     echo
 }

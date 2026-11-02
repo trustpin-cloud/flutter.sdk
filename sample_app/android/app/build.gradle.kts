@@ -22,8 +22,10 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.trustpin_sample_app"
+        // The Kotlin SDK sample's application ID, so the sample project's
+        // attestation policy accepts this app too (debug-key signed). It
+        // replaces the native sample on a device: they share the ID.
+        applicationId = "cloud.trustpin.android.sample"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 25

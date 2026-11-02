@@ -27,6 +27,12 @@ class TestConnectionAction extends UiAction {
   const TestConnectionAction(this.url);
 }
 
+class FetchCertificateAction extends UiAction {
+  final String url;
+
+  const FetchCertificateAction(this.url);
+}
+
 class ClearLogAction extends UiAction {
   const ClearLogAction();
 }

@@ -1,0 +1,6 @@
+{
+  "_comment": "Template — copy to api-test.json (kept out of git) and fill in your sample API: the API that verifies TrustPin-Attestation tokens. The Attestation tab logs in with POST {base_url}/login {username, password}, expecting {\"token\"}, then calls GET {base_url}/home with the bearer token and the attestation header.",
+  "base_url": "https://api.example.com",
+  "username": "demo",
+  "password": "YOUR_PASSWORD"
+}

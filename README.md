@@ -28,6 +28,7 @@ A comprehensive Flutter plugin for **[TrustPin](https://trustpin.cloud)** SSL ce
 - **Flexible Pinning Modes**: Support for strict (production) and permissive (development) validation modes
 - **Certificate Fetching**: Built-in `fetchCertificate` for OS-level TLS validation and leaf certificate extraction
 - **HTTP Client Integration**: Built-in interceptors for Dio and the http package
+- **App Attestation**: With the companion [`trustpin_attest`](trustpin_attest/README.md) package, the same interceptors add a `TrustPin-Attestation` token proving the request comes from your genuine app on a genuine device
 - **Multiple Instances**: Use `TrustPin.shared` for single-project apps, or `TrustPin.instance('id')` for libraries and multi-tenant setups
 - **Comprehensive Error Handling**: Detailed error types with programmatic checking capabilities
 - **Configurable Logging**: Multiple log levels for debugging, monitoring, and production use
@@ -39,7 +40,7 @@ Add TrustPin SDK to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^6.4.0
+  trustpin_sdk: ^7.1.0
 ```
 
 Then install the package:
@@ -48,6 +49,14 @@ Then install the package:
 flutter pub get
 ```
 
+> **Flutter 3.44.0 or later; iOS and macOS through Swift Package Manager
+> only.** From 7.1.0 the plugin ships no podspec. Flutter 3.44 is the first
+> stable release with Swift Package Manager on by default; if you turned it
+> off, turn it back on:
+> ```bash
+> flutter config --enable-swift-package-manager
+> ```
+
 ## Platform Setup
 
 ### iOS Requirements
@@ -55,18 +64,23 @@ flutter pub get
 - **Minimum iOS Version**: 15.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.3.x (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 7.1.x, through Swift Package Manager (CocoaPods isn't supported from 7.1.0)
 
 ### macOS Requirements
 
 - **Minimum macOS Version**: 13.0+
 - **Xcode**: 16.3+
 - **Swift**: 6.1+
-- **Native Dependencies**: TrustPinKit 6.3.x (automatically configured via Swift Package Manager or CocoaPods)
+- **Native Dependencies**: TrustPinKit 7.1.x, through Swift Package Manager (CocoaPods isn't supported from 7.1.0)
 
-> Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher) in your Xcode project's
-> build settings. Flutter uses this value to align the generated Swift Package
-> Manager wrapper with TrustPin's minimum platform.
+> Set `MACOSX_DEPLOYMENT_TARGET = 13.0` (or higher; `IPHONEOS_DEPLOYMENT_TARGET
+> = 15.0` on iOS) in your Xcode project's build settings. Flutter uses this
+> value to align the generated Swift Package Manager wrapper with TrustPin's
+> minimum platform, but only when it builds: `flutter pub get` resets the
+> wrapper to Flutter's default. Before building from Xcode, run
+> `flutter build macos --config-only` (or `flutter build ios --config-only`),
+> or Xcode reports "The package product 'trustpin-sdk-product' requires minimum
+> platform version 13.0".
 
 For sandboxed macOS apps, add the network client entitlement:
 
@@ -81,10 +95,10 @@ For sandboxed macOS apps, add the network client entitlement:
 - **Minimum SDK**: API 25 (Android 7.1)+
 - **Compile SDK**: API 36
 - **Kotlin**: 2.3.0+
-- **Native Dependencies**: TrustPin Kotlin SDK 5.0.0 (automatically configured via Gradle)
+- **Native Dependencies**: TrustPin Kotlin SDK 7.1.x (automatically configured via Gradle)
 
 > The Flutter plugin declares `minSdk = 25` because the underlying TrustPin
-> Kotlin SDK 4.3.2+ requires it. Apps consuming the plugin must therefore
+> Kotlin SDK requires it. Apps consuming the plugin must therefore
 > declare `minSdk >= 25` in their `android/app/build.gradle`.
 
 ### Network Permissions
@@ -92,7 +106,8 @@ For sandboxed macOS apps, add the network client entitlement:
 The SDK requires network access to fetch pinning configurations from `https://cdn.trustpin.cloud`.
 
 #### Android
-The plugin automatically includes the required network permission in its AndroidManifest.xml:
+Flutter adds the network permission only to debug and profile builds. Declare it in your app's
+`android/app/src/main/AndroidManifest.xml` so release builds can reach the network:
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 ```
@@ -428,7 +443,7 @@ import 'package:dio/dio.dart';
 import 'package:trustpin_sdk/trustpin_sdk.dart';
 
 final dio = Dio();
-dio.interceptors.add(TrustPinDioInterceptor());
+dio.interceptors.add(TrustPinDioInterceptor(dio: dio));
 
 // All HTTPS requests now have automatic certificate pinning
 try {
@@ -446,6 +461,10 @@ The interceptor automatically:
 1. Calls `validateConnection` on the platform, which fetches the leaf
    certificate and verifies it against configured pins in a single hop.
 2. Blocks requests when the connection does not match a configured pin.
+3. Adds the app attestation header when the app uses `trustpin_attest` (see
+   [App Attestation](#app-attestation)). Passing the `dio` instance lets it
+   follow redirects of those requests itself; without it, they aren't
+   followed and the redirect response reaches your code.
 
 ### Integration with http package
 
@@ -467,6 +486,35 @@ final response = await client.get(Uri.parse('https://api.example.com/data'));
 // Clean up when done
 client.close();
 ```
+
+### App Attestation
+
+App attestation proves to your API that a request comes from your genuine
+app on a genuine device. It lives in the separate
+[`trustpin_attest`](trustpin_attest/README.md) package, so apps that only pin
+don't take on the attestation libraries. Once it is set up, `TrustPinHttpClient`
+and `TrustPinDioInterceptor` add the `TrustPin-Attestation` header to HTTPS
+requests for your attested hosts, with nothing else to change:
+
+```dart
+await TrustPin.shared.setupWithNativeBundle();
+await TrustPinAttest.shared.setupWithNativeBundle();
+await TrustPinAttest.shared.bindToHeader('Authorization');
+await TrustPinAttest.shared.prefetch();
+
+final client = TrustPinHttpClient.create(); // pinned, and attested
+```
+
+- A header the request already carries is never replaced.
+- A redirected request never carries the header to another host: the
+  integrations follow redirects of attested `GET` and `HEAD` requests
+  themselves, pinning each hop and asking for its own header.
+- For other HTTP clients, `TrustPin.shared.attestationHeaders(url, headers: …)`
+  returns the headers to add, and `redirectedRequestHeaders` the headers for a
+  redirect hop.
+- For a sensitive operation, `TrustPinAttest.shared.assertionHeaders(digest)`
+  adds an assertion bound to a digest of the request, checked by your
+  verifier. See the [`trustpin_attest` README](trustpin_attest/README.md).
 
 ### Multiple Instances
 
@@ -532,6 +580,8 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 | `isConfigurationLoaded` | `Future<bool>` — synchronous, non-fetching state read of whether a validated payload is currently cached. |
 | `validateConnection(host, {port?, timeout?})` | Atomic fetch-and-verify. **Recommended entry point** for cert-pinned HTTPS. |
 | `setLogLevel(level)` | Set logging verbosity |
+| `attestationHeaders(url, {method?, headers?})` | The app attestation headers to add to a request, for clients other than the built-in interceptors. Empty without `trustpin_attest`. Never throws. |
+| `redirectedRequestHeaders(url, {method?, headers?})` | The headers for a redirect hop: without the attestation header, plus the one for the new URL. Never throws. |
 | `TrustPin.validationEvents` | Static broadcast `Stream<TrustPinValidationEvent>` of definitive pin-validation verdicts across all instances, for field telemetry. Observe-only. |
 | `TrustPin.logs` | Static broadcast `Stream<TrustPinLogEvent>` of the SDK's log output across all instances. Verbosity per instance via `setLogLevel`. |
 
@@ -566,8 +616,8 @@ await TrustPin.shared.setLogLevel(TrustPinLogLevel.none);
 
 | Class | Description |
 |-------|-------------|
-| `TrustPinDioInterceptor({instance?})` | Certificate pinning interceptor for Dio |
-| `TrustPinHttpClient({instance?})` | Certificate pinning wrapper for http.Client |
+| `TrustPinDioInterceptor({instance?, dio?})` | Certificate pinning interceptor for Dio; adds the app attestation header. Pass `dio` to follow redirects of attested requests |
+| `TrustPinHttpClient({instance?})` | Certificate pinning wrapper for http.Client; adds the app attestation header |
 
 Full API documentation: [trustpin-cloud.github.io/flutter.sdk](https://trustpin-cloud.github.io/flutter.sdk/)
 
@@ -610,11 +660,13 @@ try {
 
 ## Example App
 
-The `sample_app/` directory contains a complete example application demonstrating:
-- SDK initialization with `TrustPin.shared.setup()`
-- Certificate fetching with `TrustPin.shared.fetchCertificate()`
-- Connection testing with `TrustPinHttpClient`
-- Error handling and logging
+The `sample_app/` directory contains a complete example application, with the
+same two tabs as the native SDKs' samples:
+- **Pinning:** setup inline or from the native bundle file, connection testing
+  with `TrustPinHttpClient`, certificate fetching, validation events and logs.
+- **Attestation:** `trustpin_attest` setup, a protected call to a sample API
+  with a token bound to the `Authorization` header, a sensitive call with an
+  assertion, sign-out, reset, the attestation state, events and logs. See [sample_app/README.md](sample_app/README.md).
 
 Run the example:
 

@@ -1,0 +1,113 @@
+name: Pull request checks
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The minimum Flutter version both packages support.
+  FLUTTER_VERSION: '3.44.0'
+
+jobs:
+  dart:
+    name: Analyze and test (Dart)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: trustpin_sdk
+        run: |
+          flutter pub get
+          dart analyze --fatal-infos lib test
+          flutter test
+
+      - name: trustpin_attest
+        working-directory: trustpin_attest
+        run: |
+          flutter pub get
+          dart analyze --fatal-infos
+          flutter test
+
+      - name: sample_app
+        working-directory: sample_app
+        run: |
+          flutter pub get
+          dart analyze
+          flutter test
+
+  android:
+    name: Build and test (Android)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Sample configuration from the templates
+        working-directory: sample_app
+        run: |
+          cp android/app/src/main/assets/trustpin.json.example android/app/src/main/assets/trustpin.json
+          cp assets/api-test.json.example assets/api-test.json
+
+      - name: Build the sample app
+        working-directory: sample_app
+        run: flutter build apk --debug
+
+      - name: Plugin unit tests (Kotlin)
+        working-directory: sample_app/android
+        run: ./gradlew :trustpin_sdk:testDebugUnitTest :trustpin_attest:testDebugUnitTest
+
+  apple:
+    name: Build (iOS and macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Sample configuration from the templates
+        working-directory: sample_app
+        run: |
+          cp ios/Runner/TrustPin-Info.plist.example ios/Runner/TrustPin-Info.plist
+          cp macos/Runner/TrustPin-Info.plist.example macos/Runner/TrustPin-Info.plist
+          cp assets/api-test.json.example assets/api-test.json
+
+      - name: iOS (simulator, unsigned)
+        working-directory: sample_app
+        run: flutter build ios --simulator --debug
+
+      # The macOS Runner signs with a development certificate (App Attest
+      # entitlement), which CI doesn't have: build it unsigned with xcodebuild
+      # after --config-only has prepared the Swift packages.
+      - name: macOS (unsigned)
+        working-directory: sample_app
+        run: |
+          flutter build macos --config-only --debug
+          xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner \
+            -configuration Debug -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" build

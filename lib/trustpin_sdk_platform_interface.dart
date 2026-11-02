@@ -158,4 +158,33 @@ abstract class TrustPinSDKPlatform extends PlatformInterface {
   }) {
     throw UnimplementedError('validateConnection() has not been implemented.');
   }
+
+  /// The headers the native instance's attestation provider supplies for a
+  /// request to [url], given the request's [method] and [headers].
+  ///
+  /// Empty when no provider is registered (the app doesn't use
+  /// `trustpin_attest`), the URL isn't HTTPS, or the provider doesn't answer
+  /// in time. When [instanceId] is null, the global default instance is used.
+  Future<Map<String, String>> attestationHeaders(
+    String url, {
+    String method = 'GET',
+    Map<String, String> headers = const {},
+    String? instanceId,
+  }) {
+    throw UnimplementedError('attestationHeaders() has not been implemented.');
+  }
+
+  /// The headers to send when a request is redirected to [url]: [headers]
+  /// without any attestation header, plus the provider's headers for [url].
+  ///
+  /// When [instanceId] is null, the global default instance is used.
+  Future<Map<String, String>> redirectedRequestHeaders(
+    String url, {
+    String method = 'GET',
+    Map<String, String> headers = const {},
+    String? instanceId,
+  }) {
+    throw UnimplementedError(
+        'redirectedRequestHeaders() has not been implemented.');
+  }
 }

@@ -5,25 +5,40 @@ publish_to: none
 
 environment:
   sdk: ^3.8.1
-  flutter: '>=3.3.0'
+  flutter: '>=3.44.0'
 
 dependencies:
   flutter:
     sdk: flutter
   trustpin_sdk:
     path: ../
+  trustpin_attest:
+    path: ../trustpin_attest
+  crypto: ^3.0.6
   http: ^1.1.0
   provider: ^6.1.2
   cupertino_icons: ^1.0.2
 
+# trustpin_attest depends on the published trustpin_sdk; build both from
+# this repository.
+dependency_overrides:
+  trustpin_sdk:
+    path: ../
+
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+  # The sample API's address and demo credentials: copy
+  # assets/api-test.json.example to assets/api-test.json (kept out of git).
+  assets:
+    - assets/
   config:
     enable-swift-package-manager: true
 

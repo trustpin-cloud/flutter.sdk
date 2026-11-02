@@ -68,6 +68,8 @@ class TrustPinSDKPlugin : FlutterPlugin, MethodCallHandler {
             Method.VALIDATE_CONNECTION -> handleValidateConnection(call, result)
             Method.AWAIT_CONFIGURATION -> handleAwaitConfiguration(call, result)
             Method.IS_CONFIGURATION_LOADED -> handleIsConfigurationLoaded(call, result)
+            Method.ATTESTATION_HEADERS -> handleAttestationHeaders(call, result)
+            Method.REDIRECTED_REQUEST_HEADERS -> handleRedirectedRequestHeaders(call, result)
             else -> result.notImplemented()
         }
     }

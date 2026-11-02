@@ -167,6 +167,31 @@ internal fun TrustPinSDKPlugin.handleIsConfigurationLoaded(call: MethodCall, res
     }
 }
 
+internal fun TrustPinSDKPlugin.handleAttestationHeaders(call: MethodCall, result: Result) {
+    execute(coroutineScope, result, ErrorCode.ATTESTATION_HEADERS) {
+        val request = call.attestationRequest()
+        val instanceId = call.optionalString(Arg.INSTANCE_ID)
+
+        suspend {
+            trustPinInstance(instanceId).attestationHeaders(request)
+        }
+    }
+}
+
+internal fun TrustPinSDKPlugin.handleRedirectedRequestHeaders(call: MethodCall, result: Result) {
+    execute(coroutineScope, result, ErrorCode.ATTESTATION_HEADERS) {
+        val request = call.attestationRequest()
+        val instanceId = call.optionalString(Arg.INSTANCE_ID)
+
+        suspend {
+            // Each header arrived as one value, so each list has one element;
+            // join defensively in case the SDK ever returns more.
+            trustPinInstance(instanceId).redirectedRequestHeaders(request)
+                .mapValues { (_, values) -> values.joinToString(", ") }
+        }
+    }
+}
+
 /**
  * Returns the named TrustPin instance, or the default one when [id] is null
  * or empty.

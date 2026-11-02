@@ -510,4 +510,72 @@ class TrustPin {
       throw TrustPinException.fromPlatformException(e);
     }
   }
+
+  /// The header TrustPin app attestation adds to requests. Redirect handling
+  /// removes it before a request moves to another URL.
+  static const String _attestationHeaderName = 'TrustPin-Attestation';
+
+  /// The attestation headers to add to a request for [url], for HTTP clients
+  /// other than [TrustPinHttpClient] and [TrustPinDioInterceptor], which add
+  /// them automatically.
+  ///
+  /// The headers come from the app attestation provider registered on this
+  /// instance by the `trustpin_attest` package. Without it, for a non-HTTPS
+  /// [url], or when no token is ready in time, the result is empty and the
+  /// request should go out without them. [headers] are the request's own
+  /// headers; a token bound to a header (for example `Authorization`) is
+  /// bound to its value here.
+  ///
+  /// ```dart
+  /// final extra = await TrustPin.shared.attestationHeaders(
+  ///   uri,
+  ///   headers: {'Authorization': 'Bearer $token'},
+  /// );
+  /// ```
+  ///
+  /// Never throws. If your client follows redirects, use
+  /// [redirectedRequestHeaders] for every hop.
+  Future<Map<String, String>> attestationHeaders(
+    Uri url, {
+    String method = 'GET',
+    Map<String, String> headers = const {},
+  }) async {
+    try {
+      return await TrustPinSDKPlatform.instance.attestationHeaders(
+        url.toString(),
+        method: method,
+        headers: headers,
+        instanceId: _instanceId,
+      );
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  /// The headers to send when a request is redirected to [url]: [headers]
+  /// without any attestation header, plus the attestation headers for [url].
+  ///
+  /// Call it for every redirect your client follows itself, so a header
+  /// meant for one host never reaches another. Never throws: if the platform
+  /// call fails, the result is [headers] without the attestation header.
+  Future<Map<String, String>> redirectedRequestHeaders(
+    Uri url, {
+    String method = 'GET',
+    Map<String, String> headers = const {},
+  }) async {
+    try {
+      return await TrustPinSDKPlatform.instance.redirectedRequestHeaders(
+        url.toString(),
+        method: method,
+        headers: headers,
+        instanceId: _instanceId,
+      );
+    } catch (_) {
+      return {
+        for (final entry in headers.entries)
+          if (entry.key.toLowerCase() != _attestationHeaderName.toLowerCase())
+            entry.key: entry.value,
+      };
+    }
+  }
 }

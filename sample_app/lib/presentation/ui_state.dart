@@ -45,4 +45,4 @@ class UiState {
   }
 }
 
-enum Status { notConfigured, configured, testing }
+enum Status { notConfigured, configured, testing, fetching }

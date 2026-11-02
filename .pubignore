@@ -4,3 +4,21 @@ docs/
 
 # Internal release-planning notes for unreleased versions.
 v*.MD
+
+# Other packages in this repository, anchored to the repository root:
+# trustpin_attest is published on its own, from its directory.
+/trustpin_attest/
+/sample_app/
+
+# A .pubignore replaces .gitignore for publishing, so the local build output
+# and caches .gitignore leaves out must be listed again here.
+build/
+.build/
+.swiftpm/
+Package.resolved
+*.iml
+*.bak
+/pubspec.lock
+
+# Repository tooling, not part of the package.
+release.sh

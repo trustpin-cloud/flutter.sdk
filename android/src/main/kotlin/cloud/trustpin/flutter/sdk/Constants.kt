@@ -10,6 +10,8 @@ internal object Method {
     const val VALIDATE_CONNECTION = "validateConnection"
     const val AWAIT_CONFIGURATION = "awaitConfiguration"
     const val IS_CONFIGURATION_LOADED = "isConfigurationLoaded"
+    const val ATTESTATION_HEADERS = "attestationHeaders"
+    const val REDIRECTED_REQUEST_HEADERS = "redirectedRequestHeaders"
 }
 
 /** Keys used in the method-call argument map. Keep in sync with the Dart side. */
@@ -28,6 +30,9 @@ internal object Arg {
     const val TIMEOUT_MS = "timeoutMs"
     const val ANDROID_FILE_NAME = "androidFileName"
     const val EMBEDDED_CONFIGURATION_FILE = "embeddedConfigurationFile"
+    const val URL = "url"
+    const val METHOD = "method"
+    const val HEADERS = "headers"
 }
 
 /** Error codes returned to Dart. Keep in sync with the Dart side. */
@@ -42,6 +47,7 @@ internal object ErrorCode {
     const val FETCH_CERTIFICATE = "FETCH_CERTIFICATE_ERROR"
     const val VALIDATE_CONNECTION = "VALIDATE_CONNECTION_ERROR"
     const val AWAIT_CONFIGURATION = "AWAIT_CONFIGURATION_ERROR"
+    const val ATTESTATION_HEADERS = "ATTESTATION_HEADERS_ERROR"
 
     // Stable codes for native SDK error cases (see mapTrustPinError).
     const val INVALID_PROJECT_CONFIG = "INVALID_PROJECT_CONFIG"

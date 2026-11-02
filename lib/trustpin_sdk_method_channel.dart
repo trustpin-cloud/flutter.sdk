@@ -139,4 +139,39 @@ class MethodChannelTrustPinSDK extends TrustPinSDKPlatform {
       'instanceId': instanceId,
     });
   }
+
+  @override
+  Future<Map<String, String>> attestationHeaders(
+    String url, {
+    String method = 'GET',
+    Map<String, String> headers = const {},
+    String? instanceId,
+  }) =>
+      _headersCall('attestationHeaders', url, method, headers, instanceId);
+
+  @override
+  Future<Map<String, String>> redirectedRequestHeaders(
+    String url, {
+    String method = 'GET',
+    Map<String, String> headers = const {},
+    String? instanceId,
+  }) =>
+      _headersCall(
+          'redirectedRequestHeaders', url, method, headers, instanceId);
+
+  Future<Map<String, String>> _headersCall(
+    String name,
+    String url,
+    String method,
+    Map<String, String> headers,
+    String? instanceId,
+  ) async {
+    final result = await methodChannel.invokeMapMethod<String, String>(name, {
+      'url': url,
+      'method': method,
+      'headers': headers,
+      'instanceId': instanceId,
+    });
+    return result ?? const {};
+  }
 }

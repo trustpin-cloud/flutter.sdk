@@ -10,6 +10,8 @@ enum Method {
     static let validateConnection = "validateConnection"
     static let awaitConfiguration = "awaitConfiguration"
     static let isConfigurationLoaded = "isConfigurationLoaded"
+    static let attestationHeaders = "attestationHeaders"
+    static let redirectedRequestHeaders = "redirectedRequestHeaders"
 }
 
 /// Keys used in the method-call argument map. Keep in sync with the Dart side.
@@ -33,6 +35,9 @@ enum Arg {
     static let iosFileName = "iosFileName"
     static let macosFileName = "macosFileName"
     static let embeddedConfigurationFile = "embeddedConfigurationFile"
+    static let url = "url"
+    static let method = "method"
+    static let headers = "headers"
 }
 
 /// Keys of the validation- and log-event maps sent to Dart. Keep in sync
@@ -58,6 +63,7 @@ enum ErrorCode {
     static let fetchCertificate = "FETCH_CERTIFICATE_ERROR"
     static let validateConnection = "VALIDATE_CONNECTION_ERROR"
     static let awaitConfiguration = "AWAIT_CONFIGURATION_ERROR"
+    static let attestationHeaders = "ATTESTATION_HEADERS_ERROR"
 
     // Stable codes for native SDK error cases (see mapTrustPinError).
     static let invalidProjectConfig = "INVALID_PROJECT_CONFIG"
