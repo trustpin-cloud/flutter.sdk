@@ -54,7 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">TrustPinDioInterceptor</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-instance"><span class="type-annotation"><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span>, </span></li>
+      <span class="name ">TrustPinDioInterceptor</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-instance"><span class="type-annotation"><a href="../../trustpin_sdk/TrustPin-class.html">TrustPin</a>?</span> <span class="parameter-name">instance</span>, </span></li>
+<li><span class="parameter" id="param-dio"><span class="type-annotation"><a href="https://pub.dev/documentation/dio/5.11.1/dio/Dio-class.html">Dio</a>?</span> <span class="parameter-name">dio</span>, </span></li>
 </ol>})
     </section>
     
@@ -62,14 +63,17 @@
   <p>Validates HTTPS requests against <code>instance</code> (or <a href="../../trustpin_sdk/TrustPin/shared.html">TrustPin.shared</a> when
 null). <a href="../../trustpin_sdk/TrustPin/setup.html">TrustPin.setup</a> must have been called on that instance before
 making requests.</p>
+<p>Pass the <code>dio</code> this interceptor is added to, so it can follow the
+redirects of requests that carry an attestation header.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TrustPinDioInterceptor({TrustPin? instance})
-    : _instance = instance ?? TrustPin.shared;</code></pre>
+  <pre class="language-dart"><code class="language-dart">TrustPinDioInterceptor({TrustPin? instance, Dio? dio})
+    : _instance = instance ?? TrustPin.shared,
+      _dio = dio;</code></pre>
 </section>
 
 
@@ -97,7 +101,7 @@ making requests.</p>
 <footer>
   <span class="no-break">
     trustpin_sdk
-      6.4.0
+      7.1.0
   </span>
   
 </footer>
