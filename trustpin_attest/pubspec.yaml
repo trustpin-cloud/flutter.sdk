@@ -1,6 +1,6 @@
 name: trustpin_attest
 description: "TrustPin app attestation for Flutter: proves to your API that requests come from your genuine app on a genuine device, checked by your own TrustPin verifier."
-version: 7.1.0
+version: 7.1.1
 homepage: https://github.com/trustpin-cloud/flutter.sdk
 repository: https://github.com/trustpin-cloud/flutter.sdk/tree/main/trustpin_attest
 issue_tracker: https://github.com/trustpin-cloud/flutter.sdk/issues

@@ -40,7 +40,7 @@ Add TrustPin SDK to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  trustpin_sdk: ^7.1.0
+  trustpin_sdk: ^7.1.1
 ```
 
 Then install the package:
@@ -95,7 +95,7 @@ For sandboxed macOS apps, add the network client entitlement:
 - **Minimum SDK**: API 25 (Android 7.1)+
 - **Compile SDK**: API 36
 - **Kotlin**: 2.3.0+
-- **Native Dependencies**: TrustPin Kotlin SDK 7.1.x (automatically configured via Gradle)
+- **Native Dependencies**: TrustPin Kotlin SDK 7.1.1 or later within 7.1.x (automatically configured via Gradle)
 
 > The Flutter plugin declares `minSdk = 25` because the underlying TrustPin
 > Kotlin SDK requires it. Apps consuming the plugin must therefore
