@@ -122,7 +122,9 @@ set up first.
   request header.
 - `setTokenBinding(value)` binds to a fixed value, such as a session id.
 
-Each clears the other. Only a SHA-256 of the value leaves the device. A
+Each clears the other. `setTokenBinding(null)` removes the fixed binding
+only; `bindToHeader(null)` stops header binding and also clears a fixed
+binding. Only a SHA-256 of the value leaves the device. A
 binding change renews the token with the existing device key; it's not a new
 attestation.
 
@@ -181,6 +183,10 @@ import 'package:crypto/crypto.dart';
 
 final body = utf8.encode(jsonEncode({'amount': '1.00', 'to': 'demo'}));
 final headers = {'Authorization': 'Bearer $session'};
+// With header binding, ask for this request's token first, so it is bound to
+// this Authorization value; then add the assertion.
+headers.addAll(await TrustPinAttest.shared
+    .attestationHeaders(url, method: 'POST', headers: headers));
 headers.addAll(await TrustPinAttest.shared
     .assertionHeaders(Uint8List.fromList(sha256.convert(body).bytes)));
 await client.post(url, headers: headers, body: body);
@@ -221,6 +227,9 @@ flutter run --dart-define=TRUSTPIN_DEBUG_TOKEN=<token>
 - It's used on the iOS simulator and in debuggable Android builds
   (emulators and devices), never on iOS devices or macOS, and never sent in
   release builds.
+- On Android, a debug token identifies the app by the package name it runs
+  under, so a debug build with an `applicationIdSuffix` must be listed in the
+  policy as its own package.
 - Your policy (**Allow debug tokens**) and your verifier must both allow
   debug tokens. Their tokens carry `tp.env` `debug`, which production APIs
   refuse.
@@ -266,7 +275,7 @@ TrustPinAttest.shared.events.listen((event) {
 | `INVALID_CONFIGURATION` | A configuration value was rejected, or the file is missing |
 | `ALREADY_INITIALIZED` | `setup` was called again |
 | `NOT_SET_UP` | Called before `setup` |
-| `UNSUPPORTED_DEVICE` | App Attest is unsupported on this device (iOS, macOS) |
+| `UNSUPPORTED_DEVICE` | This device can't attest the app (for example, a Mac without App Attest), or new keys keep failing on it |
 | `EVIDENCE_UNAVAILABLE` | The device can't produce the evidence the policy requires |
 | `BINDING_REQUIRED` | The policy requires a binding and none is set yet |
 | `ATTESTATION_FAILED` | The verifier refused; see `reasons` |
